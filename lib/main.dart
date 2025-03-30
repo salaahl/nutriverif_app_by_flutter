@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 void main() {
   runApp(const MyApp());
@@ -28,6 +29,13 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final YoutubePlayerController _controller = YoutubePlayerController(
+    initialVideoId: 'D1jzT02IBRA?si=gKqH8EWw5KYl42we', // ID de la vidéo YouTube
+    flags: const YoutubePlayerFlags(
+      autoPlay: false, // Ne démarre pas automatiquement
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -174,9 +182,77 @@ class _MyHomePageState extends State<MyHomePage> {
               SizedBox(height: 35),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [Text('Sous texte')],
+                children: [
+                  ShaderMask(
+                    shaderCallback: (bounds) {
+                      return LinearGradient(
+                        colors: [
+                          Color(0xFF5D576B80),
+                          Color(0xFF2F2C36),
+                        ], // Dégradé de couleurs
+                        begin:
+                            Alignment.centerRight, // Début du gradient à droite
+                        end: Alignment.centerLeft, // Fin du gradient à gauche
+                      ).createShader(bounds);
+                    },
+                    child: Text(
+                      '+ de 1 082 462 produits référencés',
+                      style: TextStyle(
+                        fontFamily: 'Grand Hotel',
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                        color:
+                            Colors
+                                .white, // La couleur du texte sera "masquée" par le gradient
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(height: 50),
+              SizedBox(height: 80),
+              Wrap(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: YoutubePlayer(
+                      controller: _controller,
+                      showVideoProgressIndicator: true,
+                    ),
+                  ),
+                  SizedBox(height: 32),
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text:
+                              'NutriVérif est alimentée par "Open Food Facts", une base de données de produits alimentaires créée par tous et pour tous. Vous pouvez l\'utiliser pour faire de meilleurs choix alimentaires, et comme les données sont ouvertes, tout le monde peut les réutiliser pour tout usage.',
+                          style: TextStyle(
+                            backgroundColor: Color.fromRGBO(
+                              0,
+                              189,
+                              126,
+                              1,
+                            ), // Applique le surlignage seulement sur le texte
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  TextButton(
+                    onPressed: () {
+                      print('Next');
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('En savoir plus'),
+                        Icon(Icons.navigate_next_rounded),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [Text('Titre de la section "scores"')],
@@ -191,7 +267,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [Text('Nova Score')],
               ),
-              SizedBox(height: 50),
+              SizedBox(height: 80),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [Text('Titre de la section "produit démo"')],
@@ -201,7 +277,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [Text('Démo du produit')],
               ),
-              SizedBox(height: 50),
+              SizedBox(height: 80),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
