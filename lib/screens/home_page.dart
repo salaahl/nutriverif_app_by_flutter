@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'dart:async'; // Importe la bibliothèque pour les timers
+import 'package:app_nutriverif/providers/products_provider.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 import '../widgets/my_app_bar.dart';
@@ -12,6 +15,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  Timer? _debounce;
   final YoutubePlayerController _controller = YoutubePlayerController(
     initialVideoId: 'D1jzT02IBRA?si=gKqH8EWw5KYl42we', // ID de la vidéo YouTube
     flags: const YoutubePlayerFlags(autoPlay: false),
@@ -21,12 +25,19 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
 
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    final provider = Provider.of<ProductsProvider>(context);
+
+    // Vérifier si les produits sont déjà chargés, sinon appeler les méthodes pour les charger
+    if (!provider.productIsLoading && provider.product.id.isEmpty) {
+      provider.fetchProduct('8000500310427');
+    }
+
+    if (!provider.lastProductsIsLoading && provider.lastProducts.isEmpty) {
+      provider.fetchLastProducts();
+    }
+
+    final product = provider.product;
+
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(172),
@@ -87,6 +98,12 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     Expanded(
                       child: TextField(
+                        onChanged: (value) {
+                          if (_debounce?.isActive ?? false) _debounce!.cancel();
+                          _debounce = Timer(Duration(seconds: 3), () {
+                            provider.searchProducts(value, null, 'name');
+                          });
+                        },
                         decoration: InputDecoration(
                           hintText:
                               'Entrez un nom de produit, un code-barres, une marque ou un type d\'aliment',
@@ -123,13 +140,13 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                           contentPadding: const EdgeInsets.symmetric(
-                            vertical: 10.0, // p-2.5
-                            horizontal: 12.0, // px-12
+                            vertical: 10.0,
+                            horizontal: 12.0,
                           ),
                         ),
                         style: const TextStyle(
-                          color: Colors.black87, // text-gray-900
-                          fontSize: 14, // text-sm
+                          color: Colors.black87,
+                          fontSize: 14,
                         ),
                       ),
                     ),
@@ -139,7 +156,66 @@ class _HomePageState extends State<HomePage> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [Text("Résultats de recherche")],
+                  children: [
+                    Container(
+                      height:
+                          !provider.productsIsLoading ||
+                                  provider.products.isEmpty
+                              ? 0
+                              : 592, // 592 = hauteur de deux cartes + marge
+                      padding: EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Consumer<ProductsProvider>(
+                            builder: (context, provider, child) {
+                              return provider.productsIsLoading
+                                  ? Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(64),
+                                      child: const CircularProgressIndicator(),
+                                    ),
+                                  )
+                                  : Wrap(
+                                    children:
+                                        provider.products
+                                            .map(
+                                              (product) => Row(
+                                                children: [
+                                                  SizedBox(
+                                                    width:
+                                                        (screenWidth / 100) *
+                                                        1.5,
+                                                  ),
+                                                  ProductCard(
+                                                    imageUrl: product.image,
+                                                    title: product.brand,
+                                                    description: product.name,
+                                                    nutriscore:
+                                                        "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-${provider.product.nutriscore}-new-fr.svg",
+                                                    novaGroup:
+                                                        "https://static.openfoodfacts.org/images/attributes/dist/nova-group-${provider.product.novaGroup}.svg",
+                                                  ),
+                                                  SizedBox(
+                                                    width:
+                                                        (screenWidth / 100) *
+                                                        1.5,
+                                                  ),
+                                                ],
+                                              ),
+                                            )
+                                            .toList(),
+                                  );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -403,122 +479,178 @@ class _HomePageState extends State<HomePage> {
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: Image.asset(
-                              'assets/images/logo.png',
-                              width: 160,
+                            child: Consumer<ProductsProvider>(
+                              builder: (context, provider, child) {
+                                return provider.productIsLoading
+                                    ? Center(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(64),
+                                        child:
+                                            const CircularProgressIndicator(),
+                                      ),
+                                    )
+                                    : Image.network(
+                                      provider.product.image,
+                                      width: 160,
+                                    );
+                              },
                             ),
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text.rich(
-                            TextSpan(
-                              text: "Nutella, Ferrero - ",
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: Color(0xFF00BD7E),
-                              ),
+                    Consumer<ProductsProvider>(
+                      builder: (context, provider, child) {
+                        return provider.productIsLoading
+                            ? Column()
+                            : Column(
                               children: [
-                                TextSpan(
-                                  text:
-                                      "Biscuit fourré à la pâte à tartiner aux noisettes et au cacao Nutella",
-                                  style: TextStyle(color: Colors.black),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text.rich(
+                                        TextSpan(
+                                          text: provider.product.brand,
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            color: Color(0xFF00BD7E),
+                                          ),
+                                          children: [
+                                            TextSpan(
+                                              text:
+                                                  provider.product.genericName,
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Text(
+                                      "Dernière mise à jour : ${provider.product.lastUpdate}",
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                // Nutriscore
+                                Row(
+                                  children: [
+                                    Container(
+                                      width:
+                                          double
+                                              .infinity, // Prend toute la largeur possible
+                                      constraints: BoxConstraints(
+                                        maxWidth: 100,
+                                      ), // Largeur maximale de l'image
+                                      child: Image.network(
+                                        "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-${provider.product.nutriscore}-new-fr.svg",
+                                        fit:
+                                            BoxFit
+                                                .cover, // Ajuste l'image à son conteneur
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                // Nova
+                                Row(
+                                  children: [
+                                    Container(
+                                      width:
+                                          double
+                                              .infinity, // Prend toute la largeur possible
+                                      constraints: BoxConstraints(
+                                        maxWidth: 40,
+                                      ), // Largeur maximale de l'image
+                                      child: Image.network(
+                                        "https://static.openfoodfacts.org/images/attributes/dist/nova-group-${provider.product.novaGroup}.svg",
+                                        fit:
+                                            BoxFit
+                                                .cover, // Ajuste l'image à son conteneur
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Wrap(
+                                        children: [
+                                          Container(
+                                            margin: const EdgeInsets.only(
+                                              right: 8,
+                                              top: 16,
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 6,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.green,
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                            ),
+                                            child: Text(
+                                              'label',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 32),
+                                Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text(
+                                          "Quantité : ${product.quantity}",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        Text("Code-barres : ${product.id}"),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        Text.rich(
+                                          TextSpan(
+                                            text: "Plus d'informations : ",
+                                            children: [
+                                              TextSpan(
+                                                text: product.link,
+                                                style: TextStyle(
+                                                  decoration:
+                                                      TextDecoration.underline,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(children: [Text("Dernière mise à jour : 22/03/2025")]),
-                    const SizedBox(height: 8),
-                    // Nutriscore
-                    Row(
-                      children: [
-                        Container(
-                          width:
-                              double
-                                  .infinity, // Prend toute la largeur possible
-                          constraints: BoxConstraints(
-                            maxWidth: 100,
-                          ), // Largeur maximale de l'image
-                          child: Image.asset(
-                            "assets/images/logo.png",
-                            fit: BoxFit.cover, // Ajuste l'image à son conteneur
-                          ),
-                        ),
-                      ],
-                    ),
-                    // Nova
-                    Row(
-                      children: [
-                        Container(
-                          width:
-                              double
-                                  .infinity, // Prend toute la largeur possible
-                          constraints: BoxConstraints(
-                            maxWidth: 40,
-                          ), // Largeur maximale de l'image
-                          child: Image.asset(
-                            "assets/images/logo.png",
-                            fit: BoxFit.cover, // Ajuste l'image à son conteneur
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Wrap(
-                            children: [
-                              _buildNutrientTag("Matières grasses", Colors.red),
-                              _buildNutrientTag("Sel", Colors.yellow),
-                              _buildNutrientTag(
-                                "Graisses saturées",
-                                Colors.red,
-                              ),
-                              _buildNutrientTag("Sucres", Colors.red),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 32),
-                    Column(
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              "Quantité : 304 g",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Row(children: [Text("Code-barres : 8000500310427")]),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Text.rich(
-                              TextSpan(
-                                text: "Plus d'informations : ",
-                                children: [
-                                  TextSpan(
-                                    text: "...",
-                                    style: TextStyle(
-                                      decoration: TextDecoration.underline,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                            );
+                      },
                     ),
                   ],
                 ),
@@ -578,42 +710,44 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       SizedBox(height: 16),
-                      Wrap(
-                        children: [
-                          SizedBox(width: (screenWidth / 100) * 1.5),
-                          ProductCard(
-                            imageUrl: 'assets/images/logo.png',
-                            title: 'Gerblé',
-                            description: 'Biscuits au édulcorants',
-                            nutriscore: 'assets/images/logo.png',
-                            novaGroup: 'assets/images/logo.png',
-                          ),
-                          SizedBox(width: (screenWidth / 100) * 1.5),
-                          ProductCard(
-                            imageUrl: 'assets/images/logo.png',
-                            title: 'Gerblé',
-                            description: 'Biscuits au édulcorants',
-                            nutriscore: 'assets/images/logo.png',
-                            novaGroup: 'assets/images/logo.png',
-                          ),
-                          SizedBox(width: (screenWidth / 100) * 1.5),
-                          ProductCard(
-                            imageUrl: 'assets/images/logo.png',
-                            title: 'Gerblé',
-                            description: 'Biscuits au édulcorants',
-                            nutriscore: 'assets/images/logo.png',
-                            novaGroup: 'assets/images/logo.png',
-                          ),
-                          SizedBox(width: (screenWidth / 100) * 1.5),
-                          ProductCard(
-                            imageUrl: 'assets/images/logo.png',
-                            title: 'Gerblé',
-                            description: 'Biscuits au édulcorants',
-                            nutriscore: 'assets/images/logo.png',
-                            novaGroup: 'assets/images/logo.png',
-                          ),
-                          SizedBox(width: (screenWidth / 100) * 1.5),
-                        ],
+                      Consumer<ProductsProvider>(
+                        builder: (context, provider, child) {
+                          return provider.suggestedProductsIsLoading
+                              ? Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(64),
+                                  child: const CircularProgressIndicator(),
+                                ),
+                              )
+                              : Wrap(
+                                children:
+                                    provider.suggestedProducts
+                                        .map(
+                                          (product) => Row(
+                                            children: [
+                                              SizedBox(
+                                                width:
+                                                    (screenWidth / 100) * 1.5,
+                                              ),
+                                              ProductCard(
+                                                imageUrl: product.image,
+                                                title: product.brand,
+                                                description: product.name,
+                                                nutriscore:
+                                                    "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-${provider.product.nutriscore}-new-fr.svg",
+                                                novaGroup:
+                                                    "https://static.openfoodfacts.org/images/attributes/dist/nova-group-${provider.product.novaGroup}.svg",
+                                              ),
+                                              SizedBox(
+                                                width:
+                                                    (screenWidth / 100) * 1.5,
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                        .toList(),
+                              );
+                        },
                       ),
                     ],
                   ),
@@ -650,31 +784,94 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
             const SizedBox(height: 80),
-            const Column(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Text('Titre de la section "dernières produits ajoutés"'),
+                Expanded(
+                  child: const Text.rich(
+                    TextSpan(
+                      text: "Produits",
+                      children: [
+                        TextSpan(
+                          text: " recemment ",
+                          style: TextStyle(color: Color(0xFF00BD7E)),
+                        ),
+                        TextSpan(text: "ajoutés"),
+                      ],
+                    ),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 24),
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 25),
-            const Column(children: [Text('Liste des produits')]),
+            Container(
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Consumer<ProductsProvider>(
+                    builder: (context, provider, child) {
+                      return provider.lastProductsIsLoading
+                          ? Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(64),
+                              child: const CircularProgressIndicator(),
+                            ),
+                          )
+                          : Wrap(
+                            children:
+                                provider.lastProducts
+                                    .map(
+                                      (product) => Row(
+                                        children: [
+                                          SizedBox(
+                                            width: (screenWidth / 100) * 1.5,
+                                          ),
+                                          ProductCard(
+                                            imageUrl: product.image,
+                                            title: product.brand,
+                                            description: product.name,
+                                            nutriscore:
+                                                "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-${provider.product.nutriscore}-new-fr.svg",
+                                            novaGroup:
+                                                "https://static.openfoodfacts.org/images/attributes/dist/nova-group-${provider.product.novaGroup}.svg",
+                                          ),
+                                          SizedBox(
+                                            width: (screenWidth / 100) * 1.5,
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                    .toList(),
+                          );
+                    },
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              children: [
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(64),
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      height: 160,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
-}
-
-Widget _buildNutrientTag(String label, Color color) {
-  return Container(
-    margin: const EdgeInsets.only(right: 8, top: 16),
-    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-    decoration: BoxDecoration(
-      color: color,
-      borderRadius: BorderRadius.circular(20),
-    ),
-    child: Text(
-      label,
-      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-    ),
-  );
 }
