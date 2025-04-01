@@ -192,7 +192,7 @@ class ProductsProvider with ChangeNotifier {
 
   Future<void> fetchSuggestedProducts({String? id, String? category}) async {
     if (_suggestedProductsIsLoading)
-      return; // Ne pas refaire un appel si déjà en cours
+      return;
 
     id ??= _product.id;
     category ??= _product.category;
