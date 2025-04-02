@@ -37,7 +37,7 @@ class Product {
   List<String> categories;
   String lastUpdate;
   String nutriscore;
-  dynamic novaGroup;
+  dynamic nova;
   String quantity;
   String servingSize;
   String ingredients;
@@ -55,7 +55,7 @@ class Product {
     required this.categories,
     required this.lastUpdate,
     required this.nutriscore,
-    required this.novaGroup,
+    required this.nova,
     required this.quantity,
     required this.servingSize,
     required this.ingredients,
@@ -80,7 +80,7 @@ class Product {
               ).toString()
               : '',
       nutriscore: json['nutriscore_grade'] ?? 'unknown',
-      novaGroup: json['nova_group'] ?? 'unknown',
+      nova: json['nova_group'] ?? 'unknown',
       quantity: json['quantity'] ?? '',
       servingSize: json['serving_size'] ?? '',
       ingredients: json['ingredients_text_with_allergens_fr'] ?? '',

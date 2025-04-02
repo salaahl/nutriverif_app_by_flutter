@@ -6,6 +6,7 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 import '../widgets/my_app_bar.dart';
 import '../widgets/product_card.dart';
+import '../models/model_products.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,6 +22,47 @@ class _HomePageState extends State<HomePage> {
     flags: const YoutubePlayerFlags(autoPlay: false),
   );
 
+  final productIsLoading = false;
+  final productsIsLoading = false;
+  final suggestedProductsIsLoading = false;
+  final lastProductsIsLoading = false;
+
+  final List<Products> _searchProducts = List.generate(
+    4,
+    (index) => Products(
+      id: '123456789',
+      image: 'assets/images/logo.png',
+      brand: 'Produit $index',
+      name: 'Nom du produit $index',
+      nutriscore: 'assets/images/logo.png',
+      nova: 'assets/images/logo.png',
+    ),
+  );
+
+  final List<Products> _suggestedProducts = List.generate(
+    4,
+    (index) => Products(
+      id: '123456789',
+      image: 'assets/images/logo.png',
+      brand: 'Produit $index',
+      name: 'Nom du produit $index',
+      nutriscore: 'assets/images/logo.png',
+      nova: 'assets/images/logo.png',
+    ),
+  );
+
+  final List<Products> _lastProducts = List.generate(
+    4,
+    (index) => Products(
+      id: '123456789',
+      image: 'assets/images/logo.png',
+      brand: 'Produit $index',
+      name: 'Nom du produit $index',
+      nutriscore: 'assets/images/logo.png',
+      nova: 'assets/images/logo.png',
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -28,15 +70,40 @@ class _HomePageState extends State<HomePage> {
     final provider = Provider.of<ProductsProvider>(context);
 
     // Vérifier si les produits sont déjà chargés, sinon appeler les méthodes pour les charger
-    if (!provider.productIsLoading && provider.product.id.isEmpty) {
+    if (!productIsLoading && provider.product.id.isEmpty) {
       provider.fetchProduct('8000500310427');
     }
 
-    if (!provider.lastProductsIsLoading && provider.lastProducts.isEmpty) {
+    if (!lastProductsIsLoading && provider.lastProducts.isEmpty) {
       provider.fetchLastProducts();
     }
 
-    final product = provider.product;
+    // final product = provider.product;
+    final product = Product(
+      id: '123456789',
+      image: 'assets/images/logo.png',
+      brand: 'Produit',
+      category: 'Catégorie',
+      categories: ['Catégorie 1', 'Catégorie 2'],
+      lastUpdate: '01/01/2023',
+      quantity: '300g',
+      servingSize: '100g',
+      link: 'assets/images/logo.png',
+      ingredients: String.fromCharCode(33),
+      nutriments: {
+        'energy-kcal_100g': '100',
+        'carbohydrates_100g': '10',
+        'fat_100g': '5',
+        'saturated-fat_100g': '2',
+        'sugars_100g': '5',
+        'salt_100g': '0.5',
+      },
+      nutrientLevels: 'saturated-fat_100g',
+      genericName: 'Nom du produit',
+      nutriscore: 'assets/images/logo.png',
+      nova: 'assets/images/logo.png',
+      manufacturingPlace: 'France',
+    );
 
     return Scaffold(
       appBar: PreferredSize(
@@ -159,8 +226,7 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     Container(
                       height:
-                          !provider.productsIsLoading ||
-                                  provider.products.isEmpty
+                          !productsIsLoading || provider.products.isEmpty
                               ? 0
                               : 592, // 592 = hauteur de deux cartes + marge
                       padding: EdgeInsets.all(16),
@@ -173,7 +239,7 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           Consumer<ProductsProvider>(
                             builder: (context, provider, child) {
-                              return provider.productsIsLoading
+                              return productsIsLoading
                                   ? Center(
                                     child: Padding(
                                       padding: const EdgeInsets.all(64),
@@ -182,7 +248,7 @@ class _HomePageState extends State<HomePage> {
                                   )
                                   : Wrap(
                                     children:
-                                        provider.products
+                                        _searchProducts
                                             .map(
                                               (product) => Row(
                                                 children: [
@@ -192,13 +258,14 @@ class _HomePageState extends State<HomePage> {
                                                         1.5,
                                                   ),
                                                   ProductCard(
+                                                    widthAjustment: 32,
                                                     imageUrl: product.image,
                                                     title: product.brand,
                                                     description: product.name,
                                                     nutriscore:
-                                                        "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-${provider.product.nutriscore}-new-fr.svg",
-                                                    novaGroup:
-                                                        "https://static.openfoodfacts.org/images/attributes/dist/nova-group-${provider.product.novaGroup}.svg",
+                                                        "assets/images/logo.png",
+                                                    nova:
+                                                        "assets/images/logo.png",
                                                   ),
                                                   SizedBox(
                                                     width:
@@ -481,7 +548,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                             child: Consumer<ProductsProvider>(
                               builder: (context, provider, child) {
-                                return provider.productIsLoading
+                                return productIsLoading
                                     ? Center(
                                       child: Padding(
                                         padding: const EdgeInsets.all(64),
@@ -489,10 +556,7 @@ class _HomePageState extends State<HomePage> {
                                             const CircularProgressIndicator(),
                                       ),
                                     )
-                                    : Image.network(
-                                      provider.product.image,
-                                      width: 160,
-                                    );
+                                    : Image.asset(product.image, width: 160);
                               },
                             ),
                           ),
@@ -502,7 +566,7 @@ class _HomePageState extends State<HomePage> {
                     const SizedBox(height: 16),
                     Consumer<ProductsProvider>(
                       builder: (context, provider, child) {
-                        return provider.productIsLoading
+                        return productIsLoading
                             ? Column()
                             : Column(
                               children: [
@@ -511,15 +575,14 @@ class _HomePageState extends State<HomePage> {
                                     Expanded(
                                       child: Text.rich(
                                         TextSpan(
-                                          text: provider.product.brand,
+                                          text: "${product.brand} - ",
                                           style: TextStyle(
                                             fontSize: 20,
                                             color: Color(0xFF00BD7E),
                                           ),
                                           children: [
                                             TextSpan(
-                                              text:
-                                                  provider.product.genericName,
+                                              text: product.genericName,
                                               style: TextStyle(
                                                 color: Colors.black,
                                               ),
@@ -533,7 +596,7 @@ class _HomePageState extends State<HomePage> {
                                 Row(
                                   children: [
                                     Text(
-                                      "Dernière mise à jour : ${provider.product.lastUpdate}",
+                                      "Dernière mise à jour : ${product.lastUpdate}",
                                     ),
                                   ],
                                 ),
@@ -548,8 +611,8 @@ class _HomePageState extends State<HomePage> {
                                       constraints: BoxConstraints(
                                         maxWidth: 100,
                                       ), // Largeur maximale de l'image
-                                      child: Image.network(
-                                        "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-${provider.product.nutriscore}-new-fr.svg",
+                                      child: Image.asset(
+                                        "assets/images/logo.png",
                                         fit:
                                             BoxFit
                                                 .cover, // Ajuste l'image à son conteneur
@@ -567,8 +630,8 @@ class _HomePageState extends State<HomePage> {
                                       constraints: BoxConstraints(
                                         maxWidth: 40,
                                       ), // Largeur maximale de l'image
-                                      child: Image.network(
-                                        "https://static.openfoodfacts.org/images/attributes/dist/nova-group-${provider.product.novaGroup}.svg",
+                                      child: Image.asset(
+                                        "assets/images/logo.png",
                                         fit:
                                             BoxFit
                                                 .cover, // Ajuste l'image à son conteneur
@@ -654,7 +717,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 64),
+                const SizedBox(height: 32),
                 Row(
                   children: [
                     Expanded(
@@ -712,7 +775,7 @@ class _HomePageState extends State<HomePage> {
                       SizedBox(height: 16),
                       Consumer<ProductsProvider>(
                         builder: (context, provider, child) {
-                          return provider.suggestedProductsIsLoading
+                          return suggestedProductsIsLoading
                               ? Center(
                                 child: Padding(
                                   padding: const EdgeInsets.all(64),
@@ -720,29 +783,19 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               )
                               : Wrap(
+                                alignment: WrapAlignment.spaceBetween,
+                                spacing: screenWidth / 100 * 4,
                                 children:
-                                    provider.suggestedProducts
+                                    _suggestedProducts
                                         .map(
-                                          (product) => Row(
-                                            children: [
-                                              SizedBox(
-                                                width:
-                                                    (screenWidth / 100) * 1.5,
-                                              ),
-                                              ProductCard(
-                                                imageUrl: product.image,
-                                                title: product.brand,
-                                                description: product.name,
-                                                nutriscore:
-                                                    "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-${provider.product.nutriscore}-new-fr.svg",
-                                                novaGroup:
-                                                    "https://static.openfoodfacts.org/images/attributes/dist/nova-group-${provider.product.novaGroup}.svg",
-                                              ),
-                                              SizedBox(
-                                                width:
-                                                    (screenWidth / 100) * 1.5,
-                                              ),
-                                            ],
+                                          (product) => ProductCard(
+                                            widthAjustment: 32,
+                                            imageUrl: product.image,
+                                            title: product.brand,
+                                            description: product.name,
+                                            nutriscore:
+                                                "assets/images/logo.png",
+                                            nova: "assets/images/logo.png",
                                           ),
                                         )
                                         .toList(),
@@ -817,7 +870,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   Consumer<ProductsProvider>(
                     builder: (context, provider, child) {
-                      return provider.lastProductsIsLoading
+                      return lastProductsIsLoading
                           ? Center(
                             child: Padding(
                               padding: const EdgeInsets.all(64),
@@ -825,27 +878,18 @@ class _HomePageState extends State<HomePage> {
                             ),
                           )
                           : Wrap(
+                            alignment: WrapAlignment.spaceBetween,
+                            spacing: screenWidth / 100 * 4,
                             children:
-                                provider.lastProducts
+                                _lastProducts
                                     .map(
-                                      (product) => Row(
-                                        children: [
-                                          SizedBox(
-                                            width: (screenWidth / 100) * 1.5,
-                                          ),
-                                          ProductCard(
-                                            imageUrl: product.image,
-                                            title: product.brand,
-                                            description: product.name,
-                                            nutriscore:
-                                                "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-${provider.product.nutriscore}-new-fr.svg",
-                                            novaGroup:
-                                                "https://static.openfoodfacts.org/images/attributes/dist/nova-group-${provider.product.novaGroup}.svg",
-                                          ),
-                                          SizedBox(
-                                            width: (screenWidth / 100) * 1.5,
-                                          ),
-                                        ],
+                                      (product) => ProductCard(
+                                        widthAjustment: 32,
+                                        imageUrl: product.image,
+                                        title: product.brand,
+                                        description: product.name,
+                                        nutriscore: "assets/images/logo.png",
+                                        nova: "assets/images/logo.png",
                                       ),
                                     )
                                     .toList(),

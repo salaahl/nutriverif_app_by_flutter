@@ -224,7 +224,7 @@ class ProductsProvider with ChangeNotifier {
                                 score.indexOf(_product.nutriscore) &&
                             e['nova_group'] is num &&
                             e['nova_group'] <
-                                num.parse(_product.novaGroup.toString()))) &&
+                                num.parse(_product.nova.toString()))) &&
                     (e['completeness'] as double) >= 0.35,
               )
               .toList()
