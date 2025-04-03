@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:app_nutriverif/screens/home_page.dart';
 import 'package:app_nutriverif/screens/about_page.dart';
+import 'package:app_nutriverif/screens/products_page.dart';
+import 'package:app_nutriverif/screens/product_page.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -16,10 +18,10 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => HomePage(),
         '/about': (context) => AboutPage(),
-        '/products': (context) => Placeholder(),
-        '/products/:productId': (context) => Placeholder(),
+        '/products': (context) => ProductPage(),
+        '/products/:productId': (context) => ProductPage(),
       },
-      initialRoute: '/',
+      initialRoute: '/products/:productId',
     );
   }
 }
