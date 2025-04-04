@@ -42,7 +42,7 @@ class Product {
   String servingSize;
   String ingredients;
   Map<String, String> nutriments;
-  String nutrientLevels;
+  Map<String, String> nutrientLevels;
   String manufacturingPlace;
   String link;
 
@@ -85,7 +85,7 @@ class Product {
       servingSize: json['serving_size'] ?? '',
       ingredients: json['ingredients_text_with_allergens_fr'] ?? '',
       nutriments: Map<String, String>.from(json['nutriments'] ?? {}),
-      nutrientLevels: json['nutrient_levels'] ?? '',
+      nutrientLevels: Map<String, String>.from(json['nutrient_levels'] ?? {}),
       manufacturingPlace: json['manufacturing_places'] ?? '',
       link: json['link'] ?? '',
     );

@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:app_nutriverif/providers/products_provider.dart';
 import '../widgets/my_app_bar.dart';
 import '../widgets/product_card.dart';
 import '../models/model_products.dart';
+import 'package:provider/provider.dart';
+import 'package:app_nutriverif/providers/products_provider.dart';
 
 class ProductSearchPage extends StatefulWidget {
-  const ProductSearchPage({super.key});
+  final String? query;
+  const ProductSearchPage({super.key, this.query});
 
   @override
   State<ProductSearchPage> createState() => _ProductSearchPageState();
@@ -26,7 +28,7 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
 
   final Map<String, String> _filters = {
     'Popularité': 'popularity_key',
-    'Nom du produit': 'product_name',
+    'Nom': 'product_name',
     'Date de création': 'created_t',
     'Nutriscore': 'nutriscore_score',
     'Nova Score': 'nova_score',
@@ -109,35 +111,35 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
+    final query = widget.query;
+
+    if (query != null) {
+      _searchProducts();
+    }
+
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(172),
         child: customAppBar(),
       ),
-      body: ListView(
-        children: [
-          Container(
-            width: MediaQuery.of(context).size.width,
-            // BoxDeco à sup
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Colors.black,
-                width: 2,
-              ), // Bordure noire autour du container
-            ),
-            padding: EdgeInsets.all(10.0),
-            margin: EdgeInsets.symmetric(vertical: 10),
-            child: Row(
+      body: SingleChildScrollView(
+        controller: _scrollController,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Barre de recherche
+            Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
-                      hintText:
-                          'Entrez un nom de produit, un code-barres, une marque ou un type d\'aliment',
+                      hintText: 'Entrez un nom de produit, un code-barres...',
                       hintStyle: const TextStyle(
-                        color: Colors.grey, // Texte gris pour le placeholder
+                        color: Colors.grey,
                         fontSize: 14,
                       ),
                       prefixIcon: const Padding(
@@ -163,7 +165,7 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(999.0),
                         borderSide: const BorderSide(
-                          color: Color(0xFF9CA3AF), // focus:border-gray-400
+                          color: Color(0xFF9CA3AF),
                           width: 4.0,
                         ),
                       ),
@@ -182,109 +184,74 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                       color: Colors.blue[800],
                       borderRadius: BorderRadius.circular(99),
                     ),
-                    child: Icon(Icons.search, color: Colors.white),
+                    child: const Icon(Icons.search, color: Colors.white),
                   ),
                   onPressed: _searchProducts,
                 ),
               ],
             ),
-          ),
-          Container(
-            width: MediaQuery.of(context).size.width,
-            // BoxDeco à sup
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Colors.blue,
-                width: 2,
-              ), // Bordure noire autour du container
-            ),
-            margin: EdgeInsets.only(top: 10),
-            child: Wrap(
+            const SizedBox(height: 12),
+            // Filtres
+            Wrap(
+              spacing: 12,
               children:
-                  _filters.entries
-                      .map(
-                        (filter) => Container(
-                          // BoxDeco à sup
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Colors.yellow,
-                              width: 2,
-                            ), // Bordure noire autour du container
-                          ),
-                          margin: EdgeInsets.only(right: 10, bottom: 10),
-                          child: FilterChip(
-                            label: Text(filter.key),
-                            selected: _selectedFilter == filter.value,
-                            onSelected: (selected) {
-                              setState(() => _selectedFilter = filter.value);
-                            },
-                            backgroundColor: Colors.grey,
-                            selectedColor: Color.fromRGBO(0, 189, 126, 1),
-                            labelStyle: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                            showCheckmark: false,
-                          ),
-                        ),
-                      )
-                      .toList(),
-            ),
-          ),
-          Expanded(
-            child:
-                _isLoading
-                    ? Center(child: CircularProgressIndicator())
-                    : SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Container(
-                        // BoxDeco à sup
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.brown,
-                            width: 2,
-                          ), // Bordure noire autour du container
-                        ),
-                        width: MediaQuery.of(context).size.width,
-                        child: Wrap(
-                          children: List.generate(_products.length, (index) {
-                            var product = _products[index];
-                            bool applyMargin = index % 2 == 0;
-
-                            return Container(
-                              margin:
-                                  applyMargin
-                                      ? EdgeInsets.only(
-                                        right:
-                                            MediaQuery.of(context).size.width /
-                                            100 *
-                                            4,
-                                      )
-                                      : EdgeInsets
-                                          .zero, // Applique le margin sur les éléments pairs
-                              child: ProductCard(
-                                widthAjustment: 16,
-                                imageUrl: product.image,
-                                title: product.brand,
-                                description: product.name,
-                                nutriscore: product.nutriscore,
-                                nova: product.nova,
-                              ),
-                            );
-                          }),
-                        ),
+                  _filters.entries.map((filter) {
+                    return FilterChip(
+                      label: Text(filter.key),
+                      selected: _selectedFilter == filter.value,
+                      onSelected: (selected) {
+                        setState(() => _selectedFilter = filter.value);
+                      },
+                      backgroundColor: Colors.grey,
+                      selectedColor: const Color.fromRGBO(0, 189, 126, 1),
+                      labelStyle: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
                       ),
-                    ),
-          ),
-        ],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      showCheckmark: false,
+                    );
+                  }).toList(),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Produits
+            if (_products.isEmpty && !_isLoading)
+              const Center(child: Text('Aucun produit trouvé')),
+
+            Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: List.generate(_products.length, (index) {
+                final product = _products[index];
+
+                return ProductCard(
+                  widthAjustment: 16,
+                  imageUrl: product.image,
+                  title: product.brand,
+                  description: product.name,
+                  nutriscore: product.nutriscore,
+                  nova: product.nova,
+                );
+              }),
+            ),
+
+            const SizedBox(height: 32),
+
+            // Loader bas de page
+            if (_isLoading)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
 }
-
-/* observations :
-1. Les calculs en MediaQuery sont tenables mais il faudra penser à leur soustraire par exemple le padding si j'en définis un plus tard, sinon ça débordera
-*/

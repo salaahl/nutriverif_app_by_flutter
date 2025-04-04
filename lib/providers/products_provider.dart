@@ -14,12 +14,14 @@ class ProductsProvider with ChangeNotifier {
     id: '123456789',
     image: 'assets/images/logo.png',
     brand: 'Produit',
+    genericName: 'Nom du produit',
     category: 'Catégorie',
     categories: ['Catégorie 1', 'Catégorie 2'],
+    nutriscore: 'assets/images/logo.png',
+    nova: 'assets/images/logo.png',
     lastUpdate: '01/01/2023',
     quantity: '300g',
     servingSize: '100g',
-    link: 'assets/images/logo.png',
     ingredients: String.fromCharCode(33),
     nutriments: {
       'energy-kcal_100g': '100',
@@ -29,14 +31,27 @@ class ProductsProvider with ChangeNotifier {
       'sugars_100g': '5',
       'salt_100g': '0.5',
     },
-    nutrientLevels: 'label',
-    genericName: 'Nom du produit',
-    nutriscore: 'assets/images/logo.png',
-    nova: 'assets/images/logo.png',
+    nutrientLevels: {
+      "fat": "high",
+      "salt": "low",
+      "saturated-fat": "high",
+      "sugars": "high"
+    },
     manufacturingPlace: 'France',
+    link: 'assets/images/logo.png',
   );
   bool _productIsLoading = false;
-  List<Products> _lastProducts = [];
+  List<Products> _lastProducts = List.generate(
+    4,
+    (index) => Products(
+      id: '123456789',
+      image: 'assets/images/logo.png',
+      brand: 'Produit $index',
+      name: 'Nom du produit $index',
+      nutriscore: 'assets/images/logo.png',
+      nova: 'assets/images/logo.png',
+    ),
+  );
   bool _lastProductsIsLoading = false;
   List<Products> _suggestedProducts = List.generate(
     4,

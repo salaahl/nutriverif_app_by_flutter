@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app_nutriverif/providers/products_provider.dart';
+import '../screens/products_page.dart';
 import '../widgets/my_app_bar.dart';
 import '../widgets/product_card.dart';
 import '../models/model_products.dart';
@@ -296,7 +297,7 @@ class ProductPage extends StatelessWidget {
         const SizedBox(height: 8),
         productImages(),
         const SizedBox(height: 8),
-        productLabel(),
+        productLabel(product.nutrientLevels),
         const SizedBox(height: 32),
         productDetailsBottom(context, product),
       ],
@@ -323,23 +324,44 @@ class ProductPage extends StatelessWidget {
     );
   }
 
-  // Affichage du label
-  Widget productLabel() {
+  // Affichage des niveaux de nutriments
+  Widget productLabel(Map<String, dynamic> nutrientLevels) {
     return Wrap(
-      children: [
-        Container(
-          margin: const EdgeInsets.only(right: 8, top: 16),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: Colors.green,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: const Text(
-            'label',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-        ),
-      ],
+      spacing: 8,
+      runSpacing: 8,
+      children:
+          nutrientLevels.entries.map((entry) {
+            Color bgColor;
+
+            switch (entry.value) {
+              case 'high':
+                bgColor = Colors.red;
+                break;
+              case 'moderate':
+                bgColor = Colors.orange;
+                break;
+              case 'low':
+                bgColor = Colors.green;
+                break;
+              default:
+                bgColor = Colors.grey;
+            }
+
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: bgColor,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                entry.key,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            );
+          }).toList(),
     );
   }
 
@@ -348,25 +370,60 @@ class ProductPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "Quantité : ${product.quantity}",
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
+        Text("Quantité :", style: const TextStyle(fontWeight: FontWeight.bold)),
+        Text(product.quantity),
         const SizedBox(height: 16),
         NutritionalTable(nutriments: product.nutriments),
         SizedBox(height: 32),
-        Text("Code-barres : ${product.id}"),
-        const SizedBox(height: 8),
-        Text.rich(
-          TextSpan(
-            text: "Plus d'informations : ",
-            children: [
-              TextSpan(
-                text: product.link,
-                style: const TextStyle(decoration: TextDecoration.underline),
-              ),
-            ],
-          ),
+        Text(
+          "Ingrédients :",
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        Text(product.ingredients),
+        const SizedBox(height: 16),
+        Text(
+          "Code-barres :",
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        Text(product.id),
+        const SizedBox(height: 16),
+        Text(
+          "Plus d'informations : ",
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        Text(product.link),
+        const SizedBox(height: 16),
+        Wrap(
+          spacing: 8,
+          children:
+              product.categories
+                  .map(
+                    (category) => ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.grey[400],
+                      ),
+                      onPressed:
+                          () => {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) =>
+                                        ProductSearchPage(query: category),
+                              ),
+                            ),
+                          },
+                      child: Text(
+                        "#$category",
+                        style: const TextStyle(
+                          inherit: true,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  )
+                  .toList(),
         ),
       ],
     );
@@ -387,6 +444,26 @@ class ProductPage extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.grey[200],
           borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: const Color.fromRGBO(255, 255, 255, 0.01),
+              offset: const Offset(0, 1),
+              blurRadius: 1,
+              spreadRadius: 0,
+            ),
+            BoxShadow(
+              color: const Color.fromRGBO(50, 50, 93, 0.025),
+              offset: const Offset(0, 50),
+              blurRadius: 100,
+              spreadRadius: -20,
+            ),
+            BoxShadow(
+              color: const Color.fromRGBO(0, 0, 0, 0.03),
+              offset: const Offset(0, 30),
+              blurRadius: 60,
+              spreadRadius: -30,
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

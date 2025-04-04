@@ -18,26 +18,44 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Timer? _debounce;
+  final TextEditingController _searchController = TextEditingController();
   final YoutubePlayerController _controller = YoutubePlayerController(
     initialVideoId: 'D1jzT02IBRA?si=gKqH8EWw5KYl42we', // ID de la vidéo YouTube
     flags: const YoutubePlayerFlags(autoPlay: false),
   );
 
+  bool productsIsLoading = false;
+  List<Products> _products = [];
+
+  Future<void> searchProducts() async {
+    setState(() => productsIsLoading = true);
+    await Future.delayed(Duration(seconds: 2));
+    setState(() {
+      _products = List.generate(
+        4,
+        (index) => Products(
+          id: '123456789',
+          image: 'assets/images/logo.png',
+          brand: 'Produit $index',
+          name: 'Nom du produit $index',
+          nutriscore: 'assets/images/logo.png',
+          nova: 'assets/images/logo.png',
+        ),
+      );
+
+      productsIsLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-
     // Variables relatives aux produits
-    final _provider = Provider.of<ProductsProvider>(context);
-    final _productsIsLoading = _provider.productsIsLoading;
-    final _products = _provider.products;
-    final _productIsLoading = _provider.productIsLoading;
-    final _product = _provider.product;
-    final _suggestedProductsIsLoading = _provider.suggestedProductsIsLoading;
-    final _suggestedProducts = _provider.suggestedProducts;
-    final _lastProductsIsLoading = _provider.lastProductsIsLoading;
-    final _lastProducts = _provider.lastProducts;
+    final provider = Provider.of<ProductsProvider>(context);
+    final productIsLoading = provider.productIsLoading;
+    final product = provider.product;
+    final suggestedProducts = provider.suggestedProducts;
+    final lastProductsIsLoading = provider.lastProductsIsLoading;
+    final lastProducts = provider.lastProducts;
 
     /* Vérifier si les produits sont déjà chargés, sinon appeler les méthodes pour les charger
     if (!productIsLoading && provider.product.id.isEmpty) {
@@ -104,23 +122,15 @@ class _HomePageState extends State<HomePage> {
             Column(
               children: [
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Expanded(
                       child: TextField(
-                        onChanged: (value) {
-                          if (_debounce?.isActive ?? false) _debounce!.cancel();
-                          _debounce = Timer(Duration(seconds: 3), () {
-                            _provider.searchProducts(value, null, 'name');
-                          });
-                        },
+                        controller: _searchController,
                         decoration: InputDecoration(
                           hintText:
-                              'Entrez un nom de produit, un code-barres, une marque ou un type d\'aliment',
+                              'Entrez un nom de produit, un code-barres...',
                           hintStyle: const TextStyle(
-                            color:
-                                Colors.grey, // Texte gris pour le placeholder
+                            color: Colors.grey,
                             fontSize: 14,
                           ),
                           prefixIcon: const Padding(
@@ -146,7 +156,7 @@ class _HomePageState extends State<HomePage> {
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(999.0),
                             borderSide: const BorderSide(
-                              color: Color(0xFF9CA3AF), // focus:border-gray-400
+                              color: Color(0xFF9CA3AF),
                               width: 4.0,
                             ),
                           ),
@@ -161,73 +171,94 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
-                  ],
-                ),
-                SizedBox(height: 32),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      height:
-                          !_productsIsLoading || _products.isEmpty
-                              ? 0
-                              : 592, // 592 = hauteur de deux cartes + marge
-                      padding: EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(16),
+                    IconButton(
+                      icon: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.blue[800],
+                          borderRadius: BorderRadius.circular(99),
+                        ),
+                        child: const Icon(Icons.search, color: Colors.white),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Consumer<ProductsProvider>(
-                            builder: (context, provider, child) {
-                              return _productsIsLoading
-                                  ? Center(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(64),
-                                      child: const CircularProgressIndicator(),
-                                    ),
-                                  )
-                                  : Wrap(
-                                    children:
-                                        _products
-                                            .map(
-                                              (product) => Row(
-                                                children: [
-                                                  SizedBox(
-                                                    width:
-                                                        (screenWidth / 100) *
-                                                        1.5,
-                                                  ),
-                                                  ProductCard(
-                                                    widthAjustment: 32,
-                                                    imageUrl: product.image,
-                                                    title: product.brand,
-                                                    description: product.name,
-                                                    nutriscore:
-                                                        "assets/images/logo.png",
-                                                    nova:
-                                                        "assets/images/logo.png",
-                                                  ),
-                                                  SizedBox(
-                                                    width:
-                                                        (screenWidth / 100) *
-                                                        1.5,
-                                                  ),
-                                                ],
-                                              ),
-                                            )
-                                            .toList(),
-                                  );
-                            },
-                          ),
-                        ],
-                      ),
+                      onPressed: searchProducts,
                     ),
                   ],
                 ),
+                SizedBox(height: 32),
+                _products.isEmpty && !productsIsLoading
+                    ? SizedBox.shrink() // Si aucun produit et pas de chargement, on n'affiche rien
+                    : Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              productsIsLoading
+                                  ? ProductPage().loadingWidget()
+                                  : Wrap(
+                                    alignment: WrapAlignment.spaceBetween,
+                                    spacing:
+                                        MediaQuery.of(context).size.width /
+                                        100 *
+                                        4,
+                                    children:
+                                        _products.map((product) {
+                                          return ProductCard(
+                                            widthAjustment: 32,
+                                            imageUrl: product.image,
+                                            title: product.brand,
+                                            description: product.name,
+                                            nutriscore:
+                                                "assets/images/logo.png",
+                                            nova: "assets/images/logo.png",
+                                          );
+                                        }).toList(),
+                                  ),
+                            ],
+                          ),
+                        ),
+                        if (_products.length ==
+                            4) // Si la liste contient 4 produits
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pushNamed(
+                                    context,
+                                    '/products',
+                                    arguments: {
+                                      'query': _searchController.text,
+                                    }, // Passe le terme de recherche
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  backgroundColor: const Color.fromRGBO(
+                                    0,
+                                    189,
+                                    126,
+                                    1,
+                                  ), // Couleur du bouton
+                                ),
+                                child: const Icon(
+                                  Icons.add,
+                                  size: 24,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
               ],
             ),
             const SizedBox(height: 35),
@@ -339,7 +370,10 @@ class _HomePageState extends State<HomePage> {
                       onTap: () {
                         Navigator.pushNamed(context, '/about');
                       },
-                      child: Text('En savoir plus'),
+                      child: Text(
+                        'En savoir plus',
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
                     ),
                     SizedBox(width: 8),
                     Icon(Icons.arrow_forward_rounded, size: 18),
@@ -483,32 +517,19 @@ class _HomePageState extends State<HomePage> {
                 Column(
                   children: [
                     // Section Produit Principal
-                    if (_productIsLoading)
+                    if (productIsLoading)
                       ProductPage().loadingWidget()
                     else ...[
-                      ProductPage().productDetails(context, _product),
+                      ProductPage().productDetails(context, product),
                       const SizedBox(height: 32),
                     ],
 
                     // Section Alternatives
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color.fromRGBO(0, 0, 0, 0.15),
-                            spreadRadius: 2,
-                            blurRadius: 6,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: ProductPage().alternativeProducts(
-                        context,
-                        _provider,
-                        ProductPage().loadingWidget(),
-                        _suggestedProducts,
-                      ),
+                    ProductPage().alternativeProducts(
+                      context,
+                      provider,
+                      ProductPage().loadingWidget(),
+                      suggestedProducts,
                     ),
                   ],
                 ),
@@ -516,7 +537,10 @@ class _HomePageState extends State<HomePage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.arrow_upward, color: const Color(0xFF00BD7E)),
+                    Icon(
+                      Icons.arrow_upward_rounded,
+                      color: const Color(0xFF00BD7E),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -599,9 +623,9 @@ class _HomePageState extends State<HomePage> {
                 ),
               ],
             ),
-            const SizedBox(height: 25),
+            const SizedBox(height: 32),
             Container(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.grey[200],
                 borderRadius: BorderRadius.circular(16),
@@ -609,34 +633,23 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Consumer<ProductsProvider>(
-                    builder: (context, provider, child) {
-                      return _lastProductsIsLoading
-                          ? Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(64),
-                              child: const CircularProgressIndicator(),
-                            ),
-                          )
-                          : Wrap(
-                            alignment: WrapAlignment.spaceBetween,
-                            spacing: screenWidth / 100 * 4,
-                            children:
-                                _lastProducts
-                                    .map(
-                                      (product) => ProductCard(
-                                        widthAjustment: 32,
-                                        imageUrl: product.image,
-                                        title: product.brand,
-                                        description: product.name,
-                                        nutriscore: "assets/images/logo.png",
-                                        nova: "assets/images/logo.png",
-                                      ),
-                                    )
-                                    .toList(),
-                          );
-                    },
-                  ),
+                  lastProductsIsLoading
+                      ? ProductPage().loadingWidget()
+                      : Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        spacing: MediaQuery.of(context).size.width / 100 * 4,
+                        children:
+                            lastProducts.map((product) {
+                              return ProductCard(
+                                widthAjustment: 32,
+                                imageUrl: product.image,
+                                title: product.brand,
+                                description: product.name,
+                                nutriscore: "assets/images/logo.png",
+                                nova: "assets/images/logo.png",
+                              );
+                            }).toList(),
+                      ),
                 ],
               ),
             ),
