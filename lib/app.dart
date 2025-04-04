@@ -18,10 +18,10 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => HomePage(),
         '/about': (context) => AboutPage(),
-        '/products': (context) => ProductPage(),
+        '/products': (context) => ProductSearchPage(),
         '/products/:productId': (context) => ProductPage(),
       },
-      initialRoute: '/products/:productId',
+      initialRoute: '/',
     );
   }
 }

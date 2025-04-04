@@ -103,7 +103,7 @@ class NutritionalTableState extends State<NutritionalTable> {
                       height: rowHeight,
                       decoration: BoxDecoration(color: Colors.white),
                       child: Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(12),
                         child: Text(
                           'Valeurs nutritionnelles'.toUpperCase(),
                           style: TextStyle(
@@ -118,7 +118,7 @@ class NutritionalTableState extends State<NutritionalTable> {
                       height: rowHeight,
                       decoration: BoxDecoration(color: Colors.white),
                       child: Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(12),
                         child: Text(
                           'Par portion'.toUpperCase(),
                           style: TextStyle(
@@ -133,7 +133,7 @@ class NutritionalTableState extends State<NutritionalTable> {
                       height: rowHeight,
                       decoration: BoxDecoration(color: Colors.grey[100]),
                       child: Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(12),
                         child: Text(
                           'Ajr*'.toUpperCase(),
                           style: TextStyle(
@@ -157,7 +157,7 @@ class NutritionalTableState extends State<NutritionalTable> {
                       Container(
                         decoration: BoxDecoration(color: Colors.white),
                         child: Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.all(12),
                           child: Text(
                             entry.key, // Nom du nutriment (ex: 'Carbohydrates')
                             style: TextStyle(
@@ -171,7 +171,7 @@ class NutritionalTableState extends State<NutritionalTable> {
                       Container(
                         decoration: BoxDecoration(color: Colors.white),
                         child: const Padding(
-                          padding: EdgeInsets.all(8.0),
+                          padding: EdgeInsets.all(12),
                           child: Text(
                             '-', // Par portion - Remplir selon les données disponibles
                             style: TextStyle(fontSize: 12, color: Colors.grey),
@@ -181,7 +181,7 @@ class NutritionalTableState extends State<NutritionalTable> {
                       Container(
                         decoration: BoxDecoration(color: Colors.grey[100]),
                         child: const Padding(
-                          padding: EdgeInsets.all(8.0),
+                          padding: EdgeInsets.all(12),
                           child: Text(
                             '-', // Ajr* - Remplir si les données sont disponibles
                             style: TextStyle(fontSize: 12, color: Colors.grey),
@@ -213,14 +213,6 @@ class ProductPage extends StatelessWidget {
     final product = provider.product;
     final suggestedProducts = provider.suggestedProducts;
 
-    // Widget de chargement centralisé
-    Widget loadingWidget() => const Center(
-      child: Padding(
-        padding: EdgeInsets.all(64),
-        child: CircularProgressIndicator(),
-      ),
-    );
-
     // Widget principal
     return Scaffold(
       appBar: PreferredSize(
@@ -234,12 +226,12 @@ class ProductPage extends StatelessWidget {
           if (provider.productIsLoading)
             loadingWidget()
           else ...[
-            _productDetails(context, product),
+            productDetails(context, product),
             const SizedBox(height: 32),
           ],
 
           // Section Alternatives
-          _alternativeProducts(
+          alternativeProducts(
             context,
             provider,
             loadingWidget(),
@@ -252,8 +244,16 @@ class ProductPage extends StatelessWidget {
     );
   }
 
+  // Widget de chargement centralisé
+  Widget loadingWidget() => const Center(
+    child: Padding(
+      padding: EdgeInsets.all(64),
+      child: CircularProgressIndicator(),
+    ),
+  );
+
   // Affichage des détails du produit
-  Widget _productDetails(BuildContext context, Product product) {
+  Widget productDetails(BuildContext context, Product product) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -267,14 +267,14 @@ class ProductPage extends StatelessWidget {
           child: Image.asset(product.image, width: 160),
         ),
         const SizedBox(height: 32),
-        _productInfo(context, product),
+        productInfo(context, product),
         const SizedBox(height: 32),
       ],
     );
   }
 
   // Affichage des informations du produit
-  Widget _productInfo(BuildContext context, Product product) {
+  Widget productInfo(BuildContext context, Product product) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -294,28 +294,28 @@ class ProductPage extends StatelessWidget {
         const SizedBox(height: 8),
         Text("Dernière mise à jour : ${product.lastUpdate}"),
         const SizedBox(height: 8),
-        _productImages(),
+        productImages(),
         const SizedBox(height: 8),
-        _productLabel(),
+        productLabel(),
         const SizedBox(height: 32),
-        _productDetailsBottom(context, product),
+        productDetailsBottom(context, product),
       ],
     );
   }
 
   // Affichage des logos
-  Widget _productImages() {
+  Widget productImages() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _productImage("assets/images/logo.png", 100),
-        _productImage("assets/images/logo.png", 40),
+        productImage("assets/images/logo.png", 100),
+        productImage("assets/images/logo.png", 40),
       ],
     );
   }
 
   // Affichage d'une image avec une contrainte de largeur
-  Widget _productImage(String imageUrl, double width) {
+  Widget productImage(String imageUrl, double width) {
     return Container(
       width: width,
       constraints: BoxConstraints(maxWidth: width),
@@ -324,7 +324,7 @@ class ProductPage extends StatelessWidget {
   }
 
   // Affichage du label
-  Widget _productLabel() {
+  Widget productLabel() {
     return Wrap(
       children: [
         Container(
@@ -344,7 +344,7 @@ class ProductPage extends StatelessWidget {
   }
 
   // Détails supplémentaires du produit
-  Widget _productDetailsBottom(BuildContext context, Product product) {
+  Widget productDetailsBottom(BuildContext context, Product product) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -373,7 +373,7 @@ class ProductPage extends StatelessWidget {
   }
 
   // Section des produits alternatifs
-  Widget _alternativeProducts(
+  Widget alternativeProducts(
     BuildContext context,
     ProductsProvider provider,
     Widget loadingWidget,

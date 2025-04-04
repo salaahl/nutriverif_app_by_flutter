@@ -8,6 +8,8 @@ import '../widgets/my_app_bar.dart';
 import '../widgets/product_card.dart';
 import '../models/model_products.dart';
 
+import 'package:app_nutriverif/screens/product_page.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -22,54 +24,22 @@ class _HomePageState extends State<HomePage> {
     flags: const YoutubePlayerFlags(autoPlay: false),
   );
 
-  final productIsLoading = false;
-  final productsIsLoading = false;
-  final suggestedProductsIsLoading = false;
-  final lastProductsIsLoading = false;
-
-  final List<Products> _searchProducts = List.generate(
-    4,
-    (index) => Products(
-      id: '123456789',
-      image: 'assets/images/logo.png',
-      brand: 'Produit $index',
-      name: 'Nom du produit $index',
-      nutriscore: 'assets/images/logo.png',
-      nova: 'assets/images/logo.png',
-    ),
-  );
-
-  final List<Products> _suggestedProducts = List.generate(
-    4,
-    (index) => Products(
-      id: '123456789',
-      image: 'assets/images/logo.png',
-      brand: 'Produit $index',
-      name: 'Nom du produit $index',
-      nutriscore: 'assets/images/logo.png',
-      nova: 'assets/images/logo.png',
-    ),
-  );
-
-  final List<Products> _lastProducts = List.generate(
-    4,
-    (index) => Products(
-      id: '123456789',
-      image: 'assets/images/logo.png',
-      brand: 'Produit $index',
-      name: 'Nom du produit $index',
-      nutriscore: 'assets/images/logo.png',
-      nova: 'assets/images/logo.png',
-    ),
-  );
-
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
 
-    final provider = Provider.of<ProductsProvider>(context);
+    // Variables relatives aux produits
+    final _provider = Provider.of<ProductsProvider>(context);
+    final _productsIsLoading = _provider.productsIsLoading;
+    final _products = _provider.products;
+    final _productIsLoading = _provider.productIsLoading;
+    final _product = _provider.product;
+    final _suggestedProductsIsLoading = _provider.suggestedProductsIsLoading;
+    final _suggestedProducts = _provider.suggestedProducts;
+    final _lastProductsIsLoading = _provider.lastProductsIsLoading;
+    final _lastProducts = _provider.lastProducts;
 
-    // Vérifier si les produits sont déjà chargés, sinon appeler les méthodes pour les charger
+    /* Vérifier si les produits sont déjà chargés, sinon appeler les méthodes pour les charger
     if (!productIsLoading && provider.product.id.isEmpty) {
       provider.fetchProduct('8000500310427');
     }
@@ -77,33 +47,7 @@ class _HomePageState extends State<HomePage> {
     if (!lastProductsIsLoading && provider.lastProducts.isEmpty) {
       provider.fetchLastProducts();
     }
-
-    // final product = provider.product;
-    final product = Product(
-      id: '123456789',
-      image: 'assets/images/logo.png',
-      brand: 'Produit',
-      category: 'Catégorie',
-      categories: ['Catégorie 1', 'Catégorie 2'],
-      lastUpdate: '01/01/2023',
-      quantity: '300g',
-      servingSize: '100g',
-      link: 'assets/images/logo.png',
-      ingredients: String.fromCharCode(33),
-      nutriments: {
-        'energy-kcal_100g': '100',
-        'carbohydrates_100g': '10',
-        'fat_100g': '5',
-        'saturated-fat_100g': '2',
-        'sugars_100g': '5',
-        'salt_100g': '0.5',
-      },
-      nutrientLevels: 'saturated-fat_100g',
-      genericName: 'Nom du produit',
-      nutriscore: 'assets/images/logo.png',
-      nova: 'assets/images/logo.png',
-      manufacturingPlace: 'France',
-    );
+    */
 
     return Scaffold(
       appBar: PreferredSize(
@@ -168,7 +112,7 @@ class _HomePageState extends State<HomePage> {
                         onChanged: (value) {
                           if (_debounce?.isActive ?? false) _debounce!.cancel();
                           _debounce = Timer(Duration(seconds: 3), () {
-                            provider.searchProducts(value, null, 'name');
+                            _provider.searchProducts(value, null, 'name');
                           });
                         },
                         decoration: InputDecoration(
@@ -226,7 +170,7 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     Container(
                       height:
-                          !productsIsLoading || provider.products.isEmpty
+                          !_productsIsLoading || _products.isEmpty
                               ? 0
                               : 592, // 592 = hauteur de deux cartes + marge
                       padding: EdgeInsets.all(16),
@@ -239,7 +183,7 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           Consumer<ProductsProvider>(
                             builder: (context, provider, child) {
-                              return productsIsLoading
+                              return _productsIsLoading
                                   ? Center(
                                     child: Padding(
                                       padding: const EdgeInsets.all(64),
@@ -248,7 +192,7 @@ class _HomePageState extends State<HomePage> {
                                   )
                                   : Wrap(
                                     children:
-                                        _searchProducts
+                                        _products
                                             .map(
                                               (product) => Row(
                                                 children: [
@@ -534,190 +478,48 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 32),
+                // Page produit
                 Column(
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Consumer<ProductsProvider>(
-                              builder: (context, provider, child) {
-                                return productIsLoading
-                                    ? Center(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(64),
-                                        child:
-                                            const CircularProgressIndicator(),
-                                      ),
-                                    )
-                                    : Image.asset(product.image, width: 160);
-                              },
-                            ),
+                    // Section Produit Principal
+                    if (_productIsLoading)
+                      ProductPage().loadingWidget()
+                    else ...[
+                      ProductPage().productDetails(context, _product),
+                      const SizedBox(height: 32),
+                    ],
+
+                    // Section Alternatives
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color.fromRGBO(0, 0, 0, 0.15),
+                            spreadRadius: 2,
+                            blurRadius: 6,
+                            offset: Offset(0, 2),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Consumer<ProductsProvider>(
-                      builder: (context, provider, child) {
-                        return productIsLoading
-                            ? Column()
-                            : Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text.rich(
-                                        TextSpan(
-                                          text: "${product.brand} - ",
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            color: Color(0xFF00BD7E),
-                                          ),
-                                          children: [
-                                            TextSpan(
-                                              text: product.genericName,
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Text(
-                                      "Dernière mise à jour : ${product.lastUpdate}",
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                // Nutriscore
-                                Row(
-                                  children: [
-                                    Container(
-                                      width:
-                                          double
-                                              .infinity, // Prend toute la largeur possible
-                                      constraints: BoxConstraints(
-                                        maxWidth: 100,
-                                      ), // Largeur maximale de l'image
-                                      child: Image.asset(
-                                        "assets/images/logo.png",
-                                        fit:
-                                            BoxFit
-                                                .cover, // Ajuste l'image à son conteneur
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                // Nova
-                                Row(
-                                  children: [
-                                    Container(
-                                      width:
-                                          double
-                                              .infinity, // Prend toute la largeur possible
-                                      constraints: BoxConstraints(
-                                        maxWidth: 40,
-                                      ), // Largeur maximale de l'image
-                                      child: Image.asset(
-                                        "assets/images/logo.png",
-                                        fit:
-                                            BoxFit
-                                                .cover, // Ajuste l'image à son conteneur
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Wrap(
-                                        children: [
-                                          Container(
-                                            margin: const EdgeInsets.only(
-                                              right: 8,
-                                              top: 16,
-                                            ),
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 6,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: Colors.green,
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                            ),
-                                            child: Text(
-                                              'label',
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 32),
-                                Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "Quantité : ${product.quantity}",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Row(
-                                      children: [
-                                        Text("Code-barres : ${product.id}"),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Row(
-                                      children: [
-                                        Text.rich(
-                                          TextSpan(
-                                            text: "Plus d'informations : ",
-                                            children: [
-                                              TextSpan(
-                                                text: product.link,
-                                                style: TextStyle(
-                                                  decoration:
-                                                      TextDecoration.underline,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            );
-                      },
+                        ],
+                      ),
+                      child: ProductPage().alternativeProducts(
+                        context,
+                        _provider,
+                        ProductPage().loadingWidget(),
+                        _suggestedProducts,
+                      ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 32),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.arrow_upward, color: const Color(0xFF00BD7E)),
+                  ],
+                ),
+                const SizedBox(height: 16),
                 Row(
                   children: [
                     Expanded(
@@ -737,73 +539,12 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ),
                             ),
-                            TextSpan(text: " :"),
+                            TextSpan(text: "."),
                           ],
                         ),
                       ),
                     ),
                   ],
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  padding: EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Center(
-                        child: Text.rich(
-                          TextSpan(
-                            text: "A",
-                            style: TextStyle(
-                              fontFamily: 'Grand Hotel',
-                              fontSize: 32,
-                              color: Colors.redAccent,
-                            ),
-                            children: [
-                              TextSpan(
-                                text: "lternatives",
-                                style: TextStyle(color: Colors.black),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      Consumer<ProductsProvider>(
-                        builder: (context, provider, child) {
-                          return suggestedProductsIsLoading
-                              ? Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(64),
-                                  child: const CircularProgressIndicator(),
-                                ),
-                              )
-                              : Wrap(
-                                alignment: WrapAlignment.spaceBetween,
-                                spacing: screenWidth / 100 * 4,
-                                children:
-                                    _suggestedProducts
-                                        .map(
-                                          (product) => ProductCard(
-                                            widthAjustment: 32,
-                                            imageUrl: product.image,
-                                            title: product.brand,
-                                            description: product.name,
-                                            nutriscore:
-                                                "assets/images/logo.png",
-                                            nova: "assets/images/logo.png",
-                                          ),
-                                        )
-                                        .toList(),
-                              );
-                        },
-                      ),
-                    ],
-                  ),
                 ),
                 const SizedBox(height: 16),
                 Row(
@@ -870,7 +611,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   Consumer<ProductsProvider>(
                     builder: (context, provider, child) {
-                      return lastProductsIsLoading
+                      return _lastProductsIsLoading
                           ? Center(
                             child: Padding(
                               padding: const EdgeInsets.all(64),
