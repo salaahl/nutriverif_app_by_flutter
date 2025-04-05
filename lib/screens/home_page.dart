@@ -36,6 +36,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  @override
   Widget build(BuildContext context) {
     // Variables relatives aux produits
     final provider = context.watch<ProductsProvider>();

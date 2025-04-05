@@ -110,51 +110,6 @@ class ProductsProvider with ChangeNotifier {
       _products = [];
       _input = userInput;
       _page = 1;
-      _pages =
-          2; // Cette valeur sera à déplacer plus bas et à calculer de façon dynamique
-    }
-    print("userInput: $userInput, sortBy: $sortBy, method: $method");
-
-    try {
-      _productsIsLoading = true;
-      notifyListeners();
-
-      await Future.delayed(Duration(seconds: 5));
-
-      _products.addAll(
-        List.generate(
-          4,
-          (index) => Products(
-            id: '123456789',
-            image: 'assets/images/logo.png',
-            brand: 'Produit $index',
-            name: 'Nom du produit $index',
-            nutriscore: 'assets/images/logo.png',
-            nova: 'assets/images/logo.png',
-          ),
-        ),
-      );
-    } catch (e) {
-      _error = e.toString();
-    } finally {
-      _productsIsLoading = false;
-      notifyListeners();
-    }
-  }
-
-  /*
-  Future<void> searchProducts(
-    String? userInput,
-    String? sortBy,
-    String method,
-  ) async {
-    if (userInput != null) _input = userInput;
-    if (sortBy != null) _filter = sortBy;
-    if (method == 'complete') {
-      _products = [];
-      _page = 1;
-    } else if (method == 'more') {
-      _page++;
     }
 
     const fields =
@@ -163,8 +118,8 @@ class ProductsProvider with ChangeNotifier {
         '$apiBaseUrl?search_terms=${Uri.encodeComponent(_input)}&fields=${Uri.encodeComponent(fields)}&purchase_places_tags=france&sort_by=${Uri.encodeComponent(_filter)}&page_size=20&page=$_page&search_simple=1&action=process&json=1';
 
     try {
-      _productsIsLoading = true;
       _error = null;
+      _productsIsLoading = true;
       notifyListeners();
 
       final response = await http.get(Uri.parse(url));
@@ -174,177 +129,45 @@ class ProductsProvider with ChangeNotifier {
       _products.addAll(
         (data['products'] as List).map((p) => Products.fromJson(p)).toList(),
       );
-
-      // notifyListeners();
     } catch (e) {
       _error = e.toString();
-      // notifyListeners();
     } finally {
       _productsIsLoading = false;
       notifyListeners();
     }
   }
-  */
 
   Future<void> fetchProduct(String id) async {
-    if (productIsLoading) return;
-
-    _productIsLoading = true;
-    notifyListeners();
-
-    await Future.delayed(Duration(seconds: 5));
-    _product = Product(
-      id: '123456789',
-      image: 'assets/images/logo.png',
-      brand: 'Produit',
-      genericName: 'Nom du produit',
-      category: 'Catégorie',
-      categories: ['Catégorie 1', 'Catégorie 2'],
-      nutriscore: 'assets/images/logo.png',
-      nova: 'assets/images/logo.png',
-      lastUpdate: '01/01/2023',
-      quantity: '300g',
-      servingSize: '100g',
-      ingredients: String.fromCharCode(33),
-      nutriments: {
-        'energy-kcal_100g': '100',
-        'carbohydrates_100g': '10',
-        'fat_100g': '5',
-        'saturated-fat_100g': '2',
-        'sugars_100g': '5',
-        'salt_100g': '0.5',
-      },
-      nutrientLevels: {
-        "fat": "high",
-        "salt": "low",
-        "saturated-fat": "high",
-        "sugars": "high",
-      },
-      manufacturingPlace: 'France',
-      link: 'assets/images/logo.png',
-    );
-
-    _productIsLoading = false;
-    notifyListeners();
-
-    fetchSuggestedProducts();
-  }
-
-  /*
-  Future<void> fetchProduct(String id) async {
-    _productIsLoading = true;
     _error = null;
-    // Utiliser addPostFrameCallback pour exécuter après la phase de build
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      notifyListeners();
-    });
+    _productIsLoading = true;
+    notifyListeners();
 
     try {
       final url = 'https://world.openfoodfacts.org/api/v3/product/$id.json';
       final response = await http.get(Uri.parse(url));
-      final data = json.decode(response.body);
 
-      _product = Product.fromJson(data['product']);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
 
-      fetchSuggestedProducts(id: _product.id, category: _product.category);
-      // notifyListeners();
+        if (data['product'] != null) {
+          _product = Product.fromJson(data['product']);
+
+          fetchSuggestedProducts(id: _product.id, category: _product.category);
+        } else {
+          _error = 'Produit non trouvé';
+        }
+      } else {
+        _error = 'Erreur HTTP ${response.statusCode}: ${response.reasonPhrase}';
+      }
     } catch (e) {
-      _error = e.toString();
-      // notifyListeners();
+      // Gère les erreurs réseau
+      _error = 'Erreur réseau: $e';
     } finally {
       _productIsLoading = false;
       notifyListeners();
     }
   }
-  */
 
-  Future<void> fetchLastProducts() async {
-    if (_lastProductsIsLoading) return;
-
-    _lastProductsIsLoading = true;
-    notifyListeners();
-
-    await Future.delayed(Duration(seconds: 5));
-    _lastProducts = List.generate(
-      4,
-      (index) => Products(
-        id: '123456789',
-        image: 'assets/images/logo.png',
-        brand: 'Produit $index',
-        name: 'Nom du produit $index',
-        nutriscore: 'assets/images/logo.png',
-        nova: 'assets/images/logo.png',
-      ),
-    );
-
-    _lastProductsIsLoading = false;
-    notifyListeners();
-  }
-
-  /*
-  Future<void> fetchLastProducts() async {
-    _lastProductsIsLoading = true;
-    _error = null;
-    // Utiliser addPostFrameCallback pour exécuter après la phase de build
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      notifyListeners();
-    });
-
-    const fields =
-        'id,image_front_small_url,brands,generic_name_fr,nutriscore_grade,nova_group,created_t,completeness';
-    final url =
-        '$apiBaseUrl?&fields=${Uri.encodeComponent(fields)}&purchase_places_tags=france&sort_by=created_t&page_size=300&action=process&json=1';
-
-    try {
-      final response = await http.get(Uri.parse(url));
-      final data = json.decode(response.body);
-
-      final filteredProducts =
-          (data['products'] as List)
-              .where((p) => (p['completeness'] as double) >= 0.35)
-              .toList()
-            ..sort(
-              (a, b) =>
-                  (b['created_t'] as int).compareTo(a['created_t'] as int),
-            );
-      _lastProducts =
-          filteredProducts.take(5).map((p) => Products.fromJson(p)).toList();
-
-      // notifyListeners();
-    } catch (e) {
-      _error = e.toString();
-      // notifyListeners();
-    } finally {
-      _lastProductsIsLoading = false;
-      notifyListeners();
-    }
-  }
-  */
-
-  Future<void> fetchSuggestedProducts() async {
-    if (_suggestedProductsIsLoading) return;
-
-    _suggestedProductsIsLoading = true;
-    notifyListeners();
-
-    await Future.delayed(Duration(seconds: 5));
-    _suggestedProducts = List.generate(
-      4,
-      (index) => Products(
-        id: '123456789',
-        image: 'assets/images/logo.png',
-        brand: 'Produit $index',
-        name: 'Nom du produit $index',
-        nutriscore: 'assets/images/logo.png',
-        nova: 'assets/images/logo.png',
-      ),
-    );
-
-    _suggestedProductsIsLoading = false;
-    notifyListeners();
-  }
-
-  /*
   Future<void> fetchSuggestedProducts({String? id, String? category}) async {
     if (_suggestedProductsIsLoading) return;
 
@@ -395,15 +218,166 @@ class ProductsProvider with ChangeNotifier {
             });
       _suggestedProducts =
           selectedProducts.take(4).map((p) => Products.fromJson(p)).toList();
-
-      // notifyListeners();
     } catch (e) {
       _error = e.toString();
-      // notifyListeners();
     } finally {
       _suggestedProductsIsLoading = false;
       notifyListeners();
     }
   }
+
+  Future<void> fetchLastProducts() async {
+    _error = null;
+    _lastProductsIsLoading = true;
+    notifyListeners();
+
+    const fields =
+        'id,image_front_small_url,brands,generic_name_fr,nutriscore_grade,nova_group,created_t,completeness';
+    final url =
+        '$apiBaseUrl?&fields=${Uri.encodeComponent(fields)}&purchase_places_tags=france&sort_by=created_t&page_size=300&action=process&json=1';
+
+    try {
+      final response = await http.get(Uri.parse(url));
+      final data = json.decode(response.body);
+
+      final filteredProducts =
+          (data['products'] as List)
+              .where((p) => (p['completeness'] as double) >= 0.35)
+              .toList()
+            ..sort(
+              (a, b) =>
+                  (b['created_t'] as int).compareTo(a['created_t'] as int),
+            );
+      _lastProducts =
+          filteredProducts.take(5).map((p) => Products.fromJson(p)).toList();
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _lastProductsIsLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /*
+  Future<void> searchProducts({
+    String userInput = '',
+    String sortBy = 'popularity_key',
+    required String method,
+  }) async {
+    if (method == 'more') {
+      _page++;
+    } else {
+      _products = [];
+      _input = userInput;
+      _page = 1;
+      _pages =
+          2; // Cette valeur sera à déplacer plus bas et à calculer de façon dynamique
+    }
+    print("userInput: $userInput, sortBy: $sortBy, method: $method");
+
+    try {
+      _productsIsLoading = true;
+      notifyListeners();
+
+      await Future.delayed(Duration(seconds: 5));
+
+      _products.addAll(
+        List.generate(
+          4,
+          (index) => Products(
+            id: '123456789',
+            image: 'assets/images/logo.png',
+            brand: 'Produit $index',
+            name: 'Nom du produit $index',
+            nutriscore: 'assets/images/logo.png',
+            nova: 'assets/images/logo.png',
+          ),
+        ),
+      );
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _productsIsLoading = false;
+      notifyListeners();
+    }
+  }
   */
+
+  /*
+  Future<void> fetchProduct(String id) async {
+    _productIsLoading = true;
+    _error = null;
+    // Utiliser addPostFrameCallback pour exécuter après la phase de build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
+    });
+
+    try {
+      final url = 'https://world.openfoodfacts.org/api/v3/product/$id.json';
+      final response = await http.get(Uri.parse(url));
+      final data = json.decode(response.body);
+
+      _product = Product.fromJson(data['product']);
+
+      fetchSuggestedProducts(id: _product.id, category: _product.category);
+      // notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      // notifyListeners();
+    } finally {
+      _productIsLoading = false;
+      notifyListeners();
+    }
+  }
+  */
+
+  /*
+  Future<void> fetchLastProducts() async {
+    if (_lastProductsIsLoading) return;
+
+    _lastProductsIsLoading = true;
+    notifyListeners();
+
+    await Future.delayed(Duration(seconds: 5));
+    _lastProducts = List.generate(
+      4,
+      (index) => Products(
+        id: '123456789',
+        image: 'assets/images/logo.png',
+        brand: 'Produit $index',
+        name: 'Nom du produit $index',
+        nutriscore: 'assets/images/logo.png',
+        nova: 'assets/images/logo.png',
+      ),
+    );
+
+    _lastProductsIsLoading = false;
+    notifyListeners();
+  }
+  */
+
+  /*
+  Future<void> fetchSuggestedProducts() async {
+    if (_suggestedProductsIsLoading) return;
+
+    _suggestedProductsIsLoading = true;
+    notifyListeners();
+
+    await Future.delayed(Duration(seconds: 5));
+    _suggestedProducts = List.generate(
+      4,
+      (index) => Products(
+        id: '123456789',
+        image: 'assets/images/logo.png',
+        brand: 'Produit $index',
+        name: 'Nom du produit $index',
+        nutriscore: 'assets/images/logo.png',
+        nova: 'assets/images/logo.png',
+      ),
+    );
+
+    _suggestedProductsIsLoading = false;
+    notifyListeners();
+  }
+*/
 }
