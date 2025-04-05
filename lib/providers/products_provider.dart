@@ -18,7 +18,7 @@ class ProductsProvider with ChangeNotifier {
   bool _suggestedProductsIsLoading = false;
   String _ajrSelected = 'women';
   String _input = '';
-  String _filter = '';
+  String _filter = 'popularity_key';
   int _page = 1;
   int _pages = 1;
   String? _error;
@@ -89,28 +89,57 @@ class ProductsProvider with ChangeNotifier {
     if (_filter == value) return;
 
     _filter = value;
-    notifyListeners();
+
+    // Relancer une recherche de produits avec le nouveau filtre si des produits sont actuellement affichés
+    if (products.isNotEmpty) {
+      searchProducts(userInput: _input, sortBy: value, method: 'complete');
+    } else {
+      // Sinon, notifier les listeners que la tâche est terminée
+      notifyListeners();
+    }
   }
 
-  Future<void> searchProducts() async {
-    _productsIsLoading = true;
-    notifyListeners();
+  Future<void> searchProducts({
+    String userInput = '',
+    String sortBy = 'popularity_key',
+    required String method,
+  }) async {
+    if (method == 'more') {
+      _page++;
+    } else {
+      _products = [];
+      _input = userInput;
+      _page = 1;
+      _pages =
+          2; // Cette valeur sera à déplacer plus bas et à calculer de façon dynamique
+    }
+    print("userInput: $userInput, sortBy: $sortBy, method: $method");
 
-    await Future.delayed(Duration(seconds: 5));
-    _products = List.generate(
-      4,
-      (index) => Products(
-        id: '123456789',
-        image: 'assets/images/logo.png',
-        brand: 'Produit $index',
-        name: 'Nom du produit $index',
-        nutriscore: 'assets/images/logo.png',
-        nova: 'assets/images/logo.png',
-      ),
-    );
+    try {
+      _productsIsLoading = true;
+      notifyListeners();
 
-    _productsIsLoading = false;
-    notifyListeners();
+      await Future.delayed(Duration(seconds: 5));
+
+      _products.addAll(
+        List.generate(
+          4,
+          (index) => Products(
+            id: '123456789',
+            image: 'assets/images/logo.png',
+            brand: 'Produit $index',
+            name: 'Nom du produit $index',
+            nutriscore: 'assets/images/logo.png',
+            nova: 'assets/images/logo.png',
+          ),
+        ),
+      );
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _productsIsLoading = false;
+      notifyListeners();
+    }
   }
 
   /*

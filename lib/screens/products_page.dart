@@ -2,27 +2,22 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import '../widgets/my_app_bar.dart';
 import '../widgets/product_card.dart';
-import '../models/model_products.dart';
 import 'package:provider/provider.dart';
 import 'package:app_nutriverif/providers/products_provider.dart';
 
 class ProductSearchPage extends StatefulWidget {
-  final String? query;
-  const ProductSearchPage({super.key, this.query});
+  const ProductSearchPage({super.key});
 
   @override
   State<ProductSearchPage> createState() => _ProductSearchPageState();
 }
 
 class _ProductSearchPageState extends State<ProductSearchPage> {
-  final TextEditingController _searchController = TextEditingController();
-  String _selectedFilter = 'popularity_key';
-  bool _isLoading = false;
+  late ProductsProvider provider = Provider.of<ProductsProvider>(context);
+  late TextEditingController _searchController = TextEditingController();
+
   double _prevScrollPos = 0;
   bool _refresh = true;
-  List<Products> _products = [];
-  int _page = 1;
-  final int _totalPages = 5;
 
   final ScrollController _scrollController = ScrollController();
 
@@ -37,7 +32,23 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
   @override
   void initState() {
     super.initState();
+
+    // Cette méthode permet d'appeler mon provider une fois le widget est construit
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = Provider.of<ProductsProvider>(context, listen: false);
+    });
+
     _scrollController.addListener(_onScroll);
+  }
+
+  // Contrairement au initState qui n'est appelé qu'une seule fois, didChangeDependencies est appelé à chaque retour sur la page
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (provider.input.isNotEmpty) {
+      _searchController = TextEditingController(text: provider.input);
+    }
   }
 
   @override
@@ -58,66 +69,18 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
 
     if (_scrollController.position.pixels >=
             _scrollController.position.maxScrollExtent - 100 &&
-        _page < _totalPages &&
+        provider.page < provider.pages &&
         _refresh) {
       _refresh = false;
-      _loadMoreProducts();
+      provider.searchProducts(method: 'more');
       Timer(Duration(seconds: 1), () => _refresh = true);
     }
 
     _prevScrollPos = currentScrollPos;
   }
 
-  Future<void> _searchProducts() async {
-    setState(() => _isLoading = true);
-    await Future.delayed(Duration(seconds: 2));
-    setState(() {
-      _products = List.generate(
-        10,
-        (index) => Products(
-          id: '123456789',
-          image: 'assets/images/logo.png',
-          brand: 'Produit $index',
-          name: 'Nom du produit $index',
-          nutriscore: 'assets/images/logo.png',
-          nova: 'assets/images/logo.png',
-        ),
-      );
-
-      _isLoading = false;
-    });
-  }
-
-  Future<void> _loadMoreProducts() async {
-    setState(() => _isLoading = true);
-    await Future.delayed(Duration(seconds: 2));
-    setState(() {
-      _products.addAll(
-        List.generate(
-          5,
-          (index) => Products(
-            id: '123456789',
-            image: 'assets/images/logo.png',
-            brand: 'Produit $index',
-            name: 'Nom du produit $index',
-            nutriscore: 'assets/images/logo.png',
-            nova: 'assets/images/logo.png',
-          ),
-        ),
-      );
-      _page++;
-      _isLoading = false;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    final query = widget.query;
-
-    if (query != null) {
-      _searchProducts();
-    }
-
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(172),
@@ -185,7 +148,27 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                     ),
                     child: const Icon(Icons.search, color: Colors.white),
                   ),
-                  onPressed: _searchProducts,
+                  onPressed:
+                      () => {
+                        if (_searchController.text.trim().length < 2)
+                          {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Le champ doit contenir au moins deux caractères',
+                                ),
+                              ),
+                            ),
+                          }
+                        else
+                          {
+                            provider.searchProducts(
+                              userInput: _searchController.text,
+                              sortBy: provider.filter,
+                              method: 'complete',
+                            ),
+                          },
+                      },
                 ),
               ],
             ),
@@ -197,9 +180,9 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                   _filters.entries.map((filter) {
                     return FilterChip(
                       label: Text(filter.key),
-                      selected: _selectedFilter == filter.value,
+                      selected: provider.filter == filter.value,
                       onSelected: (selected) {
-                        setState(() => _selectedFilter = filter.value);
+                        setState(() => provider.updateFilter(filter.value));
                       },
                       backgroundColor: Colors.grey,
                       selectedColor: const Color.fromRGBO(0, 189, 126, 1),
@@ -218,30 +201,27 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
             const SizedBox(height: 24),
 
             // Produits
-            if (_products.isEmpty && !_isLoading)
+            if (provider.products.isEmpty && !provider.productsIsLoading)
               const Center(child: Text('Aucun produit trouvé')),
 
             Wrap(
               spacing: 16,
               runSpacing: 16,
-              children: List.generate(_products.length, (index) {
-                final product = _products[index];
-
-                return ProductCard(
-                  widthAjustment: 16,
-                  imageUrl: product.image,
-                  title: product.brand,
-                  description: product.name,
-                  nutriscore: product.nutriscore,
-                  nova: product.nova,
-                );
-              }),
+              children:
+                  provider.products.map((product) {
+                    return ProductCard(
+                      widthAjustment: 16,
+                      imageUrl: product.image,
+                      title: product.brand,
+                      description: product.name,
+                      nutriscore: "assets/images/logo.png",
+                      nova: "assets/images/logo.png",
+                    );
+                  }).toList(),
             ),
-
             const SizedBox(height: 32),
-
             // Loader bas de page
-            if (_isLoading)
+            if (provider.productsIsLoading)
               const Center(
                 child: Padding(
                   padding: EdgeInsets.all(16),

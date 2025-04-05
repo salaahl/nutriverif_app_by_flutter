@@ -365,6 +365,8 @@ class ProductPage extends StatelessWidget {
 
   // Détails supplémentaires du produit
   Widget productDetailsBottom(BuildContext context, Product product) {
+    final provider = Provider.of<ProductsProvider>(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -401,17 +403,15 @@ class ProductPage extends StatelessWidget {
                         foregroundColor: Colors.white,
                         backgroundColor: Colors.grey[400],
                       ),
-                      onPressed:
-                          () => {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) =>
-                                        ProductSearchPage(query: category),
-                              ),
-                            ),
-                          },
+                      onPressed: () {
+                        provider.updateInput(category);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ProductSearchPage(),
+                          ),
+                        );
+                      },
                       child: Text(
                         "#$category",
                         style: const TextStyle(

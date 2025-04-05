@@ -163,7 +163,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         child: const Icon(Icons.search, color: Colors.white),
                       ),
-                      onPressed: () => provider.searchProducts(),
+                      onPressed: () => provider.searchProducts(userInput: _searchController.text, method: 'complete'),
                     ),
                   ],
                 ),
@@ -216,9 +216,6 @@ class _HomePageState extends State<HomePage> {
                                   Navigator.pushNamed(
                                     context,
                                     '/products',
-                                    arguments: {
-                                      'query': _searchController.text,
-                                    }, // Passe le terme de recherche
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(
