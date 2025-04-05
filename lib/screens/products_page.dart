@@ -111,7 +111,6 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
   }
 
   @override
-  @override
   Widget build(BuildContext context) {
     final query = widget.query;
 

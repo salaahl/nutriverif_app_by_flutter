@@ -50,41 +50,50 @@ class ProductCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Center(
-            child: Container(
-              constraints: BoxConstraints(maxHeight: 100, maxWidth: 100),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.pushNamed(
+            context,
+            '/product',
+            arguments: {':productId': ''},
+          );
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Center(
+              child: Container(
+                constraints: BoxConstraints(maxHeight: 100, maxWidth: 100),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                height:
+                    (MediaQuery.of(context).size.width / 100 * 48) -
+                    widthAjustment * 2,
+                width:
+                    (MediaQuery.of(context).size.width / 100 * 48) -
+                    widthAjustment * 2,
+                child: Image.asset(imageUrl, height: 80, fit: BoxFit.contain),
               ),
-              height:
-                  (MediaQuery.of(context).size.width / 100 * 48) -
-                  widthAjustment * 2,
-              width:
-                  (MediaQuery.of(context).size.width / 100 * 48) -
-                  widthAjustment * 2,
-              child: Image.asset(imageUrl, height: 80, fit: BoxFit.contain),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-          Text(
-            description,
-            style: const TextStyle(fontSize: 12, color: Colors.grey),
-          ),
-          const SizedBox(height: 4),
-          Column(
-            children: [
-              Image.asset(nutriscore, height: 30),
-              const SizedBox(height: 4),
-              Image.asset(nova, height: 30),
-            ],
-          ),
-        ],
+            const SizedBox(height: 8),
+            Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(
+              description,
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+            const SizedBox(height: 4),
+            Column(
+              children: [
+                Image.asset(nutriscore, height: 30),
+                const SizedBox(height: 4),
+                Image.asset(nova, height: 30),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

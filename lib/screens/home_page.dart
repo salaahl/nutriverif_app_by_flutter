@@ -24,38 +24,21 @@ class _HomePageState extends State<HomePage> {
     flags: const YoutubePlayerFlags(autoPlay: false),
   );
 
-  bool productsIsLoading = false;
-  List<Products> _products = [];
+  @override
+  void initState() {
+    super.initState();
 
-  Future<void> searchProducts() async {
-    setState(() => productsIsLoading = true);
-    await Future.delayed(Duration(seconds: 2));
-    setState(() {
-      _products = List.generate(
-        4,
-        (index) => Products(
-          id: '123456789',
-          image: 'assets/images/logo.png',
-          brand: 'Produit $index',
-          name: 'Nom du produit $index',
-          nutriscore: 'assets/images/logo.png',
-          nova: 'assets/images/logo.png',
-        ),
-      );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = Provider.of<ProductsProvider>(context, listen: false);
 
-      productsIsLoading = false;
+      provider.fetchProduct('8000500310427');
+      provider.fetchLastProducts();
     });
   }
 
-  @override
   Widget build(BuildContext context) {
     // Variables relatives aux produits
-    final provider = Provider.of<ProductsProvider>(context);
-    final productIsLoading = provider.productIsLoading;
-    final product = provider.product;
-    final suggestedProducts = provider.suggestedProducts;
-    final lastProductsIsLoading = provider.lastProductsIsLoading;
-    final lastProducts = provider.lastProducts;
+    final provider = context.watch<ProductsProvider>();
 
     /* Vérifier si les produits sont déjà chargés, sinon appeler les méthodes pour les charger
     if (!productIsLoading && provider.product.id.isEmpty) {
@@ -180,12 +163,12 @@ class _HomePageState extends State<HomePage> {
                         ),
                         child: const Icon(Icons.search, color: Colors.white),
                       ),
-                      onPressed: searchProducts,
+                      onPressed: () => provider.searchProducts(),
                     ),
                   ],
                 ),
                 SizedBox(height: 32),
-                _products.isEmpty && !productsIsLoading
+                provider.products.isEmpty && !provider.productsIsLoading
                     ? SizedBox.shrink() // Si aucun produit et pas de chargement, on n'affiche rien
                     : Column(
                       children: [
@@ -198,7 +181,7 @@ class _HomePageState extends State<HomePage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              productsIsLoading
+                              provider.productsIsLoading
                                   ? ProductPage().loadingWidget()
                                   : Wrap(
                                     alignment: WrapAlignment.spaceBetween,
@@ -207,7 +190,7 @@ class _HomePageState extends State<HomePage> {
                                         100 *
                                         4,
                                     children:
-                                        _products.map((product) {
+                                        provider.products.map((product) {
                                           return ProductCard(
                                             widthAjustment: 32,
                                             imageUrl: product.image,
@@ -222,7 +205,7 @@ class _HomePageState extends State<HomePage> {
                             ],
                           ),
                         ),
-                        if (_products.length ==
+                        if (provider.products.length ==
                             4) // Si la liste contient 4 produits
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -517,10 +500,10 @@ class _HomePageState extends State<HomePage> {
                 Column(
                   children: [
                     // Section Produit Principal
-                    if (productIsLoading)
+                    if (provider.productIsLoading)
                       ProductPage().loadingWidget()
                     else ...[
-                      ProductPage().productDetails(context, product),
+                      ProductPage().productDetails(context, provider.product),
                       const SizedBox(height: 32),
                     ],
 
@@ -529,7 +512,7 @@ class _HomePageState extends State<HomePage> {
                       context,
                       provider,
                       ProductPage().loadingWidget(),
-                      suggestedProducts,
+                      provider.suggestedProducts,
                     ),
                   ],
                 ),
@@ -633,13 +616,13 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  lastProductsIsLoading
+                  provider.lastProductsIsLoading
                       ? ProductPage().loadingWidget()
                       : Wrap(
                         alignment: WrapAlignment.spaceBetween,
                         spacing: MediaQuery.of(context).size.width / 100 * 4,
                         children:
-                            lastProducts.map((product) {
+                            provider.lastProducts.map((product) {
                               return ProductCard(
                                 widthAjustment: 32,
                                 imageUrl: product.image,

@@ -211,8 +211,6 @@ class ProductPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ProductsProvider>(context);
-    final product = provider.product;
-    final suggestedProducts = provider.suggestedProducts;
 
     // Widget principal
     return Scaffold(
@@ -227,7 +225,7 @@ class ProductPage extends StatelessWidget {
           if (provider.productIsLoading)
             loadingWidget()
           else ...[
-            productDetails(context, product),
+            productDetails(context, provider.product),
             const SizedBox(height: 32),
           ],
 
@@ -236,7 +234,7 @@ class ProductPage extends StatelessWidget {
             context,
             provider,
             loadingWidget(),
-            suggestedProducts,
+            provider.suggestedProducts,
           ),
 
           const SizedBox(height: 32),

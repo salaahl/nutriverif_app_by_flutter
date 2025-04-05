@@ -10,60 +10,11 @@ class ProductsProvider with ChangeNotifier {
 
   List<Products> _products = [];
   bool _productsIsLoading = false;
-  Product _product = Product(
-    id: '123456789',
-    image: 'assets/images/logo.png',
-    brand: 'Produit',
-    genericName: 'Nom du produit',
-    category: 'Catégorie',
-    categories: ['Catégorie 1', 'Catégorie 2'],
-    nutriscore: 'assets/images/logo.png',
-    nova: 'assets/images/logo.png',
-    lastUpdate: '01/01/2023',
-    quantity: '300g',
-    servingSize: '100g',
-    ingredients: String.fromCharCode(33),
-    nutriments: {
-      'energy-kcal_100g': '100',
-      'carbohydrates_100g': '10',
-      'fat_100g': '5',
-      'saturated-fat_100g': '2',
-      'sugars_100g': '5',
-      'salt_100g': '0.5',
-    },
-    nutrientLevels: {
-      "fat": "high",
-      "salt": "low",
-      "saturated-fat": "high",
-      "sugars": "high"
-    },
-    manufacturingPlace: 'France',
-    link: 'assets/images/logo.png',
-  );
+  Product _product = Product.fromJson({});
   bool _productIsLoading = false;
-  List<Products> _lastProducts = List.generate(
-    4,
-    (index) => Products(
-      id: '123456789',
-      image: 'assets/images/logo.png',
-      brand: 'Produit $index',
-      name: 'Nom du produit $index',
-      nutriscore: 'assets/images/logo.png',
-      nova: 'assets/images/logo.png',
-    ),
-  );
+  List<Products> _lastProducts = [];
   bool _lastProductsIsLoading = false;
-  List<Products> _suggestedProducts = List.generate(
-    4,
-    (index) => Products(
-      id: '123456789',
-      image: 'assets/images/logo.png',
-      brand: 'Produit $index',
-      name: 'Nom du produit $index',
-      nutriscore: 'assets/images/logo.png',
-      nova: 'assets/images/logo.png',
-    ),
-  );
+  List<Products> _suggestedProducts = [];
   bool _suggestedProductsIsLoading = false;
   String _ajrSelected = 'women';
   String _input = '';
@@ -141,6 +92,28 @@ class ProductsProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> searchProducts() async {
+    _productsIsLoading = true;
+    notifyListeners();
+
+    await Future.delayed(Duration(seconds: 5));
+    _products = List.generate(
+      4,
+      (index) => Products(
+        id: '123456789',
+        image: 'assets/images/logo.png',
+        brand: 'Produit $index',
+        name: 'Nom du produit $index',
+        nutriscore: 'assets/images/logo.png',
+        nova: 'assets/images/logo.png',
+      ),
+    );
+
+    _productsIsLoading = false;
+    notifyListeners();
+  }
+
+  /*
   Future<void> searchProducts(
     String? userInput,
     String? sortBy,
@@ -182,7 +155,53 @@ class ProductsProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+  */
 
+  Future<void> fetchProduct(String id) async {
+    if (productIsLoading) return;
+
+    _productIsLoading = true;
+    notifyListeners();
+
+    await Future.delayed(Duration(seconds: 5));
+    _product = Product(
+      id: '123456789',
+      image: 'assets/images/logo.png',
+      brand: 'Produit',
+      genericName: 'Nom du produit',
+      category: 'Catégorie',
+      categories: ['Catégorie 1', 'Catégorie 2'],
+      nutriscore: 'assets/images/logo.png',
+      nova: 'assets/images/logo.png',
+      lastUpdate: '01/01/2023',
+      quantity: '300g',
+      servingSize: '100g',
+      ingredients: String.fromCharCode(33),
+      nutriments: {
+        'energy-kcal_100g': '100',
+        'carbohydrates_100g': '10',
+        'fat_100g': '5',
+        'saturated-fat_100g': '2',
+        'sugars_100g': '5',
+        'salt_100g': '0.5',
+      },
+      nutrientLevels: {
+        "fat": "high",
+        "salt": "low",
+        "saturated-fat": "high",
+        "sugars": "high",
+      },
+      manufacturingPlace: 'France',
+      link: 'assets/images/logo.png',
+    );
+
+    _productIsLoading = false;
+    notifyListeners();
+
+    fetchSuggestedProducts();
+  }
+
+  /*
   Future<void> fetchProduct(String id) async {
     _productIsLoading = true;
     _error = null;
@@ -208,7 +227,32 @@ class ProductsProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+  */
 
+  Future<void> fetchLastProducts() async {
+    if (_lastProductsIsLoading) return;
+
+    _lastProductsIsLoading = true;
+    notifyListeners();
+
+    await Future.delayed(Duration(seconds: 5));
+    _lastProducts = List.generate(
+      4,
+      (index) => Products(
+        id: '123456789',
+        image: 'assets/images/logo.png',
+        brand: 'Produit $index',
+        name: 'Nom du produit $index',
+        nutriscore: 'assets/images/logo.png',
+        nova: 'assets/images/logo.png',
+      ),
+    );
+
+    _lastProductsIsLoading = false;
+    notifyListeners();
+  }
+
+  /*
   Future<void> fetchLastProducts() async {
     _lastProductsIsLoading = true;
     _error = null;
@@ -246,7 +290,32 @@ class ProductsProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+  */
 
+  Future<void> fetchSuggestedProducts() async {
+    if (_suggestedProductsIsLoading) return;
+
+    _suggestedProductsIsLoading = true;
+    notifyListeners();
+
+    await Future.delayed(Duration(seconds: 5));
+    _suggestedProducts = List.generate(
+      4,
+      (index) => Products(
+        id: '123456789',
+        image: 'assets/images/logo.png',
+        brand: 'Produit $index',
+        name: 'Nom du produit $index',
+        nutriscore: 'assets/images/logo.png',
+        nova: 'assets/images/logo.png',
+      ),
+    );
+
+    _suggestedProductsIsLoading = false;
+    notifyListeners();
+  }
+
+  /*
   Future<void> fetchSuggestedProducts({String? id, String? category}) async {
     if (_suggestedProductsIsLoading) return;
 
@@ -307,4 +376,5 @@ class ProductsProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+  */
 }
