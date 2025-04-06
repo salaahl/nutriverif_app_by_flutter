@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:app_nutriverif/screens/home_page.dart';
-import 'package:app_nutriverif/screens/about_page.dart';
-import 'package:app_nutriverif/screens/products_page.dart';
+import 'package:app_nutriverif/screens/main_scaffold.dart';
 import 'package:app_nutriverif/screens/product_page.dart';
 
 class MyApp extends StatelessWidget {
@@ -16,19 +14,12 @@ class MyApp extends StatelessWidget {
           toolbarHeight: 172,
           backgroundColor: Colors.black,
         ),
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.white).copyWith(
-          surface: Color.fromRGBO(
-            245,
-            245,
-            245,
-            1,
-          ), // Background de l'application
-        ),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.white,
+        ).copyWith(surface: const Color.fromRGBO(245, 245, 245, 1)),
       ),
       routes: {
-        '/': (context) => HomePage(),
-        '/about': (context) => AboutPage(),
-        '/products': (context) => ProductSearchPage(),
+        '/': (context) => const MainScaffold(),
         '/product': (context) => ProductPage(),
       },
       initialRoute: '/',

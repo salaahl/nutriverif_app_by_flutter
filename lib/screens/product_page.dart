@@ -72,7 +72,7 @@ class NutritionalTableState extends State<NutritionalTable> {
         Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(12), // sm:rounded-lg
+            borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
                 color: const Color.fromRGBO(0, 0, 0, 0.08),
@@ -184,7 +184,7 @@ class NutritionalTableState extends State<NutritionalTable> {
                         child: const Padding(
                           padding: EdgeInsets.all(12),
                           child: Text(
-                            '-', // Ajr* - Remplir si les données sont disponibles
+                            '-',
                             style: TextStyle(fontSize: 12, color: Colors.grey),
                           ),
                         ),
@@ -495,6 +495,7 @@ class ProductPage extends StatelessWidget {
                   suggestedProducts.map((product) {
                     return ProductCard(
                       widthAjustment: 32,
+                      id: product.id,
                       imageUrl: product.image,
                       title: product.brand,
                       description: product.name,

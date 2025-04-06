@@ -230,6 +230,7 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                         );
                       },
                       child: ProductCard(
+                        id: product.id,
                         widthAjustment: 16,
                         imageUrl: product.image,
                         title: product.brand,

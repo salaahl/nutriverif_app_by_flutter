@@ -212,6 +212,7 @@ class _HomePageState extends State<HomePage> {
                                           provider.products.map((product) {
                                             return ProductCard(
                                               widthAjustment: 32,
+                                              id: product.id,
                                               imageUrl: product.image,
                                               title: product.brand,
                                               description: product.name,
@@ -750,6 +751,7 @@ class _HomePageState extends State<HomePage> {
                                     provider.lastProducts.map((product) {
                                       return ProductCard(
                                         widthAjustment: 32,
+                                        id: product.id,
                                         imageUrl: product.image,
                                         title: product.brand,
                                         description: product.name,
@@ -786,10 +788,10 @@ class _HomePageState extends State<HomePage> {
                     ),
                   );
                 },
-                child: Center(
-                  child: Column(
-                    children: [
-                      Padding(
+                child: Column(
+                  children: [
+                    Center(
+                      child: Padding(
                         padding: const EdgeInsets.all(64),
                         child: Image.asset(
                           'assets/images/logo.png',
@@ -797,8 +799,8 @@ class _HomePageState extends State<HomePage> {
                           color: Colors.grey[600],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
