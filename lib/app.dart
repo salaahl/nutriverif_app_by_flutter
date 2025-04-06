@@ -12,8 +12,18 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'NutriVerif',
       theme: ThemeData(
-        appBarTheme: const AppBarTheme(toolbarHeight: 172),
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
+        appBarTheme: const AppBarTheme(
+          toolbarHeight: 172,
+          backgroundColor: Colors.black,
+        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.white).copyWith(
+          surface: Color.fromRGBO(
+            245,
+            245,
+            245,
+            1,
+          ), // Background de l'application
+        ),
       ),
       routes: {
         '/': (context) => HomePage(),

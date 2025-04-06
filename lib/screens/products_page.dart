@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import '../widgets/my_app_bar.dart';
+import '../widgets/custom_app_bar.dart';
 import '../widgets/product_card.dart';
 import 'package:provider/provider.dart';
 import 'package:app_nutriverif/providers/products_provider.dart';
@@ -208,14 +208,35 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
               spacing: 16,
               runSpacing: 16,
               children:
-                  provider.products.map((product) {
-                    return ProductCard(
-                      widthAjustment: 16,
-                      imageUrl: product.image,
-                      title: product.brand,
-                      description: product.name,
-                      nutriscore: "assets/images/logo.png",
-                      nova: "assets/images/logo.png",
+                  provider.products.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final product = entry.value;
+
+                    return TweenAnimationBuilder<double>(
+                      tween: Tween(begin: 0.0, end: 1.0),
+                      duration: Duration(
+                        milliseconds: 500 + (index * 100),
+                      ),
+                      builder: (context, value, child) {
+                        return Opacity(
+                          opacity: value,
+                          child: Transform.translate(
+                            offset: Offset(
+                              0,
+                              30 * (1 - value),
+                            ),
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: ProductCard(
+                        widthAjustment: 16,
+                        imageUrl: product.image,
+                        title: product.brand,
+                        description: product.name,
+                        nutriscore: "assets/images/logo.png",
+                        nova: "assets/images/logo.png",
+                      ),
                     );
                   }).toList(),
             ),

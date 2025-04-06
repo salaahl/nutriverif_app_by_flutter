@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'package:app_nutriverif/providers/products_provider.dart';
 import '../screens/products_page.dart';
-import '../widgets/my_app_bar.dart';
+import '../widgets/custom_app_bar.dart';
 import '../widgets/product_card.dart';
 import '../models/model_products.dart';
 
@@ -404,7 +404,10 @@ class ProductPage extends StatelessWidget {
                         backgroundColor: Colors.grey[400],
                       ),
                       onPressed: () {
-                        provider.updateInput(category);
+                        provider.searchProducts(
+                          userInput: category,
+                          method: 'complete',
+                        );
                         Navigator.push(
                           context,
                           MaterialPageRoute(
