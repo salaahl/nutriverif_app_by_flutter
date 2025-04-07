@@ -18,9 +18,22 @@ class MyApp extends StatelessWidget {
           seedColor: Colors.white,
         ).copyWith(surface: const Color.fromRGBO(245, 245, 245, 1)),
       ),
-      routes: {
-        '/': (context) => const MainScaffold(),
-        '/product': (context) => ProductPage(),
+      routes: {'/': (context) => const MainScaffold()},
+      onGenerateRoute: (settings) {
+        final uri = Uri.parse(settings.name ?? '');
+
+        if (uri.pathSegments.length == 2 &&
+            uri.pathSegments.first == 'product') {
+          final id = uri.pathSegments[1];
+          return MaterialPageRoute(builder: (context) => ProductPage(id: id));
+        }
+
+        // fallback si la route n'existe pas
+        return MaterialPageRoute(
+          builder:
+              (context) =>
+                  Scaffold(body: Center(child: Text('Page not found'))),
+        );
       },
       initialRoute: '/',
     );

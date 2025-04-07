@@ -205,9 +205,15 @@ class NutritionalTableState extends State<NutritionalTable> {
   }
 }
 
-class ProductPage extends StatelessWidget {
-  const ProductPage({super.key});
+class ProductPage extends StatefulWidget {
+  final String? id;
+  const ProductPage({super.key, this.id});
 
+  @override
+  State<ProductPage> createState() => ProductPageState();
+}
+
+class ProductPageState extends State<ProductPage> {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ProductsProvider>(context);

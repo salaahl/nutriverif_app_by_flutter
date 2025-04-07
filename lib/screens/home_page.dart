@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 import 'package:app_nutriverif/providers/products_provider.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
@@ -201,7 +200,7 @@ class _HomePageState extends State<HomePage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 provider.productsIsLoading
-                                    ? ProductPage().loadingWidget()
+                                    ? ProductPageState().loadingWidget()
                                     : Wrap(
                                       alignment: WrapAlignment.spaceBetween,
                                       spacing:
@@ -410,399 +409,298 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SizedBox(height: 80),
-            VisibilityDetector(
-              key: const Key('visible-detector'),
-              onVisibilityChanged: (info) {
-                if (info.visibleFraction == 1.0 && !_animatedList[3]) {
-                  setState(() {
-                    _animatedList[3] = true;
-                  });
-                }
-              },
-              child: TweenAnimationBuilder<double>(
-                tween: Tween(begin: _animatedList[3] ? 1.0 : 0.0, end: 1.0),
-                duration: const Duration(milliseconds: 800),
-                builder: (context, value, child) {
-                  return Opacity(
-                    opacity: value,
-                    child: Transform.translate(
-                      offset: Offset(0, 30 * (1 - value)),
-                      child: child,
-                    ),
-                  );
-                },
-                child: Column(
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                const Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    const Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text.rich(
-                          TextSpan(
-                            style: TextStyle(fontSize: 24),
-                            children: [
-                              TextSpan(text: 'Votre alimentation '),
-                              TextSpan(
-                                text: 'décryptée',
-                                style: TextStyle(color: Colors.redAccent),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 48),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.all(24),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Image.asset(
-                                  'assets/images/logo.png',
-                                  width: 160,
-                                ),
-                                const SizedBox(height: 16),
-                                const Text(
-                                  "Le Nutri-Score est un système d'étiquetage nutritionnel qui aide les consommateurs à identifier la qualité nutritionnelle des aliments. "
-                                  "Il classe les produits de A (meilleure qualité nutritionnelle) à E (moins favorable), en prenant en compte des critères tels que les "
-                                  "nutriments bénéfiques (fibres, protéines) et les éléments à limiter (sucre, sel). Ce score, accompagné de couleurs, permet de faire des choix alimentaires plus éclairés.",
-                                  textAlign: TextAlign.justify,
-                                  style: TextStyle(fontWeight: FontWeight.w300),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 32),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.all(24),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Image.asset(
-                                  'assets/images/logo.png',
-                                  width: 40,
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  "Le système NOVA évalue le degré de transformation des aliments plutôt que leur valeur nutritionnelle directe. Il classe les produits en quatre groupes, allant des aliments bruts ou peu transformés (groupe 1) aux produits ultratransformés (groupe 4). Ce système met en avant l'importance de privilégier les aliments naturels et peu modifiés pour une alimentation plus saine.",
-                                  textAlign: TextAlign.justify,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w300,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 80),
-            VisibilityDetector(
-              key: const Key('visible-detector'),
-              onVisibilityChanged: (info) {
-                if (info.visibleFraction == 1.0 && !_animatedList[4]) {
-                  setState(() {
-                    _animatedList[4] = true;
-                  });
-                }
-              },
-              child: TweenAnimationBuilder<double>(
-                tween: Tween(begin: _animatedList[4] ? 1.0 : 0.0, end: 1.0),
-                duration: const Duration(milliseconds: 800),
-                builder: (context, value, child) {
-                  return Opacity(
-                    opacity: value,
-                    child: Transform.translate(
-                      offset: Offset(0, 30 * (1 - value)),
-                      child: child,
-                    ),
-                  );
-                },
-                child: Column(
-                  children: [
-                    const SizedBox(height: 24),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: const Text.rich(
-                            TextSpan(
-                              text: "Découvrez des ",
-                              children: [
-                                TextSpan(
-                                  text: "alternatives",
-                                  style: TextStyle(color: Color(0xFF00BD7E)),
-                                ),
-                                TextSpan(text: " plus saines"),
-                              ],
-                            ),
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 24),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 48),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: const Text.rich(
-                            TextSpan(
-                              text:
-                                  "Vous méritez le meilleur pour votre alimentation",
-                              style: TextStyle(
-                                backgroundColor: Color(0xFF00BD7E),
-                              ),
-                              children: [
-                                TextSpan(
-                                  text:
-                                      ". Si un produit a un Nutri-Score jugé trop faible :",
-                                  style: TextStyle(
-                                    backgroundColor: Color.fromRGBO(
-                                      245,
-                                      245,
-                                      245,
-                                      1,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 32),
-                    // Page produit
-                    Column(
-                      children: [
-                        // Section Produit Principal
-                        if (provider.productIsLoading)
-                          ProductPage().loadingWidget()
-                        else ...[
-                          ProductPage().productDetails(
-                            context,
-                            provider.product,
-                          ),
-                          const SizedBox(height: 32),
-                        ],
-
-                        // Section Alternatives
-                        ProductPage().alternativeProducts(
-                          context,
-                          provider,
-                          ProductPage().loadingWidget(),
-                          provider.suggestedProducts,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 32),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.arrow_upward_rounded,
-                          color: const Color(0xFF00BD7E),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: const Text.rich(
-                            TextSpan(
-                              text:
-                                  "Notre fonctionnalité intelligente vous propose instantanément des alternatives ",
-                              children: [
-                                TextSpan(
-                                  text:
-                                      "mieux notées et tout aussi savoureuses",
-                                  style: TextStyle(
-                                    backgroundColor: Color.fromRGBO(
-                                      0,
-                                      189,
-                                      126,
-                                      0.6,
-                                    ),
-                                  ),
-                                ),
-                                TextSpan(text: "."),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: const Text.rich(
-                            TextSpan(
-                              text: "Trouvez des options ",
-                              children: [
-                                TextSpan(
-                                  text: "plus saines",
-                                  style: TextStyle(
-                                    backgroundColor: Color.fromRGBO(
-                                      0,
-                                      189,
-                                      126,
-                                      0.6,
-                                    ),
-                                  ),
-                                ),
-                                TextSpan(
-                                  text:
-                                      " et faites de chaque choix un pas vers une meilleure santé.",
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 80),
-            VisibilityDetector(
-              key: const Key('visible-detector'),
-              onVisibilityChanged: (info) {
-                if (info.visibleFraction == 1.0 && !_animatedList[5]) {
-                  setState(() {
-                    _animatedList[5] = true;
-                  });
-                }
-              },
-              child: TweenAnimationBuilder<double>(
-                tween: Tween(begin: _animatedList[5] ? 1.0 : 0.0, end: 1.0),
-                duration: const Duration(milliseconds: 800),
-                builder: (context, value, child) {
-                  return Opacity(
-                    opacity: value,
-                    child: Transform.translate(
-                      offset: Offset(0, 30 * (1 - value)),
-                      child: child,
-                    ),
-                  );
-                },
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: const Text.rich(
-                            TextSpan(
-                              text: "Produits",
-                              children: [
-                                TextSpan(
-                                  text: " recemment ",
-                                  style: TextStyle(color: Color(0xFF00BD7E)),
-                                ),
-                                TextSpan(text: "ajoutés"),
-                              ],
-                            ),
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 24),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 32),
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    Text.rich(
+                      TextSpan(
+                        style: TextStyle(fontSize: 24),
                         children: [
-                          provider.lastProductsIsLoading
-                              ? ProductPage().loadingWidget()
-                              : Wrap(
-                                alignment: WrapAlignment.spaceBetween,
-                                spacing:
-                                    MediaQuery.of(context).size.width / 100 * 4,
-                                children:
-                                    provider.lastProducts.map((product) {
-                                      return ProductCard(
-                                        widthAjustment: 32,
-                                        id: product.id,
-                                        imageUrl: product.image,
-                                        title: product.brand,
-                                        description: product.name,
-                                        nutriscore: "assets/images/logo.png",
-                                        nova: "assets/images/logo.png",
-                                      );
-                                    }).toList(),
-                              ),
+                          TextSpan(text: 'Votre alimentation '),
+                          TextSpan(
+                            text: 'décryptée',
+                            style: TextStyle(color: Colors.redAccent),
+                          ),
                         ],
                       ),
                     ),
                   ],
                 ),
-              ),
-            ),
-            VisibilityDetector(
-              key: const Key('visible-detector'),
-              onVisibilityChanged: (info) {
-                if (info.visibleFraction == 1.0 && !_animatedList[6]) {
-                  setState(() {
-                    _animatedList[6] = true;
-                  });
-                }
-              },
-              child: TweenAnimationBuilder<double>(
-                tween: Tween(begin: _animatedList[6] ? 1.0 : 0.0, end: 1.0),
-                duration: const Duration(milliseconds: 800),
-                builder: (context, value, child) {
-                  return Opacity(
-                    opacity: value,
-                    child: Transform.translate(
-                      offset: Offset(0, 30 * (1 - value)),
-                      child: child,
-                    ),
-                  );
-                },
-                child: Column(
+                const SizedBox(height: 48),
+                Row(
                   children: [
-                    Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(64),
-                        child: Image.asset(
-                          'assets/images/logo.png',
-                          height: 160,
-                          color: Colors.grey[600],
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Image.asset('assets/images/logo.png', width: 160),
+                            const SizedBox(height: 16),
+                            const Text(
+                              "Le Nutri-Score est un système d'étiquetage nutritionnel qui aide les consommateurs à identifier la qualité nutritionnelle des aliments. "
+                              "Il classe les produits de A (meilleure qualité nutritionnelle) à E (moins favorable), en prenant en compte des critères tels que les "
+                              "nutriments bénéfiques (fibres, protéines) et les éléments à limiter (sucre, sel). Ce score, accompagné de couleurs, permet de faire des choix alimentaires plus éclairés.",
+                              textAlign: TextAlign.justify,
+                              style: TextStyle(fontWeight: FontWeight.w300),
+                            ),
+                          ],
                         ),
                       ),
                     ),
                   ],
                 ),
-              ),
+                const SizedBox(height: 32),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Image.asset('assets/images/logo.png', width: 40),
+                            const SizedBox(height: 16),
+                            Text(
+                              "Le système NOVA évalue le degré de transformation des aliments plutôt que leur valeur nutritionnelle directe. Il classe les produits en quatre groupes, allant des aliments bruts ou peu transformés (groupe 1) aux produits ultratransformés (groupe 4). Ce système met en avant l'importance de privilégier les aliments naturels et peu modifiés pour une alimentation plus saine.",
+                              textAlign: TextAlign.justify,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w300,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 80),
+            Column(
+              children: [
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: const Text.rich(
+                        TextSpan(
+                          text: "Découvrez des ",
+                          children: [
+                            TextSpan(
+                              text: "alternatives",
+                              style: TextStyle(color: Color(0xFF00BD7E)),
+                            ),
+                            TextSpan(text: " plus saines"),
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 24),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 48),
+                Row(
+                  children: [
+                    Expanded(
+                      child: const Text.rich(
+                        TextSpan(
+                          text:
+                              "Vous méritez le meilleur pour votre alimentation",
+                          style: TextStyle(backgroundColor: Color(0xFF00BD7E)),
+                          children: [
+                            TextSpan(
+                              text:
+                                  ". Si un produit a un Nutri-Score jugé trop faible :",
+                              style: TextStyle(
+                                backgroundColor: Color.fromRGBO(
+                                  245,
+                                  245,
+                                  245,
+                                  1,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32),
+                // Page produit
+                Column(
+                  children: [
+                    // Section Produit Principal
+                    if (provider.productIsLoading)
+                      ProductPageState().loadingWidget()
+                    else ...[
+                      ProductPageState().productDetails(
+                        context,
+                        provider.product,
+                      ),
+                      const SizedBox(height: 32),
+                    ],
+
+                    // Section Alternatives
+                    ProductPageState().alternativeProducts(
+                      context,
+                      provider,
+                      ProductPageState().loadingWidget(),
+                      provider.suggestedProducts,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.arrow_upward_rounded,
+                      color: const Color(0xFF00BD7E),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: const Text.rich(
+                        TextSpan(
+                          text:
+                              "Notre fonctionnalité intelligente vous propose instantanément des alternatives ",
+                          children: [
+                            TextSpan(
+                              text: "mieux notées et tout aussi savoureuses",
+                              style: TextStyle(
+                                backgroundColor: Color.fromRGBO(
+                                  0,
+                                  189,
+                                  126,
+                                  0.6,
+                                ),
+                              ),
+                            ),
+                            TextSpan(text: "."),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: const Text.rich(
+                        TextSpan(
+                          text: "Trouvez des options ",
+                          children: [
+                            TextSpan(
+                              text: "plus saines",
+                              style: TextStyle(
+                                backgroundColor: Color.fromRGBO(
+                                  0,
+                                  189,
+                                  126,
+                                  0.6,
+                                ),
+                              ),
+                            ),
+                            TextSpan(
+                              text:
+                                  " et faites de chaque choix un pas vers une meilleure santé.",
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 80),
+            Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: const Text.rich(
+                        TextSpan(
+                          text: "Produits",
+                          children: [
+                            TextSpan(
+                              text: " recemment ",
+                              style: TextStyle(color: Color(0xFF00BD7E)),
+                            ),
+                            TextSpan(text: "ajoutés"),
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 24),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      provider.lastProductsIsLoading
+                          ? ProductPageState().loadingWidget()
+                          : Wrap(
+                            alignment: WrapAlignment.spaceBetween,
+                            spacing:
+                                MediaQuery.of(context).size.width / 100 * 4,
+                            children:
+                                provider.lastProducts.map((product) {
+                                  return ProductCard(
+                                    widthAjustment: 32,
+                                    id: product.id,
+                                    imageUrl: product.image,
+                                    title: product.brand,
+                                    description: product.name,
+                                    nutriscore: "assets/images/logo.png",
+                                    nova: "assets/images/logo.png",
+                                  );
+                                }).toList(),
+                          ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            Column(
+              children: [
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(64),
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      height: 160,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
