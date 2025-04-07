@@ -206,19 +206,39 @@ class NutritionalTableState extends State<NutritionalTable> {
 }
 
 class ProductPage extends StatefulWidget {
-  final String? id;
-  const ProductPage({super.key, this.id});
+  const ProductPage({super.key});
 
   @override
   State<ProductPage> createState() => ProductPageState();
 }
 
 class ProductPageState extends State<ProductPage> {
+  String? _productId;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+
+      if (args is String) {
+        setState(() {
+          _productId = args;
+        });
+
+        final provider = Provider.of<ProductsProvider>(context, listen: false);
+        provider.fetchProduct(_productId!);
+      } else {
+        Navigator.pop(context);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ProductsProvider>(context);
 
-    // Widget principal
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(172),
@@ -227,7 +247,6 @@ class ProductPageState extends State<ProductPage> {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
-          // Section Produit Principal
           if (provider.productIsLoading)
             loadingWidget()
           else ...[
@@ -235,7 +254,6 @@ class ProductPageState extends State<ProductPage> {
             const SizedBox(height: 32),
           ],
 
-          // Section Alternatives
           alternativeProducts(
             context,
             provider,
@@ -249,7 +267,6 @@ class ProductPageState extends State<ProductPage> {
     );
   }
 
-  // Widget de chargement centralisé
   Widget loadingWidget() => const Center(
     child: Padding(
       padding: EdgeInsets.all(64),

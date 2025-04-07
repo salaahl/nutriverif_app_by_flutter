@@ -29,7 +29,12 @@ class _MainScaffoldState extends State<MainScaffold> {
       body: _pages[_currentIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          border: Border(top: BorderSide(width: 4, color: Colors.grey[400]!)),
+          border: Border(
+            top: BorderSide(
+              width: 4,
+              color: const Color.fromRGBO(158, 158, 158, 0.25),
+            ),
+          ),
         ),
         child: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,

@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
-import '../providers/products_provider.dart';
 
 class ProductCard extends StatelessWidget {
   final String id;
@@ -26,8 +23,6 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<ProductsProvider>(context);
-
     return Container(
       height: 280,
       width: (MediaQuery.of(context).size.width / 100 * 48) - widthAjustment,
@@ -59,7 +54,7 @@ class ProductCard extends StatelessWidget {
       ),
       child: GestureDetector(
         onTap: () {
-          Navigator.pushNamed(context, "/product/${id}");
+          Navigator.pushNamed(context, "/product", arguments: id);
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

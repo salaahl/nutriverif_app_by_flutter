@@ -33,9 +33,9 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
   void initState() {
     super.initState();
 
-    // Cette méthode permet d'appeler mon provider une fois le widget est construit
+    // Cette méthode permet d'appeler mon provider une fois le widget construit
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = Provider.of<ProductsProvider>(context, listen: false);
+      // provider = Provider.of<ProductsProvider>(context, listen: false);
     });
 
     _scrollController.addListener(_onScroll);

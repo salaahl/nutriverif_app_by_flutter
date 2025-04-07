@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:app_nutriverif/screens/main_scaffold.dart';
+import 'package:app_nutriverif/screens/products_page.dart';
+import 'package:app_nutriverif/screens/about_page.dart';
 import 'package:app_nutriverif/screens/product_page.dart';
 
 class MyApp extends StatelessWidget {
@@ -18,22 +20,11 @@ class MyApp extends StatelessWidget {
           seedColor: Colors.white,
         ).copyWith(surface: const Color.fromRGBO(245, 245, 245, 1)),
       ),
-      routes: {'/': (context) => const MainScaffold()},
-      onGenerateRoute: (settings) {
-        final uri = Uri.parse(settings.name ?? '');
-
-        if (uri.pathSegments.length == 2 &&
-            uri.pathSegments.first == 'product') {
-          final id = uri.pathSegments[1];
-          return MaterialPageRoute(builder: (context) => ProductPage(id: id));
-        }
-
-        // fallback si la route n'existe pas
-        return MaterialPageRoute(
-          builder:
-              (context) =>
-                  Scaffold(body: Center(child: Text('Page not found'))),
-        );
+      routes: {
+        '/': (context) => const MainScaffold(),
+        '/about': (context) => const AboutPage(),
+        '/products': (context) => const ProductSearchPage(),
+        '/product': (context) => const ProductPage(),
       },
       initialRoute: '/',
     );

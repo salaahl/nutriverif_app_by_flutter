@@ -1,7 +1,5 @@
 // products_provider.dart
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import '../models/model_products.dart';
 
 class ProductsProvider with ChangeNotifier {
@@ -103,11 +101,8 @@ class ProductsProvider with ChangeNotifier {
       _products = [];
       _input = userInput;
       _page = 1;
-      _pages =
-          2; // Cette valeur sera à déplacer plus bas et à calculer de façon dynamique
+      _pages = 2;
     }
-
-    print("userInput: $userInput, sortBy: $sortBy, method: $method");
 
     try {
       _productsIsLoading = true;
