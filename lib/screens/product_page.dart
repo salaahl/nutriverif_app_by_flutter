@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:app_nutriverif/providers/products_provider.dart';
 import '../screens/products_page.dart';
@@ -22,7 +23,8 @@ class NutritionalTableState extends State<NutritionalTable> {
     final provider = Provider.of<ProductsProvider>(context);
 
     // Convertir l'objet en une liste de paires (nom, valeur)
-    final entries = (widget.nutriments as Map<String, String>).entries.toList();
+    final entries =
+        (widget.nutriments as Map<String, dynamic>).entries.toList();
 
     final double rowHeight = 85;
 
@@ -87,15 +89,9 @@ class NutritionalTableState extends State<NutritionalTable> {
             child: Table(
               defaultVerticalAlignment: TableCellVerticalAlignment.middle,
               columnWidths: {
-                0: FixedColumnWidth(
-                  (MediaQuery.of(context).size.width / 2) - 32,
-                ), // Largeur de la première colonne
-                1: FixedColumnWidth(
-                  (MediaQuery.of(context).size.width / 3) - 32,
-                ), // Largeur de la deuxième colonne
-                2: FixedColumnWidth(
-                  (MediaQuery.of(context).size.width / 3) - 32,
-                ), // Largeur de la troisième colonne
+                0: FractionColumnWidth(0.50),
+                1: FractionColumnWidth(0.30),
+                2: FractionColumnWidth(0.20),
               },
               children: [
                 TableRow(
@@ -151,52 +147,64 @@ class NutritionalTableState extends State<NutritionalTable> {
                   ],
                 ),
                 for (var entry in entries)
-                  TableRow(
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(color: Colors.grey[300]!, width: 1),
+                  // Je n'affiche que les nutriments élligibles aux ajr
+                  if (provider.ajrValues.containsKey(entry.key))
+                    TableRow(
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: Colors.grey[300]!,
+                            width: 1,
+                          ),
+                        ),
                       ),
-                    ),
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(color: Colors.white),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Text(
-                            entry.key, // Nom du nutriment (ex: 'Carbohydrates')
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.grey[900],
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(color: Colors.white),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Text(
+                              provider.ajrValues[entry.key]?['name'],
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.grey[900],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      Container(
-                        decoration: BoxDecoration(color: Colors.white),
-                        child: Padding(
-                          padding: EdgeInsets.all(12),
-                          child: Text(
-                            entry.value,
-                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                        Container(
+                          decoration: BoxDecoration(color: Colors.white),
+                          child: Padding(
+                            padding: EdgeInsets.all(12),
+                            child: Text(
+                              entry.value.toStringAsFixed(0).toString(),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                      Container(
-                        decoration: BoxDecoration(color: Colors.grey[100]),
-                        child: Padding(
-                          padding: EdgeInsets.all(12),
-                          child: Text(
-                            (double.tryParse(entry.value) != null &&
-                                    provider.ajrValues[entry.key] != null)
-                                ? ('${(((double.parse(entry.value)) / provider.ajrValues[entry.key]!) * 100).toStringAsFixed(0)}%')
-                                : '—',
-                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                        Container(
+                          decoration: BoxDecoration(color: Colors.grey[100]),
+                          child: Padding(
+                            padding: EdgeInsets.all(12),
+                            child: Text(
+                              (double.tryParse(entry.value.toString()) !=
+                                          null &&
+                                      provider.ajrValues[entry.key] != null)
+                                  ? ('${(((double.parse(entry.value.toString())) / provider.ajrValues[entry.key]?['value']!) * 100).toStringAsFixed(0)}%')
+                                  : '—',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
               ],
             ),
           ),
@@ -282,13 +290,17 @@ class ProductPageState extends State<ProductPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Image du produit
-        Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
+        AspectRatio(
+          aspectRatio: 1,
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(32),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Image.network(product.image, width: 160),
           ),
-          child: Image.asset(product.image, width: 160),
         ),
         const SizedBox(height: 32),
         productInfo(context, product),
@@ -317,9 +329,9 @@ class ProductPageState extends State<ProductPage> {
         ),
         const SizedBox(height: 8),
         Text("Dernière mise à jour : ${product.lastUpdate}"),
-        const SizedBox(height: 8),
-        productImages(),
-        const SizedBox(height: 8),
+        const SizedBox(height: 16),
+        productImages(product.nutriscore, product.nova),
+        const SizedBox(height: 32),
         productLabel(product.nutrientLevels),
         const SizedBox(height: 32),
         productDetailsBottom(context, product),
@@ -328,12 +340,19 @@ class ProductPageState extends State<ProductPage> {
   }
 
   // Affichage des logos
-  Widget productImages() {
+  Widget productImages(String nutriscore, String nova) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        productImage("assets/images/logo.png", 100),
-        productImage("assets/images/logo.png", 40),
+        productImage(
+          "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-$nutriscore-new-fr.svg",
+          100,
+        ),
+        const SizedBox(height: 8),
+        productImage(
+          "https://static.openfoodfacts.org/images/attributes/dist/nova-group-$nova.svg",
+          30,
+        ),
       ],
     );
   }
@@ -341,9 +360,8 @@ class ProductPageState extends State<ProductPage> {
   // Affichage d'une image avec une contrainte de largeur
   Widget productImage(String imageUrl, double width) {
     return Container(
-      width: width,
       constraints: BoxConstraints(maxWidth: width),
-      child: Image.asset(imageUrl, fit: BoxFit.cover),
+      child: SvgPicture.network(imageUrl, width: width, fit: BoxFit.cover),
     );
   }
 
@@ -524,8 +542,8 @@ class ProductPageState extends State<ProductPage> {
                       imageUrl: product.image,
                       title: product.brand,
                       description: product.name,
-                      nutriscore: "assets/images/logo.png",
-                      nova: "assets/images/logo.png",
+                      nutriscore: product.nutriscore,
+                      nova: product.nova,
                     );
                   }).toList(),
             ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:app_nutriverif/providers/products_provider.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../widgets/custom_app_bar.dart';
 import '../widgets/product_card.dart';
@@ -26,6 +27,7 @@ class _HomePageState extends State<HomePage> {
   );
 
   late Product _productDemo = Product.fromJson({});
+  late List<Products> _suggestedProductsDemo = [];
 
   @override
   void initState() {
@@ -41,6 +43,7 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         // Mise à jour de _productDemo après avoir récupéré les données
         _productDemo = provider.product;
+        _suggestedProductsDemo = provider.suggestedProducts;
       });
     });
   }
@@ -236,24 +239,25 @@ class _HomePageState extends State<HomePage> {
                                         100 *
                                         4,
                                     children:
-                                        provider.products.map((product) {
+                                        provider.products.take(4).map((
+                                          product,
+                                        ) {
                                           return ProductCard(
                                             widthAjustment: 32,
                                             id: product.id,
                                             imageUrl: product.image,
                                             title: product.brand,
                                             description: product.name,
-                                            nutriscore:
-                                                "assets/images/logo.png",
-                                            nova: "assets/images/logo.png",
+                                            nutriscore: product.nutriscore,
+                                            nova: product.nova,
                                           );
                                         }).toList(),
                                   ),
                             ],
                           ),
                         ),
-                        if (provider.products.length ==
-                            4) // Si la liste contient 4 produits
+                        if (provider.products.length >
+                            3) // Si la liste contient 4 produits ou plus
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             child: SizedBox(
@@ -471,7 +475,10 @@ class _HomePageState extends State<HomePage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Image.asset('assets/images/logo.png', width: 160),
+                            SvgPicture.network(
+                              'https://static.openfoodfacts.org/images/attributes/dist/nutriscore-a.svg',
+                              width: 160,
+                            ),
                             const SizedBox(height: 16),
                             const Text(
                               "Le Nutri-Score est un système d'étiquetage nutritionnel qui aide les consommateurs à identifier la qualité nutritionnelle des aliments. "
@@ -499,7 +506,10 @@ class _HomePageState extends State<HomePage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Image.asset('assets/images/logo.png', width: 40),
+                            SvgPicture.network(
+                              'https://static.openfoodfacts.org/images/attributes/dist/nova-group-1.svg',
+                              width: 40,
+                            ),
                             const SizedBox(height: 16),
                             Text(
                               "Le système NOVA évalue le degré de transformation des aliments plutôt que leur valeur nutritionnelle directe. Il classe les produits en quatre groupes, allant des aliments bruts ou peu transformés (groupe 1) aux produits ultratransformés (groupe 4). Ce système met en avant l'importance de privilégier les aliments naturels et peu modifiés pour une alimentation plus saine.",
@@ -585,7 +595,7 @@ class _HomePageState extends State<HomePage> {
                       context,
                       provider,
                       ProductPageState().loadingWidget(),
-                      provider.suggestedProducts,
+                      _suggestedProductsDemo,
                     ),
                   ],
                 ),
@@ -704,8 +714,8 @@ class _HomePageState extends State<HomePage> {
                                     imageUrl: product.image,
                                     title: product.brand,
                                     description: product.name,
-                                    nutriscore: "assets/images/logo.png",
-                                    nova: "assets/images/logo.png",
+                                    nutriscore: product.nutriscore,
+                                    nova: product.nova,
                                   );
                                 }).toList(),
                           ),

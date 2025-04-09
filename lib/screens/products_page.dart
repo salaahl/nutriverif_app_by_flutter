@@ -238,8 +238,8 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                         imageUrl: product.image,
                         title: product.brand,
                         description: product.name,
-                        nutriscore: "assets/images/logo.png",
-                        nova: "assets/images/logo.png",
+                        nutriscore: product.nutriscore,
+                        nova: product.nova,
                       ),
                     );
                   }).toList(),

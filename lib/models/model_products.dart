@@ -5,7 +5,7 @@ class Products {
   final String brand;
   final String name;
   final String nutriscore;
-  final dynamic nova; // Peut être String ou int
+  final dynamic nova; // Peut être un String ou un int
 
   Products({
     required this.id,
@@ -18,33 +18,33 @@ class Products {
 
   factory Products.fromJson(Map<String, dynamic> json) {
     return Products(
-      id: json['id'] ?? '',
-      image: json['image_front_small_url'] ?? 'assets/images/logo.png',
-      brand: json['brands'] ?? '',
-      name: json['generic_name_fr'] ?? '',
-      nutriscore: json['nutriscore_grade'] ?? 'unknown',
-      nova: json['nova_group'] ?? 'unknown',
+      id: (json['id'] ?? '').toString(),
+      image: (json['image_front_small_url'] ?? '').toString(),
+      brand: (json['brands'] ?? '').toString(),
+      name: (json['generic_name_fr'] ?? '').toString(),
+      nutriscore: (json['nutriscore_grade'] ?? 'unknown').toString(),
+      nova: (json['nova_group'] ?? 'unknown').toString(),
     );
   }
 }
 
 class Product {
-  String id;
-  String image;
-  String brand;
-  String genericName;
-  String category;
-  List<String> categories;
-  String lastUpdate;
-  String nutriscore;
-  dynamic nova;
-  String quantity;
-  String servingSize;
-  String ingredients;
-  Map<String, String> nutriments;
-  Map<String, String> nutrientLevels;
-  String manufacturingPlace;
-  String link;
+  final String id;
+  final String image;
+  final String brand;
+  final String genericName;
+  final String category;
+  final List<String> categories;
+  final String lastUpdate;
+  final String nutriscore;
+  final String nova;
+  final String quantity;
+  final String servingSize;
+  final String ingredients;
+  final Map<String, dynamic> nutriments;
+  final Map<String, dynamic> nutrientLevels;
+  final String manufacturingPlace;
+  final String link;
 
   Product({
     required this.id,
@@ -67,27 +67,26 @@ class Product {
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      id: json['id'] ?? '',
-      image: json['image_front_url'] ?? 'assets/images/logo.png',
-      brand: json['brands'] ?? '',
-      genericName: json['generic_name_fr'] ?? '',
-      category: json['compared_to_category'] ?? '',
-      categories: (json['categories'] as String?)?.split(',') ?? [],
-      lastUpdate:
-          json['last_updated_t'] != null
-              ? DateTime.fromMillisecondsSinceEpoch(
-                json['last_updated_t'] * 1000,
-              ).toString()
-              : '',
-      nutriscore: json['nutriscore_grade'] ?? 'unknown',
-      nova: json['nova_group'] ?? 'unknown',
-      quantity: json['quantity'] ?? '',
-      servingSize: json['serving_size'] ?? '',
-      ingredients: json['ingredients_text_with_allergens_fr'] ?? '',
-      nutriments: Map<String, String>.from(json['nutriments'] ?? {}),
-      nutrientLevels: Map<String, String>.from(json['nutrient_levels'] ?? {}),
-      manufacturingPlace: json['manufacturing_places'] ?? '',
-      link: json['link'] ?? '',
+      id: (json['_id'] ?? '').toString(),
+      image: (json['image_url'] ?? '').toString(),
+      brand: (json['brands'] ?? '').toString(),
+      genericName: (json['generic_name_fr'] ?? '').toString(),
+      category: (json['main_category_fr'] ?? '').toString(),
+      categories:
+          (json['categories_tags'] as List?)
+              ?.map((e) => e.split(':')[1].toString())
+              .toList() ??
+          [],
+      lastUpdate: (json['last_modified_t'] ?? '').toString(),
+      nutriscore: (json['nutriscore_grade'] ?? '').toString(),
+      nova: (json['nova_group'] ?? '').toString(),
+      quantity: (json['quantity'] ?? '').toString(),
+      servingSize: (json['serving_size'] ?? '').toString(),
+      ingredients: (json['ingredients_text_fr'] ?? '').toString(),
+      nutriments: Map<String, dynamic>.from(json['nutriments'] ?? {}),
+      nutrientLevels: Map<String, dynamic>.from(json['nutrient_levels'] ?? {}),
+      manufacturingPlace: (json['manufacturing_places'] ?? '').toString(),
+      link: (json['url'] ?? '').toString(),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class ProductCard extends StatelessWidget {
   final String id;
@@ -55,28 +56,46 @@ class ProductCard extends StatelessWidget {
                     width:
                         (MediaQuery.of(context).size.width / 100 * 48) -
                         widthAjustment * 2,
-                    child: Image.asset(
-                      imageUrl,
-                      height: 80,
-                      fit: BoxFit.contain,
-                    ),
+                    child:
+                        imageUrl.isEmpty
+                            ? Image.asset(
+                              'assets/images/logo.png',
+                              height: 80,
+                              fit: BoxFit.contain,
+                            )
+                            : Image.network(
+                              imageUrl,
+                              height: 80,
+                              fit: BoxFit.contain,
+                            ),
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 Text(
                   description,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
                 const SizedBox(height: 4),
                 Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Image.asset(nutriscore, height: 30),
+                    SvgPicture.network(
+                      "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-$nutriscore-new-fr.svg",
+                      height: 40,
+                    ),
                     const SizedBox(height: 4),
-                    Image.asset(nova, height: 30),
+                    SvgPicture.network(
+                      "https://static.openfoodfacts.org/images/attributes/dist/nova-group-$nova.svg",
+                      height: 40,
+                    ),
                   ],
                 ),
               ],

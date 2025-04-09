@@ -1,5 +1,8 @@
 // products_provider.dart
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import '../models/model_products.dart';
 
 class ProductsProvider with ChangeNotifier {
@@ -36,28 +39,28 @@ class ProductsProvider with ChangeNotifier {
   int get pages => _pages;
   String? get error => _error;
 
-  Map<String, double> get ajrValues {
+  Map<String, Map<String, dynamic>> get ajrValues {
     if (_ajrSelected == 'women') {
       return {
-        'energy-kcal_serving': 2000,
-        'fat_serving': 70,
-        'saturated-fat_serving': 20,
-        'carbohydrates_serving': 260,
-        'sugars_serving': 90,
-        'salt_serving': 6,
-        'fiber_serving': 25,
-        'proteins_serving': 50,
+        'energy-kcal_serving': {'name': 'Énergie (kcal)', 'value': 2000},
+        'fat_serving': {'name': 'Matières grasses', 'value': 70},
+        'saturated-fat_serving': {'name': 'Acides gras saturés', 'value': 20},
+        'carbohydrates_serving': {'name': 'Glucides', 'value': 260},
+        'sugars_serving': {'name': 'Sucres', 'value': 90},
+        'salt_serving': {'name': 'Sel', 'value': 6},
+        'fiber_serving': {'name': 'Fibres alimentaires', 'value': 25},
+        'proteins_serving': {'name': 'Protéines', 'value': 50},
       };
     } else {
       return {
-        'energy-kcal_serving': 2500,
-        'fat_serving': 95,
-        'saturated-fat_serving': 30,
-        'carbohydrates_serving': 300,
-        'sugars_serving': 120,
-        'salt_serving': 6,
-        'fiber_serving': 30,
-        'proteins_serving': 50,
+        'energy-kcal_serving': {'name': 'Énergie (kcal)', 'value': 2500},
+        'fat_serving': {'name': 'Matières grasses', 'value': 95},
+        'saturated-fat_serving': {'name': 'Acides gras saturés', 'value': 30},
+        'carbohydrates_serving': {'name': 'Glucides', 'value': 300},
+        'sugars_serving': {'name': 'Sucres', 'value': 120},
+        'salt_serving': {'name': 'Sel', 'value': 6},
+        'fiber_serving': {'name': 'Fibres alimentaires', 'value': 30},
+        'proteins_serving': {'name': 'Protéines', 'value': 50},
       };
     }
   }
@@ -99,140 +102,7 @@ class ProductsProvider with ChangeNotifier {
       _page++;
     } else {
       _products = [];
-      _input = userInput;
-      _page = 1;
-      _pages = 2;
-    }
-
-    try {
-      _productsIsLoading = true;
-      notifyListeners();
-
-      await Future.delayed(Duration(seconds: 3));
-
-      _products.addAll(
-        List.generate(
-          4,
-          (index) => Products(
-            id: '123456789',
-            image: 'assets/images/logo.png',
-            brand: 'Produit $index',
-            name: 'Nom du produit $index',
-            nutriscore: 'assets/images/logo.png',
-            nova: 'assets/images/logo.png',
-          ),
-        ),
-      );
-    } catch (e) {
-      _error = e.toString();
-    } finally {
-      _productsIsLoading = false;
-      notifyListeners();
-    }
-  }
-
-  Future<void> fetchProduct(String id) async {
-    if (productIsLoading) return;
-
-    _productIsLoading = true;
-    notifyListeners();
-
-    await Future.delayed(Duration(seconds: 3));
-    _product = Product(
-      id: '123456789',
-      image: 'assets/images/logo.png',
-      brand: 'Produit',
-      genericName: 'Nom du produit',
-      category: 'Catégorie',
-      categories: ['Catégorie 1', 'Catégorie 2'],
-      nutriscore: 'assets/images/logo.png',
-      nova: 'assets/images/logo.png',
-      lastUpdate: '01/01/2023',
-      quantity: '300g',
-      servingSize: '100g',
-      ingredients: String.fromCharCode(33),
-      nutriments: {
-        'energy-kcal_serving': '225',
-        'fat_serving': '7.5',
-        'saturated-fat_serving': '3.0',
-        'carbohydrates_serving': '30.0',
-        'sugars_serving': '15.0',
-        'salt_serving': '0.3',
-        'fiber_serving': '1.5',
-        'proteins_serving': '9.0',
-      },
-      nutrientLevels: {
-        "fat": "high",
-        "salt": "low",
-        "saturated-fat": "high",
-        "sugars": "high",
-      },
-      manufacturingPlace: 'France',
-      link: 'assets/images/logo.png',
-    );
-
-    _productIsLoading = false;
-    notifyListeners();
-
-    fetchSuggestedProducts();
-  }
-
-  Future<void> fetchLastProducts() async {
-    if (_lastProductsIsLoading) return;
-
-    _lastProductsIsLoading = true;
-    notifyListeners();
-
-    await Future.delayed(Duration(seconds: 3));
-    _lastProducts = List.generate(
-      4,
-      (index) => Products(
-        id: '123456789',
-        image: 'assets/images/logo.png',
-        brand: 'Produit $index',
-        name: 'Nom du produit $index',
-        nutriscore: 'assets/images/logo.png',
-        nova: 'assets/images/logo.png',
-      ),
-    );
-
-    _lastProductsIsLoading = false;
-    notifyListeners();
-  }
-
-  Future<void> fetchSuggestedProducts() async {
-    if (_suggestedProductsIsLoading) return;
-
-    _suggestedProductsIsLoading = true;
-    notifyListeners();
-
-    await Future.delayed(Duration(seconds: 3));
-    _suggestedProducts = List.generate(
-      4,
-      (index) => Products(
-        id: '123456789',
-        image: 'assets/images/logo.png',
-        brand: 'Produit $index',
-        name: 'Nom du produit $index',
-        nutriscore: 'assets/images/logo.png',
-        nova: 'assets/images/logo.png',
-      ),
-    );
-
-    _suggestedProductsIsLoading = false;
-    notifyListeners();
-  }
-
-  /* Appels API à remettre lors que le code sera opérationnel
-  Future<void> searchProducts({
-    String userInput = '',
-    String sortBy = 'popularity_key',
-    required String method,
-  }) async {
-    if (method == 'more') {
-      _page++;
-    } else {
-      _products = [];
+      _suggestedProducts = [];
       _input = userInput;
       _page = 1;
     }
@@ -251,6 +121,7 @@ class ProductsProvider with ChangeNotifier {
       final data = json.decode(response.body);
 
       if (method == 'complete') _pages = (data['count'] / 20).ceil();
+
       _products.addAll(
         (data['products'] as List).map((p) => Products.fromJson(p)).toList(),
       );
@@ -275,9 +146,16 @@ class ProductsProvider with ChangeNotifier {
         final data = json.decode(response.body);
 
         if (data['product'] != null) {
-          _product = Product.fromJson(data['product']);
+          try {
+            _product = Product.fromJson(data['product']);
 
-          fetchSuggestedProducts(id: _product.id, category: _product.category);
+            fetchSuggestedProducts(
+              id: _product.id,
+              categories: _product.categories,
+            );
+          } catch (e) {
+            _error = 'Erreur lors du parsing du produit: $e';
+          }
         } else {
           _error = 'Produit non trouvé';
         }
@@ -293,11 +171,17 @@ class ProductsProvider with ChangeNotifier {
     }
   }
 
-  Future<void> fetchSuggestedProducts({String? id, String? category}) async {
-    if (_suggestedProductsIsLoading) return;
-
+  Future<void> fetchSuggestedProducts({
+    String? id,
+    List<String>? categories,
+  }) async {
     id ??= _product.id;
-    category ??= _product.category;
+    categories ??=
+        _product.categories.map((category) {
+          return category.split(':')[1]; // Extrait la partie après "en:"
+        }).toList();
+
+    String categoriesString = categories.join(',');
 
     _suggestedProductsIsLoading = true;
     _error = null;
@@ -306,43 +190,71 @@ class ProductsProvider with ChangeNotifier {
     const fields =
         'id,image_front_small_url,brands,generic_name_fr,nutriscore_grade,nova_group,completeness,popularity_key';
     final url =
-        'https://world.openfoodfacts.org/api/v2/search?categories_tags=${Uri.encodeComponent(category)}&fields=${Uri.encodeComponent(fields)}&purchase_places_tags=france&sort_by=nutriscore_score,nova_group,popularity_key&page_size=300&action=process&json=1';
+        'https://world.openfoodfacts.org/api/v2/search?categories_tags=${Uri.encodeComponent(categoriesString)}&fields=${Uri.encodeComponent(fields)}&purchase_places_tags=france&sort_by=nutriscore_score,nova_group,popularity_key&page_size=300&action=process&json=1';
 
     try {
       final response = await http.get(Uri.parse(url));
       final data = json.decode(response.body);
 
       const score = ['a', 'b', 'c', 'd', 'e'];
+
       final selectedProducts =
-          (data['products'] as List)
-              .where(
-                (e) =>
-                    e['id'] != id &&
-                    e['nutriscore_grade'] != 'not-applicable' &&
-                    e['nutriscore_grade'] != 'unknown' &&
-                    (score.indexOf(e['nutriscore_grade']) <
-                            score.indexOf(_product.nutriscore) ||
-                        (score.indexOf(e['nutriscore_grade']) ==
-                                score.indexOf(_product.nutriscore) &&
-                            e['nova_group'] is num &&
-                            e['nova_group'] <
-                                num.parse(_product.nova.toString()))) &&
-                    (e['completeness'] as double) >= 0.35,
-              )
-              .toList()
+          (data['products'] as List).where((e) {
+              final eNutriscore = e['nutriscore_grade'];
+              final eNova = e['nova_group'];
+              final completeness = e['completeness'];
+              final eId = e['id'];
+
+              if (eId == null || eId == id) return false;
+              if (eNutriscore == 'not-applicable' || eNutriscore == 'unknown')
+                return false;
+              if (!score.contains(eNutriscore) ||
+                  !score.contains(_product.nutriscore))
+                return false;
+
+              final scoreDiff = score
+                  .indexOf(eNutriscore)
+                  .compareTo(score.indexOf(_product.nutriscore));
+              final bothNovaOk = eNova is num && _product.nova is num;
+
+              if (scoreDiff < 0) return true;
+              if (scoreDiff == 0 &&
+                  bothNovaOk &&
+                  eNova < (_product.nova as num))
+                return true;
+
+              if (completeness is double && completeness >= 0.35) return true;
+
+              return false;
+            }).toList()
             ..sort((a, b) {
-              final nutriscoreComp =
-                  score.indexOf(a['nutriscore_grade']) -
-                  score.indexOf(b['nutriscore_grade']);
-              if (nutriscoreComp != 0) return nutriscoreComp;
-              final novaComp =
-                  (a['nova_group'] as num) - (b['nova_group'] as num);
-              if (novaComp != 0) return novaComp.toInt();
-              return (b['popularity_key'] as int) -
-                  (a['popularity_key'] as int);
+              final aScore = score.indexOf(a['nutriscore_grade']);
+              final bScore = score.indexOf(b['nutriscore_grade']);
+              final scoreComp = aScore.compareTo(bScore);
+              if (scoreComp != 0) return scoreComp;
+
+              final aNova = a['nova_group'];
+              final bNova = b['nova_group'];
+              if (aNova is num && bNova is num) {
+                final novaComp = (aNova - bNova).toInt();
+                if (novaComp != 0) return novaComp;
+              }
+
+              final aPop = a['popularity_key'];
+              final bPop = b['popularity_key'];
+              if (aPop is int && bPop is int) {
+                return bPop - aPop;
+              }
+
+              return 0;
             });
-      _suggestedProducts =
-          selectedProducts.take(4).map((p) => Products.fromJson(p)).toList();
+
+      try {
+        _suggestedProducts =
+            selectedProducts.take(4).map((p) => Products.fromJson(p)).toList();
+      } catch (e) {
+        _error = 'Erreur lors du parsing du produit: $e';
+      }
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -370,8 +282,9 @@ class ProductsProvider with ChangeNotifier {
               .where((p) => (p['completeness'] as double) >= 0.35)
               .toList()
             ..sort(
-              (a, b) =>
-                  (b['created_t'] as int).compareTo(a['created_t'] as int),
+              (a, b) => (b['created_t'] as double).compareTo(
+                a['created_t'] as double,
+              ),
             );
       _lastProducts =
           filteredProducts.take(5).map((p) => Products.fromJson(p)).toList();
@@ -382,5 +295,4 @@ class ProductsProvider with ChangeNotifier {
       notifyListeners();
     }
   }
-  */
 }
