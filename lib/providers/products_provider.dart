@@ -39,25 +39,25 @@ class ProductsProvider with ChangeNotifier {
   Map<String, double> get ajrValues {
     if (_ajrSelected == 'women') {
       return {
-        'energy': 2000,
-        'fat': 70,
-        'saturatedFat': 20,
-        'carbohydrates': 260,
-        'sugars': 90,
-        'salt': 6,
-        'fiber': 25,
-        'proteins': 50,
+        'energy-kcal_serving': 2000,
+        'fat_serving': 70,
+        'saturated-fat_serving': 20,
+        'carbohydrates_serving': 260,
+        'sugars_serving': 90,
+        'salt_serving': 6,
+        'fiber_serving': 25,
+        'proteins_serving': 50,
       };
     } else {
       return {
-        'energy': 2500,
-        'fat': 95,
-        'saturatedFat': 30,
-        'carbohydrates': 300,
-        'sugars': 120,
-        'salt': 6,
-        'fiber': 30,
-        'proteins': 50,
+        'energy-kcal_serving': 2500,
+        'fat_serving': 95,
+        'saturated-fat_serving': 30,
+        'carbohydrates_serving': 300,
+        'sugars_serving': 120,
+        'salt_serving': 6,
+        'fiber_serving': 30,
+        'proteins_serving': 50,
       };
     }
   }
@@ -152,12 +152,14 @@ class ProductsProvider with ChangeNotifier {
       servingSize: '100g',
       ingredients: String.fromCharCode(33),
       nutriments: {
-        'energy-kcal_100g': '100',
-        'carbohydrates_100g': '10',
-        'fat_100g': '5',
-        'saturated-fat_100g': '2',
-        'sugars_100g': '5',
-        'salt_100g': '0.5',
+        'energy-kcal_serving': '225',
+        'fat_serving': '7.5',
+        'saturated-fat_serving': '3.0',
+        'carbohydrates_serving': '30.0',
+        'sugars_serving': '15.0',
+        'salt_serving': '0.3',
+        'fiber_serving': '1.5',
+        'proteins_serving': '9.0',
       },
       nutrientLevels: {
         "fat": "high",

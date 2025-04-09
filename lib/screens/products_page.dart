@@ -98,6 +98,7 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                 Expanded(
                   child: TextField(
                     controller: _searchController,
+                    autofocus: true,
                     decoration: InputDecoration(
                       hintText: 'Entrez un nom de produit, un code-barres...',
                       hintStyle: const TextStyle(
@@ -150,13 +151,21 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                   ),
                   onPressed:
                       () => {
-                        if (_searchController.text.trim().length < 2)
+                        if (_searchController.text.isEmpty ||
+                            _searchController.text.length < 2)
                           {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text(
-                                  'Le champ doit contenir au moins deux caractères',
+                                content: Center(
+                                  child: Text(
+                                    'Veuillez entrer un nom de produit valide',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
                                 ),
+                                backgroundColor: Colors.redAccent,
+                                behavior: SnackBarBehavior.floating,
                               ),
                             ),
                           }
@@ -164,7 +173,6 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                           {
                             provider.searchProducts(
                               userInput: _searchController.text,
-                              sortBy: provider.filter,
                               method: 'complete',
                             ),
                           },

@@ -6,6 +6,7 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/product_card.dart';
 
+import '../models/model_products.dart';
 import 'package:app_nutriverif/screens/product_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -16,40 +17,37 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final List<bool> _animatedList = List.generate(7, (_) => false);
+  final List<bool> _animatedList = List.generate(3, (_) => false);
 
   final TextEditingController _searchController = TextEditingController();
   final YoutubePlayerController _controller = YoutubePlayerController(
-    initialVideoId: 'D1jzT02IBRA?si=gKqH8EWw5KYl42we', // ID de la vidéo YouTube
+    initialVideoId: 'D1jzT02IBRA?si=gKqH8EWw5KYl42we',
     flags: const YoutubePlayerFlags(autoPlay: false),
   );
+
+  late Product _productDemo = Product.fromJson({});
 
   @override
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final provider = Provider.of<ProductsProvider>(context, listen: false);
 
-      provider.fetchProduct('8000500310427');
-      provider.fetchLastProducts();
+      // Attente des appels asynchrones
+      await provider.fetchProduct('8000500310427');
+      await provider.fetchLastProducts();
+
+      setState(() {
+        // Mise à jour de _productDemo après avoir récupéré les données
+        _productDemo = provider.product;
+      });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // Variables relatives aux produits
     final provider = context.watch<ProductsProvider>();
-
-    /* Vérifier si les produits sont déjà chargés, sinon appeler les méthodes pour les charger
-    if (!productIsLoading && provider.product.id.isEmpty) {
-      provider.fetchProduct('8000500310427');
-    }
-
-    if (!lastProductsIsLoading && provider.lastProducts.isEmpty) {
-      provider.fetchLastProducts();
-    }
-    */
 
     return Scaffold(
       appBar: PreferredSize(
@@ -178,83 +176,114 @@ class _HomePageState extends State<HomePage> {
                           child: const Icon(Icons.search, color: Colors.white),
                         ),
                         onPressed:
-                            () => provider.searchProducts(
-                              userInput: _searchController.text,
-                              method: 'complete',
-                            ),
+                            () => {
+                              if (_searchController.text.isEmpty ||
+                                  _searchController.text.length < 2)
+                                {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Center(
+                                        child: Text(
+                                          'Veuillez entrer un nom de produit valide',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ),
+                                      backgroundColor: Colors.redAccent,
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  ),
+                                }
+                              else
+                                {
+                                  provider.searchProducts(
+                                    userInput: _searchController.text,
+                                    method: 'complete',
+                                  ),
+                                },
+                            },
                       ),
                     ],
                   ),
                   SizedBox(height: 32),
-                  provider.products.isEmpty && !provider.productsIsLoading
-                      ? SizedBox.shrink() // Si aucun produit et pas de chargement, on n'affiche rien
-                      : Column(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[200],
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                provider.productsIsLoading
-                                    ? ProductPageState().loadingWidget()
-                                    : Wrap(
-                                      alignment: WrapAlignment.spaceBetween,
-                                      spacing:
-                                          MediaQuery.of(context).size.width /
-                                          100 *
-                                          4,
-                                      children:
-                                          provider.products.map((product) {
-                                            return ProductCard(
-                                              widthAjustment: 32,
-                                              id: product.id,
-                                              imageUrl: product.image,
-                                              title: product.brand,
-                                              description: product.name,
-                                              nutriscore:
-                                                  "assets/images/logo.png",
-                                              nova: "assets/images/logo.png",
-                                            );
-                                          }).toList(),
-                                    ),
-                              ],
-                            ),
+                  AnimatedSize(
+                    duration: Duration(milliseconds: 500),
+                    curve: Curves.easeInOut,
+                    child: Column(
+                      children: [
+                        Container(
+                          height:
+                              provider.productsIsLoading ||
+                                      provider.products.isNotEmpty
+                                  ? null
+                                  : 0,
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(16),
                           ),
-                          if (provider.products.length ==
-                              4) // Si la liste contient 4 produits
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              child: SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.pushNamed(context, '/products');
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    backgroundColor: const Color.fromRGBO(
-                                      0,
-                                      189,
-                                      126,
-                                      1,
-                                    ), // Couleur du bouton
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              provider.productsIsLoading
+                                  ? ProductPageState().loadingWidget()
+                                  : Wrap(
+                                    alignment: WrapAlignment.spaceBetween,
+                                    spacing:
+                                        MediaQuery.of(context).size.width /
+                                        100 *
+                                        4,
+                                    children:
+                                        provider.products.map((product) {
+                                          return ProductCard(
+                                            widthAjustment: 32,
+                                            id: product.id,
+                                            imageUrl: product.image,
+                                            title: product.brand,
+                                            description: product.name,
+                                            nutriscore:
+                                                "assets/images/logo.png",
+                                            nova: "assets/images/logo.png",
+                                          );
+                                        }).toList(),
                                   ),
-                                  child: const Icon(
-                                    Icons.add,
-                                    size: 24,
-                                    color: Colors.white,
+                            ],
+                          ),
+                        ),
+                        if (provider.products.length ==
+                            4) // Si la liste contient 4 produits
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pushNamed(context, '/products');
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
+                                  backgroundColor: const Color.fromRGBO(
+                                    0,
+                                    189,
+                                    126,
+                                    1,
+                                  ), // Couleur du bouton
+                                ),
+                                child: const Icon(
+                                  Icons.add,
+                                  size: 24,
+                                  color: Colors.white,
                                 ),
                               ),
                             ),
-                        ],
-                      ),
+                          ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -412,12 +441,12 @@ class _HomePageState extends State<HomePage> {
             Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                const Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text.rich(
                       TextSpan(
-                        style: TextStyle(fontSize: 24),
+                        style: Theme.of(context).textTheme.displayLarge!,
                         children: [
                           TextSpan(text: 'Votre alimentation '),
                           TextSpan(
@@ -494,7 +523,7 @@ class _HomePageState extends State<HomePage> {
                 Row(
                   children: [
                     Expanded(
-                      child: const Text.rich(
+                      child: Text.rich(
                         TextSpan(
                           text: "Découvrez des ",
                           children: [
@@ -506,7 +535,7 @@ class _HomePageState extends State<HomePage> {
                           ],
                         ),
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 24),
+                        style: Theme.of(context).textTheme.displayLarge!,
                       ),
                     ),
                   ],
@@ -547,10 +576,7 @@ class _HomePageState extends State<HomePage> {
                     if (provider.productIsLoading)
                       ProductPageState().loadingWidget()
                     else ...[
-                      ProductPageState().productDetails(
-                        context,
-                        provider.product,
-                      ),
+                      ProductPageState().productDetails(context, _productDemo),
                       const SizedBox(height: 32),
                     ],
 
@@ -637,7 +663,7 @@ class _HomePageState extends State<HomePage> {
                 Row(
                   children: [
                     Expanded(
-                      child: const Text.rich(
+                      child: Text.rich(
                         TextSpan(
                           text: "Produits",
                           children: [
@@ -649,7 +675,7 @@ class _HomePageState extends State<HomePage> {
                           ],
                         ),
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 24),
+                        style: Theme.of(context).textTheme.displayLarge!,
                       ),
                     ),
                   ],

@@ -24,7 +24,7 @@ class NutritionalTableState extends State<NutritionalTable> {
     // Convertir l'objet en une liste de paires (nom, valeur)
     final entries = (widget.nutriments as Map<String, String>).entries.toList();
 
-    final double rowHeight = 62;
+    final double rowHeight = 85;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,7 +121,10 @@ class NutritionalTableState extends State<NutritionalTable> {
                       child: Padding(
                         padding: const EdgeInsets.all(12),
                         child: Text(
-                          'Par portion'.toUpperCase(),
+                          provider.product.servingSize.isNotEmpty
+                              ? 'Par portion (${provider.product.servingSize})'
+                                  .toUpperCase()
+                              : 'Par portion (N/A)',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -171,20 +174,23 @@ class NutritionalTableState extends State<NutritionalTable> {
                       ),
                       Container(
                         decoration: BoxDecoration(color: Colors.white),
-                        child: const Padding(
+                        child: Padding(
                           padding: EdgeInsets.all(12),
                           child: Text(
-                            '-', // Par portion - Remplir selon les données disponibles
+                            entry.value,
                             style: TextStyle(fontSize: 12, color: Colors.grey),
                           ),
                         ),
                       ),
                       Container(
                         decoration: BoxDecoration(color: Colors.grey[100]),
-                        child: const Padding(
+                        child: Padding(
                           padding: EdgeInsets.all(12),
                           child: Text(
-                            '-',
+                            (double.tryParse(entry.value) != null &&
+                                    provider.ajrValues[entry.key] != null)
+                                ? ('${(((double.parse(entry.value)) / provider.ajrValues[entry.key]!) * 100).toStringAsFixed(0)}%')
+                                : '—',
                             style: TextStyle(fontSize: 12, color: Colors.grey),
                           ),
                         ),
@@ -206,29 +212,25 @@ class NutritionalTableState extends State<NutritionalTable> {
 }
 
 class ProductPage extends StatefulWidget {
-  const ProductPage({super.key});
+  final String? id;
+
+  const ProductPage({super.key, required this.id});
 
   @override
   State<ProductPage> createState() => ProductPageState();
 }
 
 class ProductPageState extends State<ProductPage> {
-  String? _productId;
-
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final args = ModalRoute.of(context)?.settings.arguments;
+      final id = widget.id;
 
-      if (args is String) {
-        setState(() {
-          _productId = args;
-        });
-
+      if (id != null) {
         final provider = Provider.of<ProductsProvider>(context, listen: false);
-        provider.fetchProduct(_productId!);
+        provider.fetchProduct(id);
       } else {
         Navigator.pop(context);
       }
