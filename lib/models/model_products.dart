@@ -74,7 +74,7 @@ class Product {
       category: (json['main_category_fr'] ?? '').toString(),
       categories:
           (json['categories_tags'] as List?)
-              ?.map((e) => e.split(':')[1].toString())
+              ?.map((e) => e.split(':')[1].toString().replaceAll('-', ' '))
               .toList() ??
           [],
       lastUpdate: (json['last_modified_t'] ?? '').toString(),

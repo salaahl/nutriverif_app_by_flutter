@@ -242,9 +242,9 @@ class ProductPageState extends State<ProductPage> {
         await provider.fetchProduct(id);
         // mounted permet de rendre le context valide
         if (mounted && provider.product.id.isEmpty) Navigator.pop(context);
-        
       } else {
-        if (mounted) Navigator.pop(context, 'Erreur lors de la récupération du produit');
+        if (mounted)
+          Navigator.pop(context, 'Erreur lors de la récupération du produit');
       }
     });
   }
@@ -266,15 +266,13 @@ class ProductPageState extends State<ProductPage> {
           else ...[
             productDetails(context, provider.product),
             const SizedBox(height: 32),
+            alternativeProducts(
+              context,
+              provider,
+              loadingWidget(),
+              provider.suggestedProducts,
+            ),
           ],
-
-          alternativeProducts(
-            context,
-            provider,
-            loadingWidget(),
-            provider.suggestedProducts,
-          ),
-
           const SizedBox(height: 32),
         ],
       ),
@@ -303,7 +301,10 @@ class ProductPageState extends State<ProductPage> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Image.network(product.image, width: 160),
+            child:
+                product.image.isEmpty
+                    ? Image.asset('assets/images/logo.png', width: 160)
+                    : Image.network(product.image, width: 160),
           ),
         ),
         const SizedBox(height: 32),
@@ -315,6 +316,9 @@ class ProductPageState extends State<ProductPage> {
 
   // Affichage des informations du produit
   Widget productInfo(BuildContext context, Product product) {
+    final date = DateTime.fromMillisecondsSinceEpoch(
+      int.parse(product.lastUpdate) * 1000,
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -332,7 +336,7 @@ class ProductPageState extends State<ProductPage> {
           ),
         ),
         const SizedBox(height: 8),
-        Text("Dernière mise à jour : ${product.lastUpdate}"),
+        Text("Dernière mise à jour : ${date.day}-${date.month}-${date.year}"),
         const SizedBox(height: 16),
         productImages(product.nutriscore, product.nova),
         const SizedBox(height: 32),
@@ -365,7 +369,14 @@ class ProductPageState extends State<ProductPage> {
   Widget productImage(String imageUrl, double width) {
     return Container(
       constraints: BoxConstraints(maxWidth: width),
-      child: SvgPicture.network(imageUrl, width: width, fit: BoxFit.cover),
+      child:
+          imageUrl.isEmpty
+              ? Image.asset(
+                'assets/images/logo.png',
+                width: width,
+                fit: BoxFit.cover,
+              )
+              : SvgPicture.network(imageUrl, width: width, fit: BoxFit.cover),
     );
   }
 
@@ -376,7 +387,25 @@ class ProductPageState extends State<ProductPage> {
       runSpacing: 8,
       children:
           nutrientLevels.entries.map((entry) {
+            String label;
             Color bgColor;
+
+            switch (entry.key) {
+              case 'fat':
+                label = 'matières grasses';
+                break;
+              case 'salt':
+                label = 'sel';
+                break;
+              case 'sugars':
+                label = 'sucres';
+                break;
+              case 'saturated-fat':
+                label = 'graisses saturées';
+                break;
+              default:
+                label = entry.key;
+            }
 
             switch (entry.value) {
               case 'high':
@@ -399,7 +428,7 @@ class ProductPageState extends State<ProductPage> {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                entry.key,
+                label,
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -417,29 +446,42 @@ class ProductPageState extends State<ProductPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Quantité :", style: const TextStyle(fontWeight: FontWeight.bold)),
-        Text(product.quantity),
-        const SizedBox(height: 16),
-        NutritionalTable(nutriments: product.nutriments),
-        SizedBox(height: 32),
-        Text(
-          "Ingrédients :",
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        Text(product.ingredients),
-        const SizedBox(height: 16),
-        Text(
-          "Code-barres :",
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        Text(product.id),
-        const SizedBox(height: 16),
-        Text(
-          "Plus d'informations : ",
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        Text(product.link),
-        const SizedBox(height: 16),
+        if (product.quantity.isNotEmpty) ...[
+          Text(
+            "Quantité :",
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          Text(product.quantity),
+          const SizedBox(height: 16),
+        ],
+        if (product.nutriments.isNotEmpty) ...[
+          NutritionalTable(nutriments: product.nutriments),
+          SizedBox(height: 32),
+        ],
+        if (product.ingredients.isNotEmpty) ...[
+          Text(
+            "Ingrédients :",
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          Text(product.ingredients),
+          const SizedBox(height: 16),
+        ],
+        if (product.id.isNotEmpty) ...[
+          Text(
+            "Code-barres :",
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          Text(product.id),
+          const SizedBox(height: 16),
+        ],
+        if (product.link.isNotEmpty) ...[
+          Text(
+            "Plus d'informations : ",
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          Text(product.link),
+          const SizedBox(height: 16),
+        ],
         Wrap(
           spacing: 8,
           children:

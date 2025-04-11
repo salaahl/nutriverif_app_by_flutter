@@ -51,45 +51,15 @@ class MyApp extends StatelessWidget {
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             const curve = Curves.easeInOut;
 
-            // Slide in (entrée)
             final slideInTween = Tween<Offset>(
-              begin: const Offset(-1.0, 0.0),
+              begin: const Offset(1.0, 0.0),
               end: Offset.zero,
             ).chain(CurveTween(curve: curve));
 
-            // Slide out (sortie)
-            final slideOutTween = Tween<Offset>(
-              begin: Offset.zero,
-              end: const Offset(-1.0, 0.0),
-            ).chain(CurveTween(curve: curve));
-
-            // Opacité uniquement à l’entrée (de 0 → 1)
-            final fadeAnimation = animation.drive(
-              Tween<double>(
-                begin: 0.0,
-                end: 1.0,
-              ).chain(CurveTween(curve: curve)),
-            );
-
             return SlideTransition(
-              position: secondaryAnimation.drive(slideOutTween), // Sortie
-              child: SlideTransition(
-                position: animation.drive(slideInTween), // Entrée
-                child: AnimatedBuilder(
-                  animation: animation,
-                  builder: (context, child) {
-                    // Si on est en train d'entrer (push), on fade-in
-                    // Si on est en train de sortir (pop), on garde opacité = 1
-                    double opacity =
-                        animation.status == AnimationStatus.reverse
-                            ? 1.0
-                            : fadeAnimation.value;
-
-                    return Opacity(opacity: opacity, child: child);
-                  },
-                  child: child,
-                ),
-              ),
+              position: animation.drive(slideInTween), // Entrée
+              child: 
+              child,
             );
           },
         );

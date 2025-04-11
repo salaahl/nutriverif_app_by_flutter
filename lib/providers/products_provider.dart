@@ -279,15 +279,15 @@ class ProductsProvider with ChangeNotifier {
 
       final filteredProducts =
           (data['products'] as List)
-              .where((p) => (p['completeness'] as double) >= 0.35)
+              .where((p) => (p['completeness'] as num).toDouble() >= 0.35)
               .toList()
             ..sort(
-              (a, b) => (b['created_t'] as double).compareTo(
-                a['created_t'] as double,
+              (a, b) => (b['created_t'] as num).toDouble().compareTo(
+                (a['created_t'] as num).toDouble(),
               ),
             );
       _lastProducts =
-          filteredProducts.take(5).map((p) => Products.fromJson(p)).toList();
+          filteredProducts.take(4).map((p) => Products.fromJson(p)).toList();
     } catch (e) {
       _error = e.toString();
     } finally {

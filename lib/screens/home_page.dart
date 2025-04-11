@@ -27,6 +27,7 @@ class _HomePageState extends State<HomePage> {
   );
 
   late Product _productDemo = Product.fromJson({});
+  late DateTime date = DateTime.now();
   late List<Products> _suggestedProductsDemo = [];
 
   @override
@@ -43,6 +44,9 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         // Mise à jour de _productDemo après avoir récupéré les données
         _productDemo = provider.product;
+        date = DateTime.fromMillisecondsSinceEpoch(
+          int.parse(_productDemo.lastUpdate) * 1000,
+        );
         _suggestedProductsDemo = provider.suggestedProducts;
       });
     });
@@ -490,64 +494,191 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
                 const SizedBox(height: 32),
-                // Page produit
+                // Présentation partielle d'un produit
                 Column(
                   children: [
-                    // Section Produit Principal
                     if (provider.productIsLoading)
                       ProductPageState().loadingWidget()
                     else ...[
-                      ProductPageState().productDetails(context, _productDemo),
-                      const SizedBox(height: 32),
-                    ],
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Image du produit
+                          AspectRatio(
+                            aspectRatio: 1,
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(32),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child:
+                                  _productDemo.image.isEmpty
+                                      ? Image.asset(
+                                        'assets/images/logo.png',
+                                        width: 160,
+                                      )
+                                      : Image.network(
+                                        _productDemo.image,
+                                        width: 160,
+                                      ),
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Nom et marque
+                              Text.rich(
+                                TextSpan(
+                                  text: "${_productDemo.brand} - ",
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    color: Color(0xFF00BD7E),
+                                  ),
+                                  children: [
+                                    TextSpan(
+                                      text: _productDemo.genericName,
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                "Dernière mise à jour : ${date.day}-${date.month}-${date.year}",
+                              ),
+                              const SizedBox(height: 16),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    constraints: BoxConstraints(maxWidth: 100),
+                                    child: SvgPicture.network(
+                                      "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-${_productDemo.nutriscore}-new-fr.svg",
+                                      width: 100,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Container(
+                                    constraints: BoxConstraints(maxWidth: 30),
+                                    child: SvgPicture.network(
+                                      "https://static.openfoodfacts.org/images/attributes/dist/nova-group-${_productDemo.nova}.svg",
+                                      width: 30,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 32),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children:
+                                    _productDemo.nutrientLevels.entries.map((
+                                      entry,
+                                    ) {
+                                      Color bgColor;
 
-                    // Section Alternatives
-                    ProductPageState().alternativeProducts(
-                      context,
-                      provider,
-                      ProductPageState().loadingWidget(),
-                      _suggestedProductsDemo,
-                    ),
+                                      switch (entry.value) {
+                                        case 'high':
+                                          bgColor = Colors.red;
+                                          break;
+                                        case 'moderate':
+                                          bgColor = Colors.orange;
+                                          break;
+                                        case 'low':
+                                          bgColor = Colors.green;
+                                          break;
+                                        default:
+                                          bgColor = Colors.grey;
+                                      }
+
+                                      return Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 6,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: bgColor,
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          entry.key,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 32),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: const Text.rich(
+                              TextSpan(
+                                text:
+                                    "Notre fonctionnalité intelligente vous propose instantanément des alternatives ",
+                                children: [
+                                  TextSpan(
+                                    text:
+                                        "mieux notées et tout aussi savoureuses",
+                                    style: TextStyle(
+                                      backgroundColor: Color.fromRGBO(
+                                        0,
+                                        189,
+                                        126,
+                                        0.6,
+                                      ),
+                                    ),
+                                  ),
+                                  TextSpan(text: " :"),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 48),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Icon(
+                              Icons.arrow_downward_rounded,
+                              color: const Color(0xFF00BD7E),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 48),
+                      ProductPageState().alternativeProducts(
+                        context,
+                        provider,
+                        ProductPageState().loadingWidget(),
+                        _suggestedProductsDemo,
+                      ),
+                    ],
                   ],
                 ),
                 const SizedBox(height: 32),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.arrow_upward_rounded,
-                      color: const Color(0xFF00BD7E),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: const Text.rich(
-                        TextSpan(
-                          text:
-                              "Notre fonctionnalité intelligente vous propose instantanément des alternatives ",
-                          children: [
-                            TextSpan(
-                              text: "mieux notées et tout aussi savoureuses",
-                              style: TextStyle(
-                                backgroundColor: Color.fromRGBO(
-                                  0,
-                                  189,
-                                  126,
-                                  0.6,
-                                ),
-                              ),
-                            ),
-                            TextSpan(text: "."),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
                 Row(
                   children: [
                     Expanded(
