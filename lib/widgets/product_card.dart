@@ -34,8 +34,25 @@ class ProductCard extends StatelessWidget {
         elevation: 0,
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
-          onTap: () {
-            Navigator.pushNamed(context, "/product", arguments: id);
+          onTap: () async {
+            final result = await Navigator.pushNamed(
+              context,
+              "/product",
+              arguments: id,
+            );
+
+            if (context.mounted && result != null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    result.toString(),
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                  backgroundColor: Colors.redAccent,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            }
           },
           child: Padding(
             padding: const EdgeInsets.all(8),

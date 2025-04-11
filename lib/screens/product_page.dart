@@ -4,7 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:app_nutriverif/providers/products_provider.dart';
 import '../screens/products_page.dart';
-import '../widgets/custom_app_bar.dart';
+import '../widgets/app_bar.dart';
 import '../widgets/product_card.dart';
 import '../models/model_products.dart';
 
@@ -233,14 +233,18 @@ class ProductPageState extends State<ProductPage> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final id = widget.id;
 
       if (id != null) {
         final provider = Provider.of<ProductsProvider>(context, listen: false);
-        provider.fetchProduct(id);
+
+        await provider.fetchProduct(id);
+        // mounted permet de rendre le context valide
+        if (mounted && provider.product.id.isEmpty) Navigator.pop(context);
+        
       } else {
-        Navigator.pop(context);
+        if (mounted) Navigator.pop(context, 'Erreur lors de la récupération du produit');
       }
     });
   }
@@ -482,7 +486,7 @@ class ProductPageState extends State<ProductPage> {
   ) {
     if (provider.suggestedProductsIsLoading) {
       return loadingWidget;
-    } else {
+    } else if (provider.suggestedProducts.isNotEmpty) {
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -550,6 +554,8 @@ class ProductPageState extends State<ProductPage> {
           ],
         ),
       );
+    } else {
+      return SizedBox.shrink();
     }
   }
 }

@@ -4,7 +4,8 @@ import 'package:app_nutriverif/providers/products_provider.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../widgets/custom_app_bar.dart';
+import '../widgets/app_bar.dart';
+import '../widgets/search_bar.dart';
 import '../widgets/product_card.dart';
 
 import '../models/model_products.dart';
@@ -20,7 +21,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final List<bool> _animatedList = List.generate(3, (_) => false);
 
-  final TextEditingController _searchController = TextEditingController();
   final YoutubePlayerController _controller = YoutubePlayerController(
     initialVideoId: 'D1jzT02IBRA?si=gKqH8EWw5KYl42we',
     flags: const YoutubePlayerFlags(autoPlay: false),
@@ -119,96 +119,7 @@ class _HomePageState extends State<HomePage> {
               onEnd: () => setState(() => _animatedList[0] = true),
               child: Column(
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _searchController,
-                          decoration: InputDecoration(
-                            hintText:
-                                'Entrez un nom de produit, un code-barres...',
-                            hintStyle: const TextStyle(
-                              color: Colors.grey,
-                              fontSize: 14,
-                            ),
-                            prefixIcon: const Padding(
-                              padding: EdgeInsets.only(left: 16.0, right: 8.0),
-                              child: Icon(Icons.search, color: Colors.grey),
-                            ),
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(999.0),
-                              borderSide: const BorderSide(
-                                color: Color.fromRGBO(156, 163, 175, 1),
-                                width: 4.0,
-                              ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(999.0),
-                              borderSide: const BorderSide(
-                                color: Color.fromRGBO(229, 231, 235, 1),
-                                width: 4.0,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(999.0),
-                              borderSide: const BorderSide(
-                                color: Color(0xFF9CA3AF),
-                                width: 4.0,
-                              ),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              vertical: 10.0,
-                              horizontal: 12.0,
-                            ),
-                          ),
-                          style: const TextStyle(
-                            color: Colors.black87,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        icon: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.blue[800],
-                            borderRadius: BorderRadius.circular(99),
-                          ),
-                          child: const Icon(Icons.search, color: Colors.white),
-                        ),
-                        onPressed:
-                            () => {
-                              if (_searchController.text.isEmpty ||
-                                  _searchController.text.length < 2)
-                                {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Center(
-                                        child: Text(
-                                          'Veuillez entrer un nom de produit valide',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ),
-                                      backgroundColor: Colors.redAccent,
-                                      behavior: SnackBarBehavior.floating,
-                                    ),
-                                  ),
-                                }
-                              else
-                                {
-                                  provider.searchProducts(
-                                    userInput: _searchController.text,
-                                    method: 'complete',
-                                  ),
-                                },
-                            },
-                      ),
-                    ],
-                  ),
+                  AppSearchBar(provider: provider),
                   SizedBox(height: 32),
                   AnimatedSize(
                     duration: Duration(milliseconds: 500),

@@ -53,14 +53,14 @@ class MyApp extends StatelessWidget {
 
             // Slide in (entrée)
             final slideInTween = Tween<Offset>(
-              begin: const Offset(1.0, 0.0),
+              begin: const Offset(-1.0, 0.0),
               end: Offset.zero,
             ).chain(CurveTween(curve: curve));
 
             // Slide out (sortie)
             final slideOutTween = Tween<Offset>(
               begin: Offset.zero,
-              end: const Offset(0.0, 1.0),
+              end: const Offset(-1.0, 0.0),
             ).chain(CurveTween(curve: curve));
 
             // Opacité uniquement à l’entrée (de 0 → 1)
