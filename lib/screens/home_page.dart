@@ -21,10 +21,16 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final List<bool> _animatedList = List.generate(3, (_) => false);
 
-  final YoutubePlayerController _controller = YoutubePlayerController(
-    initialVideoId: 'D1jzT02IBRA?si=gKqH8EWw5KYl42we',
-    flags: const YoutubePlayerFlags(autoPlay: false),
-  );
+  final YoutubePlayerController _youtubePlayerController =
+      YoutubePlayerController(
+        initialVideoId: 'D1jzT02IBRA',
+        flags: const YoutubePlayerFlags(
+          autoPlay: false,
+          mute: false,
+          isLive: false,
+          forceHD: true,
+        ),
+      );
 
   late Product _productDemo = Product.fromJson({});
   late DateTime date = DateTime.now();
@@ -280,8 +286,8 @@ class _HomePageState extends State<HomePage> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(12),
                           child: YoutubePlayer(
-                            controller: _controller,
-                            showVideoProgressIndicator: true,
+                            controller: _youtubePlayerController,
+                            bottomActions: [], // Hide the bottom actions
                           ),
                         ),
                       ),
@@ -393,6 +399,7 @@ class _HomePageState extends State<HomePage> {
                             SvgPicture.network(
                               'https://static.openfoodfacts.org/images/attributes/dist/nutriscore-a.svg',
                               width: 160,
+                              semanticsLabel: 'Image du Nutriscore',
                             ),
                             const SizedBox(height: 16),
                             const Text(
@@ -424,6 +431,7 @@ class _HomePageState extends State<HomePage> {
                             SvgPicture.network(
                               'https://static.openfoodfacts.org/images/attributes/dist/nova-group-1.svg',
                               width: 40,
+                              semanticsLabel: 'Image du Nova score',
                             ),
                             const SizedBox(height: 16),
                             Text(
@@ -518,10 +526,12 @@ class _HomePageState extends State<HomePage> {
                                       ? Image.asset(
                                         'assets/images/logo.png',
                                         width: 160,
+                                        semanticLabel: 'Image du produit',
                                       )
                                       : Image.network(
                                         _productDemo.image,
                                         width: 160,
+                                        semanticLabel: 'Image du produit',
                                       ),
                             ),
                           ),
@@ -535,6 +545,7 @@ class _HomePageState extends State<HomePage> {
                                   text: "${_productDemo.brand} - ",
                                   style: const TextStyle(
                                     fontSize: 20,
+                                    fontWeight: FontWeight.w500,
                                     color: Color(0xFF00BD7E),
                                   ),
                                   children: [
@@ -561,6 +572,8 @@ class _HomePageState extends State<HomePage> {
                                       "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-${_productDemo.nutriscore}-new-fr.svg",
                                       width: 100,
                                       fit: BoxFit.cover,
+                                      semanticsLabel:
+                                          'Nutriscore ${_productDemo.nutriscore}',
                                     ),
                                   ),
                                   const SizedBox(height: 8),
@@ -570,6 +583,8 @@ class _HomePageState extends State<HomePage> {
                                       "https://static.openfoodfacts.org/images/attributes/dist/nova-group-${_productDemo.nova}.svg",
                                       width: 30,
                                       fit: BoxFit.cover,
+                                      semanticsLabel:
+                                          'NOVA ${_productDemo.nova}',
                                     ),
                                   ),
                                 ],

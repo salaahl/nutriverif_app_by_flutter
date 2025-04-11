@@ -50,21 +50,33 @@ class _MainScaffoldState extends State<MainScaffold> {
                 padding: EdgeInsets.only(
                   top: 8.0,
                 ), // aide à centrer verticalement
-                child: Icon(Icons.home_outlined, size: 30),
+                child: Icon(
+                  Icons.home_outlined,
+                  size: 30,
+                  semanticLabel: 'Accueil',
+                ),
               ),
               label: '',
             ),
             BottomNavigationBarItem(
               icon: Padding(
                 padding: EdgeInsets.only(top: 8.0),
-                child: Icon(Icons.manage_search_rounded, size: 30),
+                child: Icon(
+                  Icons.manage_search_rounded,
+                  size: 30,
+                  semanticLabel: 'Recherche avancée',
+                ),
               ),
               label: '',
             ),
             BottomNavigationBarItem(
               icon: Padding(
                 padding: EdgeInsets.only(top: 8.0),
-                child: Icon(Icons.qr_code_rounded, size: 30),
+                child: Icon(
+                  Icons.qr_code_rounded,
+                  size: 30,
+                  semanticLabel: 'Recherche par code-barres',
+                ),
               ),
               label: '',
             ),

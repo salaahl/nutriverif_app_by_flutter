@@ -57,7 +57,7 @@ class MyApp extends StatelessWidget {
             ).chain(CurveTween(curve: curve));
 
             return SlideTransition(
-              position: animation.drive(slideInTween), // Entrée
+              position: animation.drive(slideInTween),
               child: 
               child,
             );

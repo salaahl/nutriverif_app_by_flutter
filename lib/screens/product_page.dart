@@ -282,7 +282,10 @@ class ProductPageState extends State<ProductPage> {
   Widget loadingWidget() => const Center(
     child: Padding(
       padding: EdgeInsets.all(64),
-      child: CircularProgressIndicator(),
+      child: CircularProgressIndicator(
+        color: Color(0xFF00BD7E),
+        strokeWidth: 8,
+      ),
     ),
   );
 
@@ -303,8 +306,16 @@ class ProductPageState extends State<ProductPage> {
             ),
             child:
                 product.image.isEmpty
-                    ? Image.asset('assets/images/logo.png', width: 160)
-                    : Image.network(product.image, width: 160),
+                    ? Image.asset(
+                      'assets/images/logo.png',
+                      width: 160,
+                      semanticLabel: 'Image du produit',
+                    )
+                    : Image.network(
+                      product.image,
+                      width: 160,
+                      semanticLabel: 'Image du produit',
+                    ),
           ),
         ),
         const SizedBox(height: 32),
@@ -326,11 +337,18 @@ class ProductPageState extends State<ProductPage> {
         Text.rich(
           TextSpan(
             text: "${product.brand} - ",
-            style: const TextStyle(fontSize: 20, color: Color(0xFF00BD7E)),
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF00BD7E),
+            ),
             children: [
               TextSpan(
                 text: product.genericName,
-                style: const TextStyle(color: Colors.black),
+                style: const TextStyle(
+                  fontWeight: FontWeight.normal,
+                  color: Colors.black,
+                ),
               ),
             ],
           ),
@@ -355,18 +373,20 @@ class ProductPageState extends State<ProductPage> {
         productImage(
           "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-$nutriscore-new-fr.svg",
           100,
+          nutriscore,
         ),
         const SizedBox(height: 8),
         productImage(
           "https://static.openfoodfacts.org/images/attributes/dist/nova-group-$nova.svg",
           30,
+          nova,
         ),
       ],
     );
   }
 
   // Affichage d'une image avec une contrainte de largeur
-  Widget productImage(String imageUrl, double width) {
+  Widget productImage(String imageUrl, double width, String score) {
     return Container(
       constraints: BoxConstraints(maxWidth: width),
       child:
@@ -375,6 +395,7 @@ class ProductPageState extends State<ProductPage> {
                 'assets/images/logo.png',
                 width: width,
                 fit: BoxFit.cover,
+                semanticLabel: 'Nutriscore $score',
               )
               : SvgPicture.network(imageUrl, width: width, fit: BoxFit.cover),
     );

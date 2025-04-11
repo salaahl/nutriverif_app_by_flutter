@@ -79,11 +79,13 @@ class ProductCard extends StatelessWidget {
                               'assets/images/logo.png',
                               height: 80,
                               fit: BoxFit.contain,
+                              semanticLabel: 'Image du produit',
                             )
                             : Image.network(
                               imageUrl,
                               height: 80,
                               fit: BoxFit.contain,
+                              semanticLabel: 'Image du produit',
                             ),
                   ),
                 ),
@@ -107,11 +109,13 @@ class ProductCard extends StatelessWidget {
                     SvgPicture.network(
                       "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-$nutriscore-new-fr.svg",
                       height: 40,
+                      semanticsLabel: 'Nutriscore $nutriscore',
                     ),
                     const SizedBox(height: 4),
                     SvgPicture.network(
                       "https://static.openfoodfacts.org/images/attributes/dist/nova-group-$nova.svg",
                       height: 40,
+                      semanticsLabel: 'Nova score $nova',
                     ),
                   ],
                 ),

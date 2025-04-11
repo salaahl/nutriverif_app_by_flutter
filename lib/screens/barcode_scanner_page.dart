@@ -36,68 +36,76 @@ class BarcodeScannerPage extends StatelessWidget {
             const SizedBox(height: 32),
             AspectRatio(
               aspectRatio: 1,
-              child: MobileScanner(
-                controller: MobileScannerController(
-                  detectionSpeed: DetectionSpeed.normal,
-                  facing: CameraFacing.back,
-                  returnImage: false,
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    width: 8,
+                    color: Color.fromRGBO(0, 189, 126, 1),
+                  ),
                 ),
-                onDetect: (capture) {
-                  final List<Barcode> barcodes = capture.barcodes;
-                  for (final barcode in barcodes) {
-                    final String? rawValue = barcode.rawValue;
+                child: MobileScanner(
+                  controller: MobileScannerController(
+                    detectionSpeed: DetectionSpeed.normal,
+                    facing: CameraFacing.back,
+                    returnImage: false,
+                  ),
+                  onDetect: (capture) {
+                    final List<Barcode> barcodes = capture.barcodes;
+                    for (final barcode in barcodes) {
+                      final String? rawValue = barcode.rawValue;
 
-                    if (rawValue != null && _isValidEAN13(rawValue)) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Center(
-                            child: Text(
-                              'Code-barres détecté',
-                              style: TextStyle(fontWeight: FontWeight.w500),
-                            ),
-                          ),
-                          backgroundColor: Colors.greenAccent,
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
-
-                      Timer(const Duration(milliseconds: 1500), () async {
-                        final result = await Navigator.pushNamed(
-                          context,
-                          '/product',
-                          arguments: rawValue,
-                        );
-                        if (context.mounted && result != null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                result.toString(),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                ),
+                      if (rawValue != null && _isValidEAN13(rawValue)) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Center(
+                              child: Text(
+                                'Code-barres détecté',
+                                style: TextStyle(fontWeight: FontWeight.w500),
                               ),
-                              backgroundColor: Colors.redAccent,
-                              behavior: SnackBarBehavior.floating,
                             ),
-                          );
-                        }
-                      });
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Center(
-                            child: Text(
-                              'Code-barres invalide',
-                              style: TextStyle(fontWeight: FontWeight.w500),
-                            ),
+                            backgroundColor: Colors.greenAccent,
+                            behavior: SnackBarBehavior.floating,
                           ),
-                          backgroundColor: Colors.redAccent,
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
+                        );
+
+                        Timer(const Duration(milliseconds: 1500), () async {
+                          final result = await Navigator.pushNamed(
+                            context,
+                            '/product',
+                            arguments: rawValue,
+                          );
+                          if (context.mounted && result != null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  result.toString(),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                backgroundColor: Colors.redAccent,
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          }
+                        });
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Center(
+                              child: Text(
+                                'Code-barres invalide',
+                                style: TextStyle(fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                            backgroundColor: Colors.redAccent,
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
                     }
-                  }
-                },
+                  },
+                ),
               ),
             ),
             const SizedBox(height: 32),
