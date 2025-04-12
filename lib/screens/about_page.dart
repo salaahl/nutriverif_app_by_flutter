@@ -8,14 +8,11 @@ class AboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(172),
-        child: customAppBar(Color.fromRGBO(0, 189, 126, 1), Colors.redAccent),
-      ),
       body: Container(
         decoration: BoxDecoration(color: Color.fromRGBO(0, 189, 126, 1)),
         child: ListView(
           children: [
+            myAppBar(context),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(

@@ -8,217 +8,6 @@ import '../widgets/app_bar.dart';
 import '../widgets/product_card.dart';
 import '../models/model_products.dart';
 
-class NutritionalTable extends StatefulWidget {
-  final Object nutriments;
-
-  const NutritionalTable({super.key, required this.nutriments});
-
-  @override
-  NutritionalTableState createState() => NutritionalTableState();
-}
-
-class NutritionalTableState extends State<NutritionalTable> {
-  @override
-  Widget build(BuildContext context) {
-    final provider = Provider.of<ProductsProvider>(context);
-
-    // Convertir l'objet en une liste de paires (nom, valeur)
-    final entries =
-        (widget.nutriments as Map<String, dynamic>).entries.toList();
-
-    final double rowHeight = 85;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            FilterChip(
-              label: Text('Femme'),
-              selected: provider.ajrSelected == 'women',
-              onSelected: (selected) {
-                provider.updateAjrSelected('women');
-              },
-              backgroundColor: Colors.grey,
-              selectedColor: Color.fromRGBO(0, 189, 126, 1),
-              labelStyle: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(999),
-              ),
-              showCheckmark: false,
-            ),
-            const SizedBox(width: 16),
-            FilterChip(
-              label: Text('Homme'),
-              selected: provider.ajrSelected == 'men',
-              onSelected: (selected) {
-                provider.updateAjrSelected('men');
-              },
-              backgroundColor: Colors.grey,
-              selectedColor: Color.fromRGBO(0, 189, 126, 1),
-              labelStyle: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(999),
-              ),
-              showCheckmark: false,
-            ),
-          ],
-        ),
-        SizedBox(height: 16),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: const Color.fromRGBO(0, 0, 0, 0.08),
-                spreadRadius: 0,
-                blurRadius: 6,
-                offset: Offset(0, 2),
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Table(
-              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-              columnWidths: {
-                0: FractionColumnWidth(0.50),
-                1: FractionColumnWidth(0.30),
-                2: FractionColumnWidth(0.20),
-              },
-              children: [
-                TableRow(
-                  children: [
-                    Container(
-                      height: rowHeight,
-                      decoration: BoxDecoration(color: Colors.white),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Text(
-                          'Valeurs nutritionnelles'.toUpperCase(),
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      height: rowHeight,
-                      decoration: BoxDecoration(color: Colors.white),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Text(
-                          provider.product.servingSize.isNotEmpty
-                              ? 'Par portion (${provider.product.servingSize})'
-                                  .toUpperCase()
-                              : 'Par portion (N/A)',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      height: rowHeight,
-                      decoration: BoxDecoration(color: Colors.grey[100]),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Text(
-                          'Ajr*'.toUpperCase(),
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                for (var entry in entries)
-                  // Je n'affiche que les nutriments élligibles aux ajr
-                  if (provider.ajrValues.containsKey(entry.key))
-                    TableRow(
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: Colors.grey[300]!,
-                            width: 1,
-                          ),
-                        ),
-                      ),
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(color: Colors.white),
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Text(
-                              provider.ajrValues[entry.key]?['name'],
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
-                                color: Colors.grey[900],
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          decoration: BoxDecoration(color: Colors.white),
-                          child: Padding(
-                            padding: EdgeInsets.all(12),
-                            child: Text(
-                              entry.value.toStringAsFixed(0).toString(),
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          decoration: BoxDecoration(color: Colors.grey[100]),
-                          child: Padding(
-                            padding: EdgeInsets.all(12),
-                            child: Text(
-                              (double.tryParse(entry.value.toString()) !=
-                                          null &&
-                                      provider.ajrValues[entry.key] != null)
-                                  ? ('${(((double.parse(entry.value.toString())) / provider.ajrValues[entry.key]?['value']!) * 100).toStringAsFixed(0)}%')
-                                  : '—',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-              ],
-            ),
-          ),
-        ),
-        SizedBox(height: 8),
-        Text(
-          'Ajr* : Apports Journaliers Recommandés',
-          style: TextStyle(fontSize: 12),
-        ),
-      ],
-    );
-  }
-}
-
 class ProductPage extends StatefulWidget {
   final String? id;
 
@@ -254,13 +43,10 @@ class ProductPageState extends State<ProductPage> {
     final provider = Provider.of<ProductsProvider>(context);
 
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(172),
-        child: customAppBar(),
-      ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
+          myAppBar(context),
           if (provider.productIsLoading)
             loadingWidget()
           else ...[
@@ -475,7 +261,9 @@ class ProductPageState extends State<ProductPage> {
           Text(product.quantity),
           const SizedBox(height: 16),
         ],
-        if (product.nutriments.isNotEmpty) ...[
+        if (product.nutriments.keys.any(
+          (key) => provider.ajrValues.containsKey(key),
+        )) ...[
           NutritionalTable(nutriments: product.nutriments),
           SizedBox(height: 32),
         ],
@@ -620,5 +408,216 @@ class ProductPageState extends State<ProductPage> {
     } else {
       return SizedBox.shrink();
     }
+  }
+}
+
+class NutritionalTable extends StatefulWidget {
+  final Object nutriments;
+
+  const NutritionalTable({super.key, required this.nutriments});
+
+  @override
+  NutritionalTableState createState() => NutritionalTableState();
+}
+
+class NutritionalTableState extends State<NutritionalTable> {
+  @override
+  Widget build(BuildContext context) {
+    final provider = Provider.of<ProductsProvider>(context);
+
+    // Convertir l'objet en une liste de paires (nom, valeur)
+    final entries =
+        (widget.nutriments as Map<String, dynamic>).entries.toList();
+
+    final double rowHeight = 85;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            FilterChip(
+              label: Text('Femme'),
+              selected: provider.ajrSelected == 'women',
+              onSelected: (selected) {
+                provider.updateAjrSelected('women');
+              },
+              backgroundColor: Colors.grey,
+              selectedColor: Color.fromRGBO(0, 189, 126, 1),
+              labelStyle: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(999),
+              ),
+              showCheckmark: false,
+            ),
+            const SizedBox(width: 16),
+            FilterChip(
+              label: Text('Homme'),
+              selected: provider.ajrSelected == 'men',
+              onSelected: (selected) {
+                provider.updateAjrSelected('men');
+              },
+              backgroundColor: Colors.grey,
+              selectedColor: Color.fromRGBO(0, 189, 126, 1),
+              labelStyle: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(999),
+              ),
+              showCheckmark: false,
+            ),
+          ],
+        ),
+        SizedBox(height: 16),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: const Color.fromRGBO(0, 0, 0, 0.08),
+                spreadRadius: 0,
+                blurRadius: 6,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Table(
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+              columnWidths: {
+                0: FractionColumnWidth(0.50),
+                1: FractionColumnWidth(0.30),
+                2: FractionColumnWidth(0.20),
+              },
+              children: [
+                TableRow(
+                  children: [
+                    Container(
+                      height: rowHeight,
+                      decoration: BoxDecoration(color: Colors.white),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Text(
+                          'Valeurs nutritionnelles'.toUpperCase(),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      height: rowHeight,
+                      decoration: BoxDecoration(color: Colors.white),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Text(
+                          provider.product.servingSize.isNotEmpty
+                              ? 'Par portion (${provider.product.servingSize})'
+                                  .toUpperCase()
+                              : 'Par portion (N/A)',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      height: rowHeight,
+                      decoration: BoxDecoration(color: Colors.grey[100]),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Text(
+                          'Ajr*'.toUpperCase(),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                for (var entry in entries)
+                  // Je n'affiche que les nutriments élligibles aux ajr
+                  if (provider.ajrValues.containsKey(entry.key))
+                    TableRow(
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: Colors.grey[300]!,
+                            width: 1,
+                          ),
+                        ),
+                      ),
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(color: Colors.white),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Text(
+                              provider.ajrValues[entry.key]?['name'],
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.grey[900],
+                              ),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          decoration: BoxDecoration(color: Colors.white),
+                          child: Padding(
+                            padding: EdgeInsets.all(12),
+                            child: Text(
+                              entry.value.toStringAsFixed(0).toString(),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          decoration: BoxDecoration(color: Colors.grey[100]),
+                          child: Padding(
+                            padding: EdgeInsets.all(12),
+                            child: Text(
+                              (double.tryParse(entry.value.toString()) !=
+                                          null &&
+                                      provider.ajrValues[entry.key] != null)
+                                  ? ('${(((double.parse(entry.value.toString())) / provider.ajrValues[entry.key]?['value']!) * 100).toStringAsFixed(0)}%')
+                                  : '—',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+              ],
+            ),
+          ),
+        ),
+        SizedBox(height: 8),
+        Text(
+          'Ajr* : Apports Journaliers Recommandés',
+          style: TextStyle(fontSize: 12),
+        ),
+      ],
+    );
   }
 }

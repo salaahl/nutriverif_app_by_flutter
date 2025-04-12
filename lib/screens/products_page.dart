@@ -72,24 +72,55 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(172),
-        child: customAppBar(),
-      ),
       body: Stack(
         children: [
-          // Contenu défilable en dessous de la searchbar + filtres
           SingleChildScrollView(
             controller: _scrollController,
-            padding: const EdgeInsets.fromLTRB(
-              16,
-              176, // <-- HAUTEUR de la barre fixe
-              16,
-              0,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                myAppBar(context),
+                Container(
+                  margin: const EdgeInsets.only(top: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AppSearchBar(provider: provider),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 12,
+                        children:
+                            _filters.entries.map((filter) {
+                              return FilterChip(
+                                label: Text(filter.key),
+                                selected: provider.filter == filter.value,
+                                onSelected: (selected) {
+                                  setState(
+                                    () => provider.updateFilter(filter.value),
+                                  );
+                                },
+                                backgroundColor: Colors.grey,
+                                selectedColor: const Color.fromRGBO(
+                                  0,
+                                  189,
+                                  126,
+                                  1,
+                                ),
+                                labelStyle: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                showCheckmark: false,
+                              );
+                            }).toList(),
+                      ),
+                    ],
+                  ),
+                ),
                 const SizedBox(height: 12),
                 GridView(
                   shrinkWrap: true,
@@ -98,7 +129,7 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                     crossAxisCount: 2,
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 16,
-                    childAspectRatio: 0.64,
+                    childAspectRatio: 0.55,
                   ),
                   children:
                       provider.products.asMap().entries.map((entry) {
@@ -141,50 +172,6 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                     ),
                   ),
               ],
-            ),
-          ),
-
-          // AppSearchBar + filtres
-          AnimatedPositioned(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            top: searchBarPos,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AppSearchBar(provider: provider),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 12,
-                    children:
-                        _filters.entries.map((filter) {
-                          return FilterChip(
-                            label: Text(filter.key),
-                            selected: provider.filter == filter.value,
-                            onSelected: (selected) {
-                              setState(
-                                () => provider.updateFilter(filter.value),
-                              );
-                            },
-                            backgroundColor: Colors.grey,
-                            selectedColor: const Color.fromRGBO(0, 189, 126, 1),
-                            labelStyle: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                            showCheckmark: false,
-                          );
-                        }).toList(),
-                  ),
-                ],
-              ),
             ),
           ),
         ],
