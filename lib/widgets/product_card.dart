@@ -5,17 +5,17 @@ class ProductCard extends StatelessWidget {
   final String id;
   final double
   widthAjustment; // ajustement de la largeur selon le padding des parents
-  final String imageUrl;
+  final String image;
   final String title;
   final String description;
   final String nutriscore;
   final String nova;
 
   const ProductCard({
-    required this.id,
     super.key,
+    required this.id,
     required this.widthAjustment,
-    required this.imageUrl,
+    required this.image,
     required this.title,
     required this.description,
     required this.nutriscore,
@@ -92,7 +92,7 @@ class ProductCard extends StatelessWidget {
                         (MediaQuery.of(context).size.width / 100 * 48) -
                         widthAjustment * 2,
                     child:
-                        imageUrl.isEmpty
+                        image.isEmpty
                             ? Image.asset(
                               'assets/images/logo.png',
                               height: 80,
@@ -100,7 +100,7 @@ class ProductCard extends StatelessWidget {
                               semanticLabel: 'Image du produit',
                             )
                             : Image.network(
-                              imageUrl,
+                              image,
                               height: 80,
                               fit: BoxFit.contain,
                               semanticLabel: 'Image du produit',

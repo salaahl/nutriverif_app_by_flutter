@@ -1,29 +1,15 @@
 // models.dart
 class Products {
-  final String id;
-  final String image;
-  final String brand;
-  final String name;
-  final String nutriscore;
-  final dynamic nova; // Peut être un String ou un int
+  final Map<String, Product> items;
 
-  Products({
-    required this.id,
-    required this.image,
-    required this.brand,
-    required this.name,
-    required this.nutriscore,
-    required this.nova,
-  });
+  Products({required this.items});
 
-  factory Products.fromJson(Map<String, dynamic> json) {
+  factory Products.fromJsonList(List<dynamic> jsonList) {
     return Products(
-      id: (json['id'] ?? '').toString(),
-      image: (json['image_front_small_url'] ?? '').toString(),
-      brand: (json['brands'] ?? '').toString(),
-      name: (json['generic_name_fr'] ?? '').toString(),
-      nutriscore: (json['nutriscore_grade'] ?? 'unknown').toString(),
-      nova: (json['nova_group'] ?? 'unknown').toString(),
+      items: {
+        for (var item in jsonList)
+          Product.fromJson(item).id: Product.fromJson(item),
+      },
     );
   }
 }
@@ -32,7 +18,7 @@ class Product {
   final String id;
   final String image;
   final String brand;
-  final String genericName;
+  final String name;
   final String category;
   final List<String> categories;
   final String lastUpdate;
@@ -50,7 +36,7 @@ class Product {
     required this.id,
     required this.image,
     required this.brand,
-    required this.genericName,
+    required this.name,
     required this.category,
     required this.categories,
     required this.lastUpdate,
@@ -70,7 +56,7 @@ class Product {
       id: (json['_id'] ?? '').toString(),
       image: (json['image_url'] ?? '').toString(),
       brand: (json['brands'] ?? '').toString(),
-      genericName: (json['generic_name_fr'] ?? '').toString(),
+      name: (json['generic_name_fr'] ?? '').toString(),
       category: (json['main_category_fr'] ?? '').toString(),
       categories:
           (json['categories_tags'] as List?)
@@ -78,8 +64,8 @@ class Product {
               .toList() ??
           [],
       lastUpdate: (json['last_modified_t'] ?? '').toString(),
-      nutriscore: (json['nutriscore_grade'] ?? '').toString(),
-      nova: (json['nova_group'] ?? '').toString(),
+      nutriscore: (json['nutriscore_grade'] ?? 'unknown').toString(),
+      nova: (json['nova_group'] ?? 'unknown').toString(),
       quantity: (json['quantity'] ?? '').toString(),
       servingSize: (json['serving_size'] ?? '').toString(),
       ingredients: (json['ingredients_text_fr'] ?? '').toString(),

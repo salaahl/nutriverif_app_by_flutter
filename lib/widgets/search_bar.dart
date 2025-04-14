@@ -136,7 +136,7 @@ class _AppSearchBarState extends State<AppSearchBar> {
                 );
               }
             } else {
-              await widget.provider.searchProducts(
+              await widget.provider.searchProductsByQuery(
                 userInput: input,
                 method: 'complete',
               );

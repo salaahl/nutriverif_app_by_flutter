@@ -9,13 +9,13 @@ class ProductsProvider with ChangeNotifier {
   static const String apiBaseUrl =
       'https://world.openfoodfacts.org/cgi/search.pl';
 
-  List<Products> _products = [];
+  List<Product> _products = [];
   bool _productsIsLoading = false;
   Product _product = Product.fromJson({});
   bool _productIsLoading = false;
-  List<Products> _lastProducts = [];
+  List<Product> _lastProducts = [];
   bool _lastProductsIsLoading = false;
-  List<Products> _suggestedProducts = [];
+  List<Product> _suggestedProducts = [];
   bool _suggestedProductsIsLoading = false;
   String _ajrSelected = 'women';
   String _input = '';
@@ -24,13 +24,13 @@ class ProductsProvider with ChangeNotifier {
   int _pages = 1;
   String? _error;
 
-  List<Products> get products => _products;
+  List<Product> get products => _products;
   bool get productsIsLoading => _productsIsLoading;
   Product get product => _product;
   bool get productIsLoading => _productIsLoading;
-  List<Products> get lastProducts => _lastProducts;
+  List<Product> get lastProducts => _lastProducts;
   bool get lastProductsIsLoading => _lastProductsIsLoading;
-  List<Products> get suggestedProducts => _suggestedProducts;
+  List<Product> get suggestedProducts => _suggestedProducts;
   bool get suggestedProductsIsLoading => _suggestedProductsIsLoading;
   String get ajrSelected => _ajrSelected;
   String get input => _input;
@@ -86,14 +86,18 @@ class ProductsProvider with ChangeNotifier {
 
     // Relancer une recherche de produits avec le nouveau filtre si des produits sont actuellement affichés
     if (products.isNotEmpty) {
-      searchProducts(userInput: _input, sortBy: value, method: 'complete');
+      searchProductsByQuery(
+        userInput: _input,
+        sortBy: value,
+        method: 'complete',
+      );
     } else {
       // Sinon, notifier les listeners que la tâche est terminée
       notifyListeners();
     }
   }
 
-  Future<void> searchProducts({
+  Future<void> searchProductsByQuery({
     String userInput = '',
     String sortBy = 'popularity_key',
     required String method,
@@ -107,7 +111,7 @@ class ProductsProvider with ChangeNotifier {
     }
 
     const fields =
-        'id,image_front_small_url,brands,generic_name_fr,nutriscore_grade,nova_group';
+        'id,image_url,brands,generic_name_fr,main_category_fr,main_category_fr,categories_tags,last_modified_t,nutriscore_grade,nova_group,quantity,serving_size,ingredients_text_fr,nutriments,nutrients_level,manufacturing_places,url';
     final url =
         '$apiBaseUrl?search_terms=${Uri.encodeComponent(_input)}&fields=${Uri.encodeComponent(fields)}&purchase_places_tags=france&sort_by=${Uri.encodeComponent(_filter)}&page_size=20&page=$_page&search_simple=1&action=process&json=1';
 
@@ -121,9 +125,9 @@ class ProductsProvider with ChangeNotifier {
 
       if (method == 'complete') _pages = (data['count'] / 20).ceil();
 
-      _products.addAll(
-        (data['products'] as List).map((p) => Products.fromJson(p)).toList(),
-      );
+      final productsList = Products.fromJsonList(data['products'] as List);
+
+      _products.addAll(productsList.items.values);
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -132,7 +136,7 @@ class ProductsProvider with ChangeNotifier {
     }
   }
 
-  Future<void> fetchProduct(String id) async {
+  Future<void> fetchProductById(String id) async {
     _error = null;
     _productIsLoading = true;
     notifyListeners();
@@ -186,7 +190,7 @@ class ProductsProvider with ChangeNotifier {
     notifyListeners();
 
     const fields =
-        'id,image_front_small_url,brands,generic_name_fr,nutriscore_grade,nova_group,completeness,popularity_key';
+        'id,image_url,brands,generic_name_fr,main_category_fr,main_category_fr,categories_tags,last_modified_t,nutriscore_grade,nova_group,quantity,serving_size,ingredients_text_fr,nutriments, nutrients_level,manufacturing_places,url,completeness,popularity_key';
     final url =
         'https://world.openfoodfacts.org/api/v2/search?categories_tags=${Uri.encodeComponent(categoriesString)}&fields=${Uri.encodeComponent(fields)}&purchase_places_tags=france&sort_by=nutriscore_score,nova_group,popularity_key&page_size=300&action=process&json=1';
 
@@ -249,7 +253,10 @@ class ProductsProvider with ChangeNotifier {
 
       try {
         _suggestedProducts =
-            selectedProducts.take(4).map((p) => Products.fromJson(p)).toList();
+            selectedProducts
+                .take(4)
+                .map((json) => Product.fromJson(json))
+                .toList();
       } catch (e) {
         _error = 'Erreur lors du parsing du produit: $e';
       }
@@ -267,7 +274,7 @@ class ProductsProvider with ChangeNotifier {
     notifyListeners();
 
     const fields =
-        'id,image_front_small_url,brands,generic_name_fr,nutriscore_grade,nova_group,created_t,completeness';
+        'id,image_url,brands,generic_name_fr,main_category_fr,main_category_fr,categories_tags,last_modified_t,nutriscore_grade,nova_group,quantity,serving_size,ingredients_text_fr,nutriments,nutrients_level,manufacturing_places,url,created_t,completeness';
     final url =
         '$apiBaseUrl?&fields=${Uri.encodeComponent(fields)}&purchase_places_tags=france&sort_by=created_t&page_size=300&action=process&json=1';
 
@@ -284,8 +291,12 @@ class ProductsProvider with ChangeNotifier {
                 (a['created_t'] as num).toDouble(),
               ),
             );
+
       _lastProducts =
-          filteredProducts.take(4).map((p) => Products.fromJson(p)).toList();
+          filteredProducts
+              .take(4)
+              .map((json) => Product.fromJson(json))
+              .toList();
     } catch (e) {
       _error = e.toString();
     } finally {

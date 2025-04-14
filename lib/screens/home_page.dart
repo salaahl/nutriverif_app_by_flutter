@@ -32,9 +32,9 @@ class _HomePageState extends State<HomePage> {
         ),
       );
 
-  late Product _productDemo = Product.fromJson({});
   late DateTime date = DateTime.now();
-  late List<Products> _suggestedProductsDemo = [];
+  late Product product;
+  late List<Product> _suggestedProductsDemo = [];
 
   @override
   void initState() {
@@ -42,18 +42,19 @@ class _HomePageState extends State<HomePage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final provider = Provider.of<ProductsProvider>(context, listen: false);
+      product = provider.product;
 
       // Attente des appels asynchrones
-      await provider.fetchProduct('8000500310427');
+      await provider.fetchProductById('8000500310427');
       await provider.fetchLastProducts();
 
       if (!mounted) return; // ⛔️ stop si on a quitté la page
 
       setState(() {
-        // Mise à jour de _productDemo après avoir récupéré les données
-        _productDemo = provider.product;
+        // Mise à jour de provider.product après avoir récupéré les données
+        product = provider.product;
         date = DateTime.fromMillisecondsSinceEpoch(
-          int.parse(_productDemo.lastUpdate) * 1000,
+          int.parse(provider.product.lastUpdate) * 1000,
         );
         _suggestedProductsDemo = provider.suggestedProducts;
       });
@@ -169,21 +170,29 @@ class _HomePageState extends State<HomePage> {
                                                   100 *
                                                   4,
                                               children:
-                                                  provider.products.take(4).map(
-                                                    (product) {
-                                                      return ProductCard(
-                                                        widthAjustment: 32,
-                                                        id: product.id,
-                                                        imageUrl: product.image,
-                                                        title: product.brand,
-                                                        description:
-                                                            product.name,
-                                                        nutriscore:
-                                                            product.nutriscore,
-                                                        nova: product.nova,
-                                                      );
-                                                    },
-                                                  ).toList(),
+                                                  provider.products
+                                                      .asMap()
+                                                      .entries
+                                                      .take(4)
+                                                      .map((entry) {
+                                                        return ProductCard(
+                                                          id: entry.value.id,
+                                                          widthAjustment: 32,
+                                                          image:
+                                                              entry.value.image,
+                                                          title:
+                                                              entry.value.brand,
+                                                          description:
+                                                              entry.value.name,
+                                                          nutriscore:
+                                                              entry
+                                                                  .value
+                                                                  .nutriscore,
+                                                          nova:
+                                                              entry.value.nova,
+                                                        );
+                                                      })
+                                                      .toList(),
                                             ),
                                       ],
                                     ),
@@ -604,11 +613,11 @@ class _HomePageState extends State<HomePage> {
                                                   BorderRadius.circular(12),
                                             ),
                                             child:
-                                                _productDemo.image.isEmpty
+                                                provider.product.image.isEmpty
                                                     ? ProductPageState()
                                                         .loadingWidget()
                                                     : Image.network(
-                                                      _productDemo.image,
+                                                      provider.product.image,
                                                       width: 160,
                                                       semanticLabel:
                                                           'Image du produit',
@@ -624,7 +633,7 @@ class _HomePageState extends State<HomePage> {
                                             Text.rich(
                                               TextSpan(
                                                 text:
-                                                    "${_productDemo.brand} - ",
+                                                    "${provider.product.brand} - ",
                                                 style: const TextStyle(
                                                   fontSize: 20,
                                                   fontWeight: FontWeight.w500,
@@ -632,9 +641,7 @@ class _HomePageState extends State<HomePage> {
                                                 ),
                                                 children: [
                                                   TextSpan(
-                                                    text:
-                                                        _productDemo
-                                                            .genericName,
+                                                    text: provider.product.name,
                                                     style: const TextStyle(
                                                       color: Colors.black,
                                                     ),
@@ -656,11 +663,11 @@ class _HomePageState extends State<HomePage> {
                                                     maxWidth: 100,
                                                   ),
                                                   child: SvgPicture.network(
-                                                    "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-${_productDemo.nutriscore}-new-fr.svg",
+                                                    "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-${provider.product.nutriscore}-new-fr.svg",
                                                     width: 100,
                                                     fit: BoxFit.cover,
                                                     semanticsLabel:
-                                                        'Nutriscore ${_productDemo.nutriscore}',
+                                                        'Nutriscore ${provider.product.nutriscore}',
                                                   ),
                                                 ),
                                                 const SizedBox(height: 8),
@@ -669,11 +676,11 @@ class _HomePageState extends State<HomePage> {
                                                     maxWidth: 30,
                                                   ),
                                                   child: SvgPicture.network(
-                                                    "https://static.openfoodfacts.org/images/attributes/dist/nova-group-${_productDemo.nova}.svg",
+                                                    "https://static.openfoodfacts.org/images/attributes/dist/nova-group-${provider.product.nova}.svg",
                                                     width: 30,
                                                     fit: BoxFit.cover,
                                                     semanticsLabel:
-                                                        'NOVA ${_productDemo.nova}',
+                                                        'NOVA ${provider.product.nova}',
                                                   ),
                                                 ),
                                               ],
@@ -683,48 +690,59 @@ class _HomePageState extends State<HomePage> {
                                               spacing: 8,
                                               runSpacing: 8,
                                               children:
-                                                  _productDemo.nutrientLevels.entries.map((
-                                                    entry,
-                                                  ) {
-                                                    Color bgColor;
+                                                  provider
+                                                      .product
+                                                      .nutrientLevels
+                                                      .entries
+                                                      .map((entry) {
+                                                        Color bgColor;
 
-                                                    switch (entry.value) {
-                                                      case 'high':
-                                                        bgColor = Colors.red;
-                                                        break;
-                                                      case 'moderate':
-                                                        bgColor = Colors.orange;
-                                                        break;
-                                                      case 'low':
-                                                        bgColor = Colors.green;
-                                                        break;
-                                                      default:
-                                                        bgColor = Colors.grey;
-                                                    }
+                                                        switch (entry.value) {
+                                                          case 'high':
+                                                            bgColor =
+                                                                Colors.red;
+                                                            break;
+                                                          case 'moderate':
+                                                            bgColor =
+                                                                Colors.orange;
+                                                            break;
+                                                          case 'low':
+                                                            bgColor =
+                                                                Colors.green;
+                                                            break;
+                                                          default:
+                                                            bgColor =
+                                                                Colors.grey;
+                                                        }
 
-                                                    return Container(
-                                                      padding:
-                                                          const EdgeInsets.symmetric(
-                                                            horizontal: 12,
-                                                            vertical: 6,
+                                                        return Container(
+                                                          padding:
+                                                              const EdgeInsets.symmetric(
+                                                                horizontal: 12,
+                                                                vertical: 6,
+                                                              ),
+                                                          decoration: BoxDecoration(
+                                                            color: bgColor,
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  20,
+                                                                ),
                                                           ),
-                                                      decoration: BoxDecoration(
-                                                        color: bgColor,
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              20,
-                                                            ),
-                                                      ),
-                                                      child: Text(
-                                                        entry.key,
-                                                        style: const TextStyle(
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
-                                                      ),
-                                                    );
-                                                  }).toList(),
+                                                          child: Text(
+                                                            entry.key,
+                                                            style:
+                                                                const TextStyle(
+                                                                  color:
+                                                                      Colors
+                                                                          .white,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                ),
+                                                          ),
+                                                        );
+                                                      })
+                                                      .toList(),
                                             ),
                                           ],
                                         ),
@@ -905,20 +923,25 @@ class _HomePageState extends State<HomePage> {
                                               100 *
                                               4,
                                           children:
-                                              provider.lastProducts.map((
-                                                product,
-                                              ) {
-                                                return ProductCard(
-                                                  widthAjustment: 32,
-                                                  id: product.id,
-                                                  imageUrl: product.image,
-                                                  title: product.brand,
-                                                  description: product.name,
-                                                  nutriscore:
-                                                      product.nutriscore,
-                                                  nova: product.nova,
-                                                );
-                                              }).toList(),
+                                              provider.lastProducts
+                                                  .asMap()
+                                                  .entries
+                                                  .map((entry) {
+                                                    return ProductCard(
+                                                      id: entry.value.id,
+                                                      widthAjustment: 32,
+                                                      image: entry.value.image,
+                                                      title: entry.value.brand,
+                                                      description:
+                                                          entry.value.name,
+                                                      nutriscore:
+                                                          entry
+                                                              .value
+                                                              .nutriscore,
+                                                      nova: entry.value.nova,
+                                                    );
+                                                  })
+                                                  .toList(),
                                         ),
                                   ],
                                 ),

@@ -38,7 +38,7 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
 
     // Cette méthode permet d'appeler mon provider une fois le widget construit
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // provider = Provider.of<ProductsProvider>(context, listen: false);
+      provider = Provider.of<ProductsProvider>(context, listen: false);
     });
 
     _scrollController.addListener(_onScroll);
@@ -64,7 +64,7 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
         provider.page < provider.pages &&
         _refresh) {
       _refresh = false;
-      provider.searchProducts(method: 'more');
+      provider.searchProductsByQuery(method: 'more');
       Timer(Duration(seconds: 1), () => _refresh = true);
     }
 
@@ -94,29 +94,31 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                         spacing: 12,
                         children:
                             _filters.entries.map((filter) {
-                              return FilterChip(
-                                label: Text(filter.key),
-                                selected: provider.filter == filter.value,
-                                onSelected: (selected) {
-                                  setState(
-                                    () => provider.updateFilter(filter.value),
-                                  );
-                                },
-                                backgroundColor: Colors.grey,
-                                selectedColor: const Color.fromRGBO(
-                                  0,
-                                  189,
-                                  126,
-                                  1,
+                              return Material(
+                                child: FilterChip(
+                                  label: Text(filter.key),
+                                  selected: provider.filter == filter.value,
+                                  onSelected: (selected) {
+                                    setState(
+                                      () => provider.updateFilter(filter.value),
+                                    );
+                                  },
+                                  backgroundColor: Colors.grey,
+                                  selectedColor: const Color.fromRGBO(
+                                    0,
+                                    189,
+                                    126,
+                                    1,
+                                  ),
+                                  labelStyle: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
+                                  showCheckmark: false,
                                 ),
-                                labelStyle: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(999),
-                                ),
-                                showCheckmark: false,
                               );
                             }).toList(),
                       ),
@@ -138,12 +140,13 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                         final productCard = ProductCard(
                           id: entry.id,
                           widthAjustment: 16,
-                          imageUrl: entry.image,
+                          image: entry.image,
                           title: entry.brand,
                           description: entry.name,
                           nutriscore: entry.nutriscore,
                           nova: entry.nova,
                         );
+
                         final alreadyAnimated = _animatedProductIds.contains(
                           entry.id,
                         );
