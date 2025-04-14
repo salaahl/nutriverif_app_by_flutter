@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-Widget myAppBar(BuildContext context) {
+Widget myAppBar(BuildContext context, {String? route = ''}) {
   return SafeArea(
     child: SizedBox(
       height: 172,
@@ -16,22 +16,23 @@ Widget myAppBar(BuildContext context) {
                 children: [
                   Image.asset('assets/images/logo.png', height: 80, width: 80),
                   const SizedBox(height: 4),
-                  Text.rich(
-                    TextSpan(
-                      text: 'Nutri',
-                      style: const TextStyle(
-                        fontFamily: 'Grand Hotel',
-                        fontSize: 24,
-                        fontWeight: FontWeight.w300,
-                      ),
-                      children: [
-                        TextSpan(
-                          text: 'Vérif',
-                          style: const TextStyle(color: Color(0xFF00BD7E)),
+                  if (route != '/')
+                    Text.rich(
+                      TextSpan(
+                        text: 'Nutri',
+                        style: const TextStyle(
+                          fontFamily: 'Grand Hotel',
+                          fontSize: 24,
+                          fontWeight: FontWeight.w300,
                         ),
-                      ],
+                        children: [
+                          TextSpan(
+                            text: 'Vérif',
+                            style: const TextStyle(color: Color(0xFF00BD7E)),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
                 ],
               ),
               const Spacer(flex: 1),
@@ -49,7 +50,8 @@ Widget myAppBar(BuildContext context) {
                     color: Colors.white,
                     borderRadius: const BorderRadius.all(Radius.circular(999)),
                   ),
-                  child: const Icon(Icons.arrow_back)),
+                  child: const Icon(Icons.arrow_back),
+                ),
                 onPressed: () => Navigator.pop(context),
               ),
             ),

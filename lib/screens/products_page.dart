@@ -5,6 +5,7 @@ import '../widgets/search_bar.dart';
 import '../widgets/product_card.dart';
 import 'package:provider/provider.dart';
 import 'package:app_nutriverif/providers/products_provider.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 class ProductSearchPage extends StatefulWidget {
   const ProductSearchPage({super.key});
@@ -29,6 +30,7 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
     'Nutriscore': 'nutriscore_score',
     'Nova Score': 'nova_score',
   };
+  final Set<String> _animatedProductIds = {};
 
   @override
   void initState() {
@@ -132,31 +134,47 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                     childAspectRatio: 0.55,
                   ),
                   children:
-                      provider.products.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final product = entry.value;
+                      provider.products.map((entry) {
+                        final productCard = ProductCard(
+                          id: entry.id,
+                          widthAjustment: 16,
+                          imageUrl: entry.image,
+                          title: entry.brand,
+                          description: entry.name,
+                          nutriscore: entry.nutriscore,
+                          nova: entry.nova,
+                        );
+                        final alreadyAnimated = _animatedProductIds.contains(
+                          entry.id,
+                        );
 
-                        return TweenAnimationBuilder<double>(
-                          tween: Tween(begin: 0.0, end: 1.0),
-                          duration: Duration(milliseconds: 500 + (index * 100)),
-                          builder: (context, value, child) {
-                            return Opacity(
-                              opacity: value,
-                              child: Transform.translate(
-                                offset: Offset(0, 30 * (1 - value)),
-                                child: child,
-                              ),
-                            );
+                        return VisibilityDetector(
+                          key: Key(entry.id),
+                          onVisibilityChanged: (info) {
+                            if (info.visibleFraction >= 0.20 &&
+                                !_animatedProductIds.contains(entry.id)) {
+                              setState(() {
+                                _animatedProductIds.add(entry.id);
+                              });
+                            }
                           },
-                          child: ProductCard(
-                            id: product.id,
-                            widthAjustment: 16,
-                            imageUrl: product.image,
-                            title: product.brand,
-                            description: product.name,
-                            nutriscore: product.nutriscore,
-                            nova: product.nova,
-                          ),
+                          child:
+                              alreadyAnimated
+                                  ? TweenAnimationBuilder<double>(
+                                    tween: Tween(begin: 0.0, end: 1.0),
+                                    duration: Duration(milliseconds: 250),
+                                    builder: (context, value, child) {
+                                      return Opacity(
+                                        opacity: value,
+                                        child: Transform.translate(
+                                          offset: Offset(0, 35 * (1 - value)),
+                                          child: child,
+                                        ),
+                                      );
+                                    },
+                                    child: productCard,
+                                  )
+                                  : SizedBox.shrink(),
                         );
                       }).toList(),
                 ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 import 'package:app_nutriverif/providers/products_provider.dart';
 import '../screens/products_page.dart';
@@ -18,6 +19,17 @@ class ProductPage extends StatefulWidget {
 }
 
 class ProductPageState extends State<ProductPage> {
+  final Set<String> _isAnimated = {};
+  Widget loadingWidget() => const Center(
+    child: Padding(
+      padding: EdgeInsets.all(64),
+      child: CircularProgressIndicator(
+        color: Color(0xFF00BD7E),
+        strokeWidth: 8,
+      ),
+    ),
+  );
+
   @override
   void initState() {
     super.initState();
@@ -52,11 +64,40 @@ class ProductPageState extends State<ProductPage> {
           else ...[
             productDetails(context, provider.product),
             const SizedBox(height: 32),
-            alternativeProducts(
-              context,
-              provider,
-              loadingWidget(),
-              provider.suggestedProducts,
+            VisibilityDetector(
+              key: Key('alternatives'),
+              onVisibilityChanged: (info) {
+                if (info.visibleBounds.height > 50 &&
+                    !_isAnimated.contains('alternatives')) {
+                  setState(() {
+                    _isAnimated.add('alternatives');
+                  });
+                }
+              },
+              child:
+                  _isAnimated.contains('alternatives')
+                      ? TweenAnimationBuilder<double>(
+                        tween: Tween(begin: 0.0, end: 1.0),
+                        duration: Duration(milliseconds: 250),
+                        builder: (context, value, child) {
+                          return Opacity(
+                            opacity: value,
+                            child: Transform.translate(
+                              offset: Offset(0, 100 * (1 - value)),
+                              child: child,
+                            ),
+                          );
+                        },
+                        child: alternativeProducts(
+                          context,
+                          provider,
+                          provider.suggestedProducts,
+                        ),
+                      )
+                      : SizedBox(
+                        height: 300,
+                        width: MediaQuery.of(context).size.width,
+                      ),
             ),
           ],
           const SizedBox(height: 32),
@@ -64,16 +105,6 @@ class ProductPageState extends State<ProductPage> {
       ),
     );
   }
-
-  Widget loadingWidget() => const Center(
-    child: Padding(
-      padding: EdgeInsets.all(64),
-      child: CircularProgressIndicator(
-        color: Color(0xFF00BD7E),
-        strokeWidth: 8,
-      ),
-    ),
-  );
 
   // Affichage des détails du produit
   Widget productDetails(BuildContext context, Product product) {
@@ -332,11 +363,10 @@ class ProductPageState extends State<ProductPage> {
   Widget alternativeProducts(
     BuildContext context,
     ProductsProvider provider,
-    Widget loadingWidget,
     List<Products> suggestedProducts,
   ) {
     if (provider.suggestedProductsIsLoading) {
-      return loadingWidget;
+      return loadingWidget();
     } else if (provider.suggestedProducts.isNotEmpty) {
       return Container(
         padding: const EdgeInsets.all(16),

@@ -102,7 +102,6 @@ class ProductsProvider with ChangeNotifier {
       _page++;
     } else {
       _products = [];
-      _suggestedProducts = [];
       _input = userInput;
       _page = 1;
     }
@@ -148,6 +147,7 @@ class ProductsProvider with ChangeNotifier {
         if (data['product'] != null) {
           try {
             _product = Product.fromJson(data['product']);
+            notifyListeners();
 
             fetchSuggestedProducts(
               id: _product.id,
@@ -176,13 +176,11 @@ class ProductsProvider with ChangeNotifier {
     List<String>? categories,
   }) async {
     id ??= _product.id;
-    categories ??=
-        _product.categories.map((category) {
-          return category.split(':')[1]; // Extrait la partie après "en:"
-        }).toList();
+    categories ??= _product.categories;
 
     String categoriesString = categories.join(',');
 
+    _suggestedProducts = [];
     _suggestedProductsIsLoading = true;
     _error = null;
     notifyListeners();

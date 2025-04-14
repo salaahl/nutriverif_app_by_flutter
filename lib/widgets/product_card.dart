@@ -28,6 +28,24 @@ class ProductCard extends StatelessWidget {
       height: 280,
       width: (MediaQuery.of(context).size.width / 100 * 48) - widthAjustment,
       margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Color.fromRGBO(50, 50, 93, 0.025),
+            offset: Offset(0, 50),
+            blurRadius: 100,
+            spreadRadius: -20,
+          ),
+          BoxShadow(
+            color: Color.fromRGBO(0, 0, 0, 0.075),
+            offset: Offset(0, 30),
+            blurRadius: 60,
+            spreadRadius: -30,
+          ),
+        ],
+      ),
       child: Material(
         color: const Color.fromRGBO(249, 249, 249, 1),
         borderRadius: BorderRadius.circular(12),

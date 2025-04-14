@@ -33,10 +33,6 @@ class _AppSearchBarState extends State<AppSearchBar> {
         Expanded(
           child: TextField(
             controller: _searchController,
-            autofocus:
-                ModalRoute.of(context)!.settings.name == '/products'
-                    ? true
-                    : false,
             decoration: InputDecoration(
               hintText: 'Entrez un nom de produit, un code-barres...',
               hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
