@@ -1,17 +1,39 @@
-# app_nutriverif
+# NutriVerif
 
-A new Flutter project.
+**Application mobile de food checking** basée sur l'API [OpenFoodFacts](https://world.openfoodfacts.org/), permettant de rechercher et évaluer la qualité nutritionnelle des produits alimentaires.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🧠 Objectif
 
-A few resources to get you started if this is your first Flutter project:
+Aider les utilisateurs à :
+- **Vérifier la composition nutritionnelle** d’un produit (Nutri-Score, NOVA)
+- **Consulter les valeurs nutritionnelles détaillées**
+- **Découvrir des alternatives plus saines** en cas de mauvais score
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-# nutriverif_app_by_flutter
+## ⚙️ Stack technique
+
+- **Flutter** avec **Dart**
+- API publique : **OpenFoodFacts**
+
+---
+
+## 🚀 Fonctionnalités
+
+- 🔎 **Recherche de produit** par nom, photo ou code-barres
+- 📊 **Affichage des scores Nutri-Score et NOVA**
+- 🧾 **Détails nutritionnels** (calories, graisses, sel, etc.)
+- 🔁 **Suggestion d’alternatives** plus saines
+
+---
+
+## 📄 Auteur
+Développé dans le cadre d'une démarche personnelle de veille et de pratique continue.
+
+---
+
+## ⚠️ Conditions d'utilisation
+Ce projet est mis à disposition à des fins de consultation uniquement.
+Toute reproduction, modification, ou réutilisation du code sans autorisation écrite est interdite.
