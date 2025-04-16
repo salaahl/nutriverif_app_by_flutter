@@ -46,12 +46,23 @@ class MyApp extends StatelessWidget {
             page = const MainScaffold();
         }
 
-        return MaterialPageRoute(
-          builder: (context) => page,
-          settings: settings,
+        return PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => page,
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const curve = Curves.easeInOut;
+
+            final slideInTween = Tween<Offset>(
+              begin: const Offset(1.0, 0.0),
+              end: Offset.zero,
+            ).chain(CurveTween(curve: curve));
+
+            return SlideTransition(
+              position: animation.drive(slideInTween),
+              child: child,
+            );
+          },
         );
       },
-
       initialRoute: '/',
     );
   }

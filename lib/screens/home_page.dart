@@ -34,7 +34,7 @@ class _HomePageState extends State<HomePage> {
 
   late DateTime date = DateTime.now();
   late Product product;
-  late List<Product> _suggestedProductsDemo = [];
+  late Map<String, Product> _suggestedProductsDemo = {};
 
   @override
   void initState() {
@@ -64,6 +64,17 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ProductsProvider>();
+    // Je charge les images en amont du visual detector, pour leur permettre directement
+    final nutriscoreImage = SvgPicture.network(
+      'https://static.openfoodfacts.org/images/attributes/dist/nutriscore-a.svg',
+      width: 160,
+      semanticsLabel: 'Image du Nutriscore',
+    );
+    final novaImage = SvgPicture.network(
+      'https://static.openfoodfacts.org/images/attributes/dist/nova-group-1.svg',
+      width: 40,
+      semanticsLabel: 'Image du Nova score',
+    );
 
     return Scaffold(
       body: Center(
@@ -170,13 +181,11 @@ class _HomePageState extends State<HomePage> {
                                                   100 *
                                                   4,
                                               children:
-                                                  provider.products
-                                                      .asMap()
-                                                      .entries
+                                                  provider.products.entries
                                                       .take(4)
                                                       .map((entry) {
                                                         return ProductCard(
-                                                          id: entry.value.id,
+                                                          id: entry.key,
                                                           widthAjustment: 32,
                                                           image:
                                                               entry.value.image,
@@ -443,12 +452,7 @@ class _HomePageState extends State<HomePage> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.center,
                                         children: [
-                                          SvgPicture.network(
-                                            'https://static.openfoodfacts.org/images/attributes/dist/nutriscore-a.svg',
-                                            width: 160,
-                                            semanticsLabel:
-                                                'Image du Nutriscore',
-                                          ),
+                                          nutriscoreImage,
                                           const SizedBox(height: 16),
                                           const Text(
                                             "Le Nutri-Score est un système d'étiquetage nutritionnel qui aide les consommateurs à identifier la qualité nutritionnelle des aliments. "
@@ -479,12 +483,7 @@ class _HomePageState extends State<HomePage> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.center,
                                         children: [
-                                          SvgPicture.network(
-                                            'https://static.openfoodfacts.org/images/attributes/dist/nova-group-1.svg',
-                                            width: 40,
-                                            semanticsLabel:
-                                                'Image du Nova score',
-                                          ),
+                                          novaImage,
                                           const SizedBox(height: 16),
                                           Text(
                                             "Le système NOVA évalue le degré de transformation des aliments plutôt que leur valeur nutritionnelle directe. Il classe les produits en quatre groupes, allant des aliments bruts ou peu transformés (groupe 1) aux produits ultratransformés (groupe 4). Ce système met en avant l'importance de privilégier les aliments naturels et peu modifiés pour une alimentation plus saine.",
@@ -923,25 +922,21 @@ class _HomePageState extends State<HomePage> {
                                               100 *
                                               4,
                                           children:
-                                              provider.lastProducts
-                                                  .asMap()
-                                                  .entries
-                                                  .map((entry) {
-                                                    return ProductCard(
-                                                      id: entry.value.id,
-                                                      widthAjustment: 32,
-                                                      image: entry.value.image,
-                                                      title: entry.value.brand,
-                                                      description:
-                                                          entry.value.name,
-                                                      nutriscore:
-                                                          entry
-                                                              .value
-                                                              .nutriscore,
-                                                      nova: entry.value.nova,
-                                                    );
-                                                  })
-                                                  .toList(),
+                                              provider.lastProducts.entries.map(
+                                                (entry) {
+                                                  return ProductCard(
+                                                    id: entry.key,
+                                                    widthAjustment: 32,
+                                                    image: entry.value.image,
+                                                    title: entry.value.brand,
+                                                    description:
+                                                        entry.value.name,
+                                                    nutriscore:
+                                                        entry.value.nutriscore,
+                                                    nova: entry.value.nova,
+                                                  );
+                                                },
+                                              ).toList(),
                                         ),
                                   ],
                                 ),

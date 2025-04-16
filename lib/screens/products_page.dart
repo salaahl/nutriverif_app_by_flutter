@@ -136,50 +136,54 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                     childAspectRatio: 0.55,
                   ),
                   children:
-                      provider.products.map((entry) {
-                        final productCard = ProductCard(
-                          id: entry.id,
-                          widthAjustment: 16,
-                          image: entry.image,
-                          title: entry.brand,
-                          description: entry.name,
-                          nutriscore: entry.nutriscore,
-                          nova: entry.nova,
-                        );
+                      provider.products.entries.isEmpty
+                          ? []
+                          : provider.products.entries.map((entry) {
+                            final productCard = ProductCard(
+                              id: entry.key,
+                              widthAjustment: 16,
+                              image: entry.value.image,
+                              title: entry.value.brand,
+                              description: entry.value.name,
+                              nutriscore: entry.value.nutriscore,
+                              nova: entry.value.nova,
+                            );
 
-                        final alreadyAnimated = _animatedProductIds.contains(
-                          entry.id,
-                        );
+                            final alreadyAnimated = _animatedProductIds
+                                .contains(entry.key);
 
-                        return VisibilityDetector(
-                          key: Key(entry.id),
-                          onVisibilityChanged: (info) {
-                            if (info.visibleFraction >= 0.20 &&
-                                !_animatedProductIds.contains(entry.id)) {
-                              setState(() {
-                                _animatedProductIds.add(entry.id);
-                              });
-                            }
-                          },
-                          child:
-                              alreadyAnimated
-                                  ? TweenAnimationBuilder<double>(
-                                    tween: Tween(begin: 0.0, end: 1.0),
-                                    duration: Duration(milliseconds: 250),
-                                    builder: (context, value, child) {
-                                      return Opacity(
-                                        opacity: value,
-                                        child: Transform.translate(
-                                          offset: Offset(0, 35 * (1 - value)),
-                                          child: child,
-                                        ),
-                                      );
-                                    },
-                                    child: productCard,
-                                  )
-                                  : SizedBox.shrink(),
-                        );
-                      }).toList(),
+                            return VisibilityDetector(
+                              key: Key(entry.key),
+                              onVisibilityChanged: (info) {
+                                if (info.visibleFraction >= 0.20 &&
+                                    !_animatedProductIds.contains(entry.key)) {
+                                  setState(() {
+                                    _animatedProductIds.add(entry.key);
+                                  });
+                                }
+                              },
+                              child:
+                                  alreadyAnimated
+                                      ? TweenAnimationBuilder<double>(
+                                        tween: Tween(begin: 0.0, end: 1.0),
+                                        duration: Duration(milliseconds: 250),
+                                        builder: (context, value, child) {
+                                          return Opacity(
+                                            opacity: value,
+                                            child: Transform.translate(
+                                              offset: Offset(
+                                                0,
+                                                35 * (1 - value),
+                                              ),
+                                              child: child,
+                                            ),
+                                          );
+                                        },
+                                        child: productCard,
+                                      )
+                                      : Opacity(opacity: 0, child: productCard),
+                            );
+                          }).toList(),
                 ),
                 const SizedBox(height: 32),
                 if (provider.productsIsLoading)

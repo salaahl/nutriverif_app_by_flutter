@@ -1,6 +1,5 @@
 // products_provider.dart
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../models/model_products.dart';
@@ -9,13 +8,13 @@ class ProductsProvider with ChangeNotifier {
   static const String apiBaseUrl =
       'https://world.openfoodfacts.org/cgi/search.pl';
 
-  List<Product> _products = [];
+  Map<String, Product> _products = {};
   bool _productsIsLoading = false;
   Product _product = Product.fromJson({});
   bool _productIsLoading = false;
-  List<Product> _lastProducts = [];
+  Map<String, Product> _lastProducts = {};
   bool _lastProductsIsLoading = false;
-  List<Product> _suggestedProducts = [];
+  Map<String, Product> _suggestedProducts = {};
   bool _suggestedProductsIsLoading = false;
   String _ajrSelected = 'women';
   String _input = '';
@@ -24,13 +23,13 @@ class ProductsProvider with ChangeNotifier {
   int _pages = 1;
   String? _error;
 
-  List<Product> get products => _products;
+  Map<String, Product> get products => _products;
   bool get productsIsLoading => _productsIsLoading;
   Product get product => _product;
   bool get productIsLoading => _productIsLoading;
-  List<Product> get lastProducts => _lastProducts;
+  Map<String, Product> get lastProducts => _lastProducts;
   bool get lastProductsIsLoading => _lastProductsIsLoading;
-  List<Product> get suggestedProducts => _suggestedProducts;
+  Map<String, Product> get suggestedProducts => _suggestedProducts;
   bool get suggestedProductsIsLoading => _suggestedProductsIsLoading;
   String get ajrSelected => _ajrSelected;
   String get input => _input;
@@ -105,7 +104,7 @@ class ProductsProvider with ChangeNotifier {
     if (method == 'more') {
       _page++;
     } else {
-      _products = [];
+      _products = {};
       _input = userInput;
       _page = 1;
     }
@@ -125,9 +124,13 @@ class ProductsProvider with ChangeNotifier {
 
       if (method == 'complete') _pages = (data['count'] / 20).ceil();
 
-      final productsList = Products.fromJsonList(data['products'] as List);
-
-      _products.addAll(productsList.items.values);
+      _products.addAll(
+        Map.fromEntries(
+          (data['products'] as List).map(
+            (p) => MapEntry(p['id'] as String, Product.fromJson(p)),
+          ),
+        ),
+      );
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -184,7 +187,7 @@ class ProductsProvider with ChangeNotifier {
 
     String categoriesString = categories.join(',');
 
-    _suggestedProducts = [];
+    _suggestedProducts = {};
     _suggestedProductsIsLoading = true;
     _error = null;
     notifyListeners();
@@ -251,15 +254,11 @@ class ProductsProvider with ChangeNotifier {
               return 0;
             });
 
-      try {
-        _suggestedProducts =
-            selectedProducts
-                .take(4)
-                .map((json) => Product.fromJson(json))
-                .toList();
-      } catch (e) {
-        _error = 'Erreur lors du parsing du produit: $e';
-      }
+      _suggestedProducts = Map.fromEntries(
+        selectedProducts
+            .take(4)
+            .map((p) => MapEntry(p['id'] as String, Product.fromJson(p))),
+      );
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -292,11 +291,11 @@ class ProductsProvider with ChangeNotifier {
               ),
             );
 
-      _lastProducts =
-          filteredProducts
-              .take(4)
-              .map((json) => Product.fromJson(json))
-              .toList();
+      _lastProducts = Map.fromEntries(
+        filteredProducts
+            .take(4)
+            .map((p) => MapEntry(p['id'] as String, Product.fromJson(p))),
+      );
     } catch (e) {
       _error = e.toString();
     } finally {

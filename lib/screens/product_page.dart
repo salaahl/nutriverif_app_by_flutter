@@ -19,8 +19,6 @@ class ProductPage extends StatefulWidget {
 }
 
 class ProductPageState extends State<ProductPage> {
-  Product product = Product.fromJson({});
-
   final Set<String> _isAnimated = {};
   Widget loadingWidget() => const Center(
     child: Padding(
@@ -37,29 +35,24 @@ class ProductPageState extends State<ProductPage> {
     super.didChangeDependencies();
 
     final provider = Provider.of<ProductsProvider>(context, listen: false);
-    product = provider.products.firstWhere(
-      (p) => p.id == widget.id,
-      orElse: () {
-        return provider.suggestedProducts.firstWhere(
-          (p) => p.id == widget.id,
-          orElse: () {
-            return provider.lastProducts.firstWhere((p) => p.id == widget.id);
-          },
-        );
-      },
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ProductsProvider>(context);
+    final String id = widget.id;
+    final Product product =
+        (provider.products[id] ??
+                provider.suggestedProducts[id] ??
+                provider.lastProducts[id])
+            as Product;
 
     return Scaffold(
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
           myAppBar(context),
-          Hero(tag: product.id, child: productDetails(context, product)),
+          productDetails(context, product),
           const SizedBox(height: 32),
           VisibilityDetector(
             key: Key('alternatives'),
@@ -110,25 +103,29 @@ class ProductPageState extends State<ProductPage> {
         // Image du produit
         AspectRatio(
           aspectRatio: 1,
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
+          child: Hero(
+            key: Key(product.id),
+            tag: product.id,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child:
+                  product.image.isEmpty
+                      ? Image.asset(
+                        'assets/images/logo.png',
+                        width: 160,
+                        semanticLabel: 'Image du produit',
+                      )
+                      : Image.network(
+                        product.image,
+                        width: 160,
+                        semanticLabel: 'Image du produit',
+                      ),
             ),
-            child:
-                product.image.isEmpty
-                    ? Image.asset(
-                      'assets/images/logo.png',
-                      width: 160,
-                      semanticLabel: 'Image du produit',
-                    )
-                    : Image.network(
-                      product.image,
-                      width: 160,
-                      semanticLabel: 'Image du produit',
-                    ),
           ),
         ),
         const SizedBox(height: 32),
@@ -359,79 +356,76 @@ class ProductPageState extends State<ProductPage> {
   Widget alternativeProducts(
     BuildContext context,
     ProductsProvider provider,
-    List<Product> suggestedProducts,
+    Map<String, Product> suggestedProducts,
   ) {
     if (provider.suggestedProductsIsLoading) {
       return loadingWidget();
     } else if (provider.suggestedProducts.isNotEmpty) {
-      return Hero(
-        tag: product.id,
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.grey[200],
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: const Color.fromRGBO(255, 255, 255, 0.01),
-                offset: const Offset(0, 1),
-                blurRadius: 1,
-                spreadRadius: 0,
-              ),
-              BoxShadow(
-                color: const Color.fromRGBO(50, 50, 93, 0.025),
-                offset: const Offset(0, 50),
-                blurRadius: 100,
-                spreadRadius: -20,
-              ),
-              BoxShadow(
-                color: const Color.fromRGBO(0, 0, 0, 0.03),
-                offset: const Offset(0, 30),
-                blurRadius: 60,
-                spreadRadius: -30,
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Text.rich(
-                  TextSpan(
-                    text: "A",
-                    style: const TextStyle(
-                      fontFamily: 'Grand Hotel',
-                      fontSize: 32,
-                      color: Colors.redAccent,
-                    ),
-                    children: [
-                      TextSpan(
-                        text: "lternatives",
-                        style: const TextStyle(color: Colors.black),
-                      ),
-                    ],
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: const Color.fromRGBO(255, 255, 255, 0.01),
+              offset: const Offset(0, 1),
+              blurRadius: 1,
+              spreadRadius: 0,
+            ),
+            BoxShadow(
+              color: const Color.fromRGBO(50, 50, 93, 0.025),
+              offset: const Offset(0, 50),
+              blurRadius: 100,
+              spreadRadius: -20,
+            ),
+            BoxShadow(
+              color: const Color.fromRGBO(0, 0, 0, 0.03),
+              offset: const Offset(0, 30),
+              blurRadius: 60,
+              spreadRadius: -30,
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Text.rich(
+                TextSpan(
+                  text: "A",
+                  style: const TextStyle(
+                    fontFamily: 'Grand Hotel',
+                    fontSize: 32,
+                    color: Colors.redAccent,
                   ),
+                  children: [
+                    TextSpan(
+                      text: "lternatives",
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 16),
-              Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                spacing: MediaQuery.of(context).size.width / 100 * 4,
-                children:
-                    suggestedProducts.asMap().entries.map((entry) {
-                      return ProductCard(
-                        id: entry.value.id,
-                        widthAjustment: 32,
-                        image: entry.value.image,
-                        title: entry.value.brand,
-                        description: entry.value.name,
-                        nutriscore: entry.value.nutriscore,
-                        nova: entry.value.nova,
-                      );
-                    }).toList(),
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              spacing: MediaQuery.of(context).size.width / 100 * 4,
+              children:
+                  suggestedProducts.entries.map((entry) {
+                    return ProductCard(
+                      id: entry.key,
+                      widthAjustment: 32,
+                      image: entry.value.image,
+                      title: entry.value.brand,
+                      description: entry.value.name,
+                      nutriscore: entry.value.nutriscore,
+                      nova: entry.value.nova,
+                    );
+                  }).toList(),
+            ),
+          ],
         ),
       );
     } else {

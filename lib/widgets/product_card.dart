@@ -1,3 +1,4 @@
+import 'package:app_nutriverif/screens/product_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -25,6 +26,7 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      key: Key(id),
       height: 280,
       width: (MediaQuery.of(context).size.width / 100 * 48) - widthAjustment,
       margin: const EdgeInsets.only(bottom: 16),
@@ -53,10 +55,9 @@ class ProductCard extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: () async {
-            final result = await Navigator.pushNamed(
+            final result = await Navigator.push(
               context,
-              "/product",
-              arguments: id,
+              MaterialPageRoute(builder: (context) => ProductPage(id: id)),
             );
 
             if (context.mounted && result != null) {
@@ -79,32 +80,39 @@ class ProductCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Center(
-                  child: Container(
-                    constraints: BoxConstraints(maxHeight: 100, maxWidth: 100),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
+                  child: Hero(
+                    key: Key(id),
+                    tag: id,
+                    child: Container(
+                      constraints: BoxConstraints(
+                        maxHeight: 100,
+                        maxWidth: 100,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      height:
+                          (MediaQuery.of(context).size.width / 100 * 48) -
+                          widthAjustment * 2,
+                      width:
+                          (MediaQuery.of(context).size.width / 100 * 48) -
+                          widthAjustment * 2,
+                      child:
+                          image.isEmpty
+                              ? Image.asset(
+                                'assets/images/logo.png',
+                                height: 80,
+                                fit: BoxFit.contain,
+                                semanticLabel: 'Image du produit',
+                              )
+                              : Image.network(
+                                image,
+                                height: 80,
+                                fit: BoxFit.contain,
+                                semanticLabel: 'Image du produit',
+                              ),
                     ),
-                    height:
-                        (MediaQuery.of(context).size.width / 100 * 48) -
-                        widthAjustment * 2,
-                    width:
-                        (MediaQuery.of(context).size.width / 100 * 48) -
-                        widthAjustment * 2,
-                    child:
-                        image.isEmpty
-                            ? Image.asset(
-                              'assets/images/logo.png',
-                              height: 80,
-                              fit: BoxFit.contain,
-                              semanticLabel: 'Image du produit',
-                            )
-                            : Image.network(
-                              image,
-                              height: 80,
-                              fit: BoxFit.contain,
-                              semanticLabel: 'Image du produit',
-                            ),
                   ),
                 ),
                 const SizedBox(height: 8),

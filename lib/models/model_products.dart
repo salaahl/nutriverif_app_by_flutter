@@ -1,19 +1,4 @@
 // models.dart
-class Products {
-  final Map<String, Product> items;
-
-  Products({required this.items});
-
-  factory Products.fromJsonList(List<dynamic> jsonList) {
-    return Products(
-      items: {
-        for (var item in jsonList)
-          Product.fromJson(item).id: Product.fromJson(item),
-      },
-    );
-  }
-}
-
 class Product {
   final String id;
   final String image;
