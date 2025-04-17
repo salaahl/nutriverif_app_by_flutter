@@ -25,6 +25,26 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (id.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Center(
+          child: Padding(
+            padding: EdgeInsets.all(64),
+            child: CircularProgressIndicator(
+              color: Color(0xFF00BD7E),
+              strokeWidth: 8,
+            ),
+          ),
+        ),
+      );
+    }
+
     return Container(
       key: Key(id),
       height: 280,

@@ -32,38 +32,34 @@ class _HomePageState extends State<HomePage> {
         ),
       );
 
-  late DateTime date = DateTime.now();
-  late Product product;
-  late Map<String, Product> _suggestedProductsDemo = {};
-
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final provider = Provider.of<ProductsProvider>(context, listen: false);
-      product = provider.product;
 
       // Attente des appels asynchrones
       await provider.fetchProductById('8000500310427');
       await provider.fetchLastProducts();
-
-      if (!mounted) return; // ⛔️ stop si on a quitté la page
-
-      setState(() {
-        // Mise à jour de provider.product après avoir récupéré les données
-        product = provider.product;
-        date = DateTime.fromMillisecondsSinceEpoch(
-          int.parse(provider.product.lastUpdate) * 1000,
-        );
-        _suggestedProductsDemo = provider.suggestedProducts;
-      });
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ProductsProvider>();
+    String formattedDate = '';
+
+    if (provider.product.lastUpdate.isNotEmpty) {
+      final date = DateTime.fromMillisecondsSinceEpoch(
+        int.parse(provider.product.lastUpdate) * 1000,
+      );
+      formattedDate =
+          'Dernière mise à jour : ${date.day}-${date.month}-${date.year}';
+    }
+
+    final Map<String, Product> suggestedProductsDemo =
+        provider.suggestedProducts;
 
     return Scaffold(
       body: Center(
@@ -444,12 +440,17 @@ class _HomePageState extends State<HomePage> {
                                           SvgPicture.network(
                                             'https://static.openfoodfacts.org/images/attributes/dist/nutriscore-a.svg',
                                             width: 160,
-                                            semanticsLabel: 'Image du Nutriscore',
-                                            placeholderBuilder: (context) => SizedBox(
-                                              width: 40,
-                                              height: 40,
-                                              child: CircularProgressIndicator(strokeWidth: 2),
-                                            ),
+                                            semanticsLabel:
+                                                'Image du Nutriscore',
+                                            placeholderBuilder:
+                                                (context) => SizedBox(
+                                                  width: 40,
+                                                  height: 40,
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                        strokeWidth: 2,
+                                                      ),
+                                                ),
                                           ),
                                           const SizedBox(height: 16),
                                           const Text(
@@ -484,12 +485,17 @@ class _HomePageState extends State<HomePage> {
                                           SvgPicture.network(
                                             'https://static.openfoodfacts.org/images/attributes/dist/nova-group-1.svg',
                                             width: 40,
-                                            semanticsLabel: 'Image du Nova score',
-                                            placeholderBuilder: (context) => SizedBox(
-                                              width: 40,
-                                              height: 40,
-                                              child: CircularProgressIndicator(strokeWidth: 2),
-                                            ),
+                                            semanticsLabel:
+                                                'Image du Nova score',
+                                            placeholderBuilder:
+                                                (context) => SizedBox(
+                                                  width: 40,
+                                                  height: 40,
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                        strokeWidth: 2,
+                                                      ),
+                                                ),
                                           ),
                                           const SizedBox(height: 16),
                                           Text(
@@ -656,9 +662,7 @@ class _HomePageState extends State<HomePage> {
                                               ),
                                             ),
                                             const SizedBox(height: 8),
-                                            Text(
-                                              "Dernière mise à jour : ${date.day}-${date.month}-${date.year}",
-                                            ),
+                                            Text(formattedDate),
                                             const SizedBox(height: 16),
                                             Column(
                                               crossAxisAlignment:
@@ -810,7 +814,7 @@ class _HomePageState extends State<HomePage> {
                                             .alternativeProducts(
                                               context,
                                               provider,
-                                              _suggestedProductsDemo,
+                                              suggestedProductsDemo,
                                             ),
                                   ],
                                 ],

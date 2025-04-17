@@ -20,6 +20,7 @@ class ProductPage extends StatefulWidget {
 
 class ProductPageState extends State<ProductPage> {
   final Set<String> _isAnimated = {};
+
   Widget loadingWidget() => const Center(
     child: Padding(
       padding: EdgeInsets.all(64),
@@ -31,21 +32,45 @@ class ProductPageState extends State<ProductPage> {
   );
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
 
     final provider = Provider.of<ProductsProvider>(context, listen: false);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final String id = widget.id;
+      final Product? product =
+          (provider.products[id] ??
+              provider.suggestedProducts[id] ??
+              provider.lastProducts[id]);
+
+      provider.fetchSuggestedProducts(
+        categories: product?.categories,
+        id: product?.id,
+      );
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ProductsProvider>(context);
     final String id = widget.id;
-    final Product product =
-        (provider.products[id] ??
-                provider.suggestedProducts[id] ??
-                provider.lastProducts[id])
-            as Product;
+    final Product? product =
+        provider.products[id] ??
+        provider.suggestedProducts[id] ??
+        provider.lastProducts[id];
+
+    if (product == null) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: loadingWidget(),
+      );
+    }
 
     return Scaffold(
       body: ListView(
@@ -115,11 +140,7 @@ class ProductPageState extends State<ProductPage> {
               ),
               child:
                   product.image.isEmpty
-                      ? Image.asset(
-                        'assets/images/logo.png',
-                        width: 160,
-                        semanticLabel: 'Image du produit',
-                      )
+                      ? loadingWidget()
                       : Image.network(
                         product.image,
                         width: 160,
@@ -607,7 +628,7 @@ class NutritionalTableState extends State<NutritionalTable> {
                           child: Padding(
                             padding: EdgeInsets.all(12),
                             child: Text(
-                              entry.value.toStringAsFixed(0).toString(),
+                              entry.value.toString(),
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey,
