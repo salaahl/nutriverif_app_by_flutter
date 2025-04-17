@@ -44,6 +44,7 @@ Widget myAppBar(BuildContext context, {String? route = ''}) {
               bottom: 0,
               left: 0,
               child: IconButton(
+                padding: const EdgeInsets.all(0),
                 icon: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(

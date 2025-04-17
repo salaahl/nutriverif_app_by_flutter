@@ -1,6 +1,5 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../widgets/app_bar.dart';

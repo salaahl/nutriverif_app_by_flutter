@@ -100,40 +100,76 @@ class ProductCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Center(
-                  child: Hero(
-                    key: Key(id),
-                    tag: id,
-                    child: Container(
-                      constraints: BoxConstraints(
-                        maxHeight: 100,
-                        maxWidth: 100,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      height:
-                          (MediaQuery.of(context).size.width / 100 * 48) -
-                          widthAjustment * 2,
-                      width:
-                          (MediaQuery.of(context).size.width / 100 * 48) -
-                          widthAjustment * 2,
-                      child:
-                          image.isEmpty
-                              ? Image.asset(
-                                'assets/images/logo.png',
-                                height: 80,
-                                fit: BoxFit.contain,
-                                semanticLabel: 'Image du produit',
-                              )
-                              : Image.network(
-                                image,
-                                height: 80,
-                                fit: BoxFit.contain,
-                                semanticLabel: 'Image du produit',
+                  child:
+                      ModalRoute.of(context)!.settings.name != '/product/$id'
+                          ? Hero(
+                            key: Key(id),
+                            tag: id,
+                            child: Container(
+                              constraints: BoxConstraints(
+                                maxHeight: 100,
+                                maxWidth: 100,
                               ),
-                    ),
-                  ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              height:
+                                  (MediaQuery.of(context).size.width /
+                                      100 *
+                                      48) -
+                                  widthAjustment * 2,
+                              width:
+                                  (MediaQuery.of(context).size.width /
+                                      100 *
+                                      48) -
+                                  widthAjustment * 2,
+                              child:
+                                  image.isEmpty
+                                      ? Image.asset(
+                                        'assets/images/logo.png',
+                                        height: 80,
+                                        fit: BoxFit.contain,
+                                        semanticLabel: 'Image du produit',
+                                      )
+                                      : Image.network(
+                                        image,
+                                        height: 80,
+                                        fit: BoxFit.contain,
+                                        semanticLabel: 'Image du produit',
+                                      ),
+                            ),
+                          )
+                          : Container(
+                            constraints: BoxConstraints(
+                              maxHeight: 100,
+                              maxWidth: 100,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            height:
+                                (MediaQuery.of(context).size.width / 100 * 48) -
+                                widthAjustment * 2,
+                            width:
+                                (MediaQuery.of(context).size.width / 100 * 48) -
+                                widthAjustment * 2,
+                            child:
+                                image.isEmpty
+                                    ? Image.asset(
+                                      'assets/images/logo.png',
+                                      height: 80,
+                                      fit: BoxFit.contain,
+                                      semanticLabel: 'Image du produit',
+                                    )
+                                    : Image.network(
+                                      image,
+                                      height: 80,
+                                      fit: BoxFit.contain,
+                                      semanticLabel: 'Image du produit',
+                                    ),
+                          ),
                 ),
                 const SizedBox(height: 8),
                 Text(

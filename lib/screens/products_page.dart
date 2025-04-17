@@ -61,7 +61,7 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
 
     if (_scrollController.position.pixels >=
             _scrollController.position.maxScrollExtent - 100 &&
-        provider.page < provider.pages &&
+        provider.hasMorePages &&
         _refresh) {
       _refresh = false;
       provider.searchProductsByQuery(method: 'more');

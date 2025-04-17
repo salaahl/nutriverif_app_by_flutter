@@ -1,4 +1,3 @@
-// models.dart
 class Product {
   final String id;
   final String image;
@@ -54,8 +53,8 @@ class Product {
       quantity: (json['quantity'] ?? '').toString(),
       servingSize: (json['serving_size'] ?? '').toString(),
       ingredients: (json['ingredients_text_fr'] ?? '').toString(),
-      nutriments: Map<String, double>.from(json['nutriments'] ?? {}),
-      nutrientLevels: Map<String, String>.from(json['nutrient_levels'] ?? {}),
+      nutriments: Map<String, dynamic>.from(json['nutriments'] ?? {}),
+      nutrientLevels: Map<String, dynamic>.from(json['nutrient_levels'] ?? {}),
       manufacturingPlace: (json['manufacturing_places'] ?? '').toString(),
       link: (json['url'] ?? '').toString(),
     );

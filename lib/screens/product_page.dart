@@ -35,19 +35,36 @@ class ProductPageState extends State<ProductPage> {
   void initState() {
     super.initState();
 
+    final navigator = Navigator.of(context);
     final provider = Provider.of<ProductsProvider>(context, listen: false);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final String id = widget.id;
-      final Product? product =
-          (provider.products[id] ??
-              provider.suggestedProducts[id] ??
-              provider.lastProducts[id]);
 
-      provider.fetchSuggestedProducts(
-        categories: product?.categories,
-        id: product?.id,
-      );
+      // Implémenter un navigation.pop si aucun produit également
+      // Je regarde si le produit a déjà été chargé
+      Product? product =
+          provider.products[id] ??
+          provider.suggestedProducts[id] ??
+          provider.lastProducts[id];
+
+      // Si le produit n'a pas encore été chargé, on le charge
+      if (product == null) {
+        await provider.fetchProductById(id);
+        product = provider.product;
+      }
+
+      // Si le produit n'est toujours pas trouvé, on retourne sur la page précédente
+      if (product == null) {
+        navigator.pop('Produit non trouvé');
+      }
+
+      if (product.nutriscore != 'a' || int.tryParse(product.nova) != 1) {
+        provider.fetchSuggestedProducts(
+          categories: product.categories,
+          id: product.id,
+        );
+      }
     });
   }
 
@@ -110,7 +127,7 @@ class ProductPageState extends State<ProductPage> {
                       ),
                     )
                     : SizedBox(
-                      height: 300,
+                      height: 200,
                       width: MediaQuery.of(context).size.width,
                     ),
           ),
@@ -318,7 +335,7 @@ class ProductPageState extends State<ProductPage> {
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           Text(product.ingredients),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
         ],
         if (product.id.isNotEmpty) ...[
           Text(
@@ -326,7 +343,7 @@ class ProductPageState extends State<ProductPage> {
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           Text(product.id),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
         ],
         if (product.link.isNotEmpty) ...[
           Text(
@@ -334,7 +351,7 @@ class ProductPageState extends State<ProductPage> {
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           Text(product.link),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
         ],
         Wrap(
           spacing: 8,

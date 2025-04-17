@@ -1,12 +1,14 @@
-// products_provider.dart
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../models/model_products.dart';
 
 class ProductsProvider with ChangeNotifier {
-  static const String apiBaseUrl =
+  static const String _apiBaseUrl =
       'https://world.openfoodfacts.org/cgi/search.pl';
+
+  static const String fields =
+      'id,image_url,brands,generic_name_fr,main_category_fr,main_category_fr,categories_tags,last_modified_t,nutriscore_grade,nova_group,quantity,serving_size,ingredients_text_fr,nutriments,nutrient_levels,manufacturing_places,url,completeness,popularity_key';
 
   Map<String, Product> _products = {};
   bool _productsIsLoading = false;
@@ -36,6 +38,7 @@ class ProductsProvider with ChangeNotifier {
   String get filter => _filter;
   int get page => _page;
   int get pages => _pages;
+  bool get hasMorePages => _page < _pages;
   String? get error => _error;
 
   Map<String, Map<String, dynamic>> get ajrValues {
@@ -84,7 +87,7 @@ class ProductsProvider with ChangeNotifier {
     _filter = value;
 
     // Relancer une recherche de produits avec le nouveau filtre si des produits sont actuellement affichés
-    if (products.isNotEmpty) {
+    if (_products.isNotEmpty) {
       searchProductsByQuery(
         userInput: _input,
         sortBy: value,
@@ -109,19 +112,20 @@ class ProductsProvider with ChangeNotifier {
       _page = 1;
     }
 
-    const fields =
-        'id,image_url,brands,generic_name_fr,main_category_fr,main_category_fr,categories_tags,last_modified_t,nutriscore_grade,nova_group,quantity,serving_size,ingredients_text_fr,nutriments,nutrients_level,manufacturing_places,url';
     final url =
-        '$apiBaseUrl?search_terms=${Uri.encodeComponent(_input)}&fields=${Uri.encodeComponent(fields)}&purchase_places_tags=france&sort_by=${Uri.encodeComponent(_filter)}&page_size=20&page=$_page&search_simple=1&action=process&json=1';
+        '$_apiBaseUrl?search_terms=${Uri.encodeComponent(_input)}&fields=${Uri.encodeComponent(fields)}&purchase_places_tags=france&sort_by=${Uri.encodeComponent(_filter)}&page_size=20&page=$_page&search_simple=1&action=process&json=1';
 
     try {
       _error = null;
       _productsIsLoading = true;
       notifyListeners();
 
-      final response = await http.get(Uri.parse(url));
+      final response = await http
+          .get(Uri.parse(url))
+          .timeout(Duration(seconds: 30));
       final data = json.decode(response.body);
 
+      // ceil() arrondit à l'entier supérieur
       if (method == 'complete') _pages = (data['count'] / 20).ceil();
 
       _products.addAll(
@@ -144,9 +148,13 @@ class ProductsProvider with ChangeNotifier {
     _productIsLoading = true;
     notifyListeners();
 
+    final url =
+        'https://world.openfoodfacts.org/api/v3/product/$id?fields=$fields';
+
     try {
-      final url = 'https://world.openfoodfacts.org/api/v3/product/$id.json';
-      final response = await http.get(Uri.parse(url));
+      final response = await http
+          .get(Uri.parse(url))
+          .timeout(Duration(seconds: 30));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -155,13 +163,16 @@ class ProductsProvider with ChangeNotifier {
           try {
             _product = Product.fromJson(data['product']);
             notifyListeners();
+          } catch (e) {
+            _error = 'Erreur lors du parsing du produit: $e';
+          }
 
+          // Ne chercher des alternatives que si "neccessaire"
+          if (_product.nutriscore != 'a' || int.parse(_product.nova) != 1) {
             fetchSuggestedProducts(
               id: _product.id,
               categories: _product.categories,
             );
-          } catch (e) {
-            _error = 'Erreur lors du parsing du produit: $e';
           }
         } else {
           _error = 'Produit non trouvé';
@@ -193,12 +204,14 @@ class ProductsProvider with ChangeNotifier {
     notifyListeners();
 
     const fields =
-        'id,image_url,brands,generic_name_fr,main_category_fr,main_category_fr,categories_tags,last_modified_t,nutriscore_grade,nova_group,quantity,serving_size,ingredients_text_fr,nutriments, nutrients_level,manufacturing_places,url,completeness,popularity_key';
+        'id,image_url,brands,generic_name_fr,main_category_fr,main_category_fr,categories_tags,last_modified_t,nutriscore_grade,nova_group,quantity,serving_size,ingredients_text_fr,nutriments,nutrient_levels,manufacturing_places,url,completeness,popularity_key';
     final url =
         'https://world.openfoodfacts.org/api/v2/search?categories_tags=${Uri.encodeComponent(categoriesString)}&fields=${Uri.encodeComponent(fields)}&purchase_places_tags=france&sort_by=nutriscore_score,nova_group,popularity_key&page_size=300&action=process&json=1';
 
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await http
+          .get(Uri.parse(url))
+          .timeout(Duration(seconds: 30));
       final data = json.decode(response.body);
 
       const score = ['a', 'b', 'c', 'd', 'e'];
@@ -272,13 +285,13 @@ class ProductsProvider with ChangeNotifier {
     _lastProductsIsLoading = true;
     notifyListeners();
 
-    const fields =
-        'id,image_url,brands,generic_name_fr,main_category_fr,main_category_fr,categories_tags,last_modified_t,nutriscore_grade,nova_group,quantity,serving_size,ingredients_text_fr,nutriments,nutrients_level,manufacturing_places,url,created_t,completeness';
     final url =
-        '$apiBaseUrl?&fields=${Uri.encodeComponent(fields)}&purchase_places_tags=france&sort_by=created_t&page_size=300&action=process&json=1';
+        '$_apiBaseUrl?&fields=${Uri.encodeComponent(fields)}&purchase_places_tags=france&sort_by=created_t&page_size=300&action=process&json=1';
 
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await http
+          .get(Uri.parse(url))
+          .timeout(Duration(seconds: 30));
       final data = json.decode(response.body);
 
       final filteredProducts =
