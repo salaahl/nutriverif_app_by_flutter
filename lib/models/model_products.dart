@@ -1,3 +1,5 @@
+import 'dart:math';
+
 class Product {
   final String id;
   final String image;
@@ -36,17 +38,19 @@ class Product {
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
+    final tags = (json['categories_tags'] as List?)?.cast<String>() ?? [];
+
     return Product(
       id: (json['_id'] ?? '').toString(),
       image: (json['image_url'] ?? '').toString(),
       brand: (json['brands'] ?? '').toString(),
       name: (json['generic_name_fr'] ?? '').toString(),
       category: (json['main_category_fr'] ?? '').toString(),
-      categories:
-          (json['categories_tags'] as List?)
-              ?.map((e) => e.split(':')[1].toString().replaceAll('-', ' '))
-              .toList() ??
-          [],
+      categories: tags
+          .where((e) => e.contains(':'))
+          .map((e) => e.split(':')[1].replaceAll('-', ' '))
+          .toList()
+          .sublist(0, min(5, tags.length)),
       lastUpdate: (json['last_modified_t'] ?? '').toString(),
       nutriscore: (json['nutriscore_grade'] ?? 'unknown').toString(),
       nova: (json['nova_group'] ?? 'unknown').toString(),

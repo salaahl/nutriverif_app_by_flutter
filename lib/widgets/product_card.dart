@@ -27,7 +27,7 @@ class ProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     if (id.isEmpty) {
       return Container(
-        width: double.infinity,
+        width: MediaQuery.of(context).size.width,
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
           color: Colors.white,

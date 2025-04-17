@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+
 import '../models/model_products.dart';
 
 class ProductsProvider with ChangeNotifier {
@@ -8,7 +9,7 @@ class ProductsProvider with ChangeNotifier {
       'https://world.openfoodfacts.org/cgi/search.pl';
 
   static const String fields =
-      'id,image_url,brands,generic_name_fr,main_category_fr,main_category_fr,categories_tags,last_modified_t,nutriscore_grade,nova_group,quantity,serving_size,ingredients_text_fr,nutriments,nutrient_levels,manufacturing_places,url,completeness,popularity_key';
+      'id,image_url,brands,generic_name_fr,main_category_fr,main_category_fr,categories_tags,created_t,last_modified_t,nutriscore_grade,nova_group,quantity,serving_size,ingredients_text_fr,nutriments,nutrient_levels,manufacturing_places,url,completeness,popularity_key';
 
   Map<String, Product> _products = {};
   bool _productsIsLoading = false;

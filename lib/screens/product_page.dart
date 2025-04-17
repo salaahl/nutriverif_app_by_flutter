@@ -79,7 +79,7 @@ class ProductPageState extends State<ProductPage> {
 
     if (product == null) {
       return Container(
-        width: double.infinity,
+        width: MediaQuery.of(context).size.width,
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -149,7 +149,7 @@ class ProductPageState extends State<ProductPage> {
             key: Key(product.id),
             tag: product.id,
             child: Container(
-              width: double.infinity,
+              width: MediaQuery.of(context).size.width,
               padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -396,10 +396,16 @@ class ProductPageState extends State<ProductPage> {
     ProductsProvider provider,
     Map<String, Product> suggestedProducts,
   ) {
-    if (provider.suggestedProductsIsLoading) {
-      return loadingWidget();
-    } else if (provider.suggestedProducts.isNotEmpty) {
-      return Container(
+    return AnimatedSize(
+      duration: Duration(milliseconds: 350),
+      curve: Curves.easeInOut,
+      child: Container(
+        height:
+            provider.suggestedProductsIsLoading ||
+                    provider.suggestedProducts.isNotEmpty
+                ? null
+                : 0,
+        width: MediaQuery.of(context).size.width,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.grey[200],
@@ -447,28 +453,28 @@ class ProductPageState extends State<ProductPage> {
               ),
             ),
             const SizedBox(height: 16),
-            Wrap(
-              alignment: WrapAlignment.spaceBetween,
-              spacing: MediaQuery.of(context).size.width / 100 * 4,
-              children:
-                  suggestedProducts.entries.map((entry) {
-                    return ProductCard(
-                      id: entry.key,
-                      widthAjustment: 32,
-                      image: entry.value.image,
-                      title: entry.value.brand,
-                      description: entry.value.name,
-                      nutriscore: entry.value.nutriscore,
-                      nova: entry.value.nova,
-                    );
-                  }).toList(),
-            ),
+            provider.suggestedProductsIsLoading
+                ? loadingWidget()
+                : Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  spacing: MediaQuery.of(context).size.width / 100 * 4,
+                  children:
+                      suggestedProducts.entries.map((entry) {
+                        return ProductCard(
+                          id: entry.key,
+                          widthAjustment: 32,
+                          image: entry.value.image,
+                          title: entry.value.brand,
+                          description: entry.value.name,
+                          nutriscore: entry.value.nutriscore,
+                          nova: entry.value.nova,
+                        );
+                      }).toList(),
+                ),
           ],
         ),
-      );
-    } else {
-      return SizedBox.shrink();
-    }
+      ),
+    );
   }
 }
 
