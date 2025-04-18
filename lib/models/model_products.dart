@@ -41,7 +41,7 @@ class Product {
     final tags = (json['categories_tags'] as List?)?.cast<String>() ?? [];
 
     return Product(
-      id: (json['_id'] ?? '').toString(),
+      id: (json['id'] ?? json['code'] ?? '').toString(),
       image: (json['image_url'] ?? '').toString(),
       brand: (json['brands'] ?? '').toString(),
       name: (json['generic_name_fr'] ?? '').toString(),
@@ -52,7 +52,8 @@ class Product {
           .toList()
           .sublist(0, min(5, tags.length)),
       lastUpdate: (json['last_modified_t'] ?? '').toString(),
-      nutriscore: (json['nutriscore_grade'] ?? 'unknown').toString(),
+      nutriscore:
+          (json['nutriscore_grade'] ?? 'unknown').toString().toLowerCase(),
       nova: (json['nova_group'] ?? 'unknown').toString(),
       quantity: (json['quantity'] ?? '').toString(),
       servingSize: (json['serving_size'] ?? '').toString(),

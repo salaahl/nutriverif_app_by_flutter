@@ -1,52 +1,24 @@
-import 'package:app_nutriverif/screens/product_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../models/model_products.dart';
+
+import 'package:app_nutriverif/screens/product_page.dart';
+
 class ProductCard extends StatelessWidget {
-  final String id;
-  final double
-  widthAjustment; // ajustement de la largeur selon le padding des parents
-  final String image;
-  final String title;
-  final String description;
-  final String nutriscore;
-  final String nova;
+  final Product product;
+  final double widthAjustment;
 
   const ProductCard({
     super.key,
-    required this.id,
+    required this.product,
     required this.widthAjustment,
-    required this.image,
-    required this.title,
-    required this.description,
-    required this.nutriscore,
-    required this.nova,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (id.isEmpty) {
-      return Container(
-        width: MediaQuery.of(context).size.width,
-        padding: const EdgeInsets.all(32),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: const Center(
-          child: Padding(
-            padding: EdgeInsets.all(64),
-            child: CircularProgressIndicator(
-              color: Color(0xFF00BD7E),
-              strokeWidth: 8,
-            ),
-          ),
-        ),
-      );
-    }
-
     return Container(
-      key: Key(id),
+      key: Key(product.id),
       height: 280,
       width: (MediaQuery.of(context).size.width / 100 * 48) - widthAjustment,
       margin: const EdgeInsets.only(bottom: 16),
@@ -77,7 +49,9 @@ class ProductCard extends StatelessWidget {
           onTap: () async {
             final result = await Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => ProductPage(id: id)),
+              MaterialPageRoute(
+                builder: (context) => ProductPage(product: product),
+              ),
             );
 
             if (context.mounted && result != null) {
@@ -101,10 +75,11 @@ class ProductCard extends StatelessWidget {
               children: [
                 Center(
                   child:
-                      ModalRoute.of(context)!.settings.name != '/product/$id'
+                      ModalRoute.of(context)!.settings.name !=
+                              '/product/${product.id}'
                           ? Hero(
-                            key: Key(id),
-                            tag: id,
+                            key: Key(product.id),
+                            tag: product.id,
                             child: Container(
                               constraints: BoxConstraints(
                                 maxHeight: 100,
@@ -125,7 +100,7 @@ class ProductCard extends StatelessWidget {
                                       48) -
                                   widthAjustment * 2,
                               child:
-                                  image.isEmpty
+                                  product.image.isEmpty
                                       ? Image.asset(
                                         'assets/images/logo.png',
                                         height: 80,
@@ -133,7 +108,7 @@ class ProductCard extends StatelessWidget {
                                         semanticLabel: 'Image du produit',
                                       )
                                       : Image.network(
-                                        image,
+                                        product.image,
                                         height: 80,
                                         fit: BoxFit.contain,
                                         semanticLabel: 'Image du produit',
@@ -156,7 +131,7 @@ class ProductCard extends StatelessWidget {
                                 (MediaQuery.of(context).size.width / 100 * 48) -
                                 widthAjustment * 2,
                             child:
-                                image.isEmpty
+                                product.image.isEmpty
                                     ? Image.asset(
                                       'assets/images/logo.png',
                                       height: 80,
@@ -164,7 +139,7 @@ class ProductCard extends StatelessWidget {
                                       semanticLabel: 'Image du produit',
                                     )
                                     : Image.network(
-                                      image,
+                                      product.image,
                                       height: 80,
                                       fit: BoxFit.contain,
                                       semanticLabel: 'Image du produit',
@@ -173,13 +148,13 @@ class ProductCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  title,
+                  product.brand,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  description,
+                  product.name,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(fontSize: 12, color: Colors.grey),
@@ -189,15 +164,15 @@ class ProductCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SvgPicture.network(
-                      "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-$nutriscore-new-fr.svg",
+                      "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-${product.nutriscore}-new-fr.svg",
                       height: 40,
-                      semanticsLabel: 'Nutriscore $nutriscore',
+                      semanticsLabel: 'Nutriscore ${product.nutriscore}',
                     ),
                     const SizedBox(height: 4),
                     SvgPicture.network(
-                      "https://static.openfoodfacts.org/images/attributes/dist/nova-group-$nova.svg",
+                      "https://static.openfoodfacts.org/images/attributes/dist/nova-group-${product.nova}.svg",
                       height: 40,
-                      semanticsLabel: 'Nova score $nova',
+                      semanticsLabel: 'Nova score ${product.nova}',
                     ),
                   ],
                 ),

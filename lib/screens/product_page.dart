@@ -11,9 +11,9 @@ import '../widgets/product_card.dart';
 import '../models/model_products.dart';
 
 class ProductPage extends StatefulWidget {
-  final String id;
+  final Product product;
 
-  const ProductPage({super.key, required this.id});
+  const ProductPage({super.key, required this.product});
 
   @override
   State<ProductPage> createState() => ProductPageState();
@@ -22,39 +22,30 @@ class ProductPage extends StatefulWidget {
 class ProductPageState extends State<ProductPage> {
   final Set<String> _isAnimated = {};
 
+  late List<Product> suggestedProducts = [];
+
   @override
   void initState() {
     super.initState();
 
-    final navigator = Navigator.of(context);
     final provider = Provider.of<ProductsProvider>(context, listen: false);
+    final Product product = widget.product;
+    provider.suggestedProducts.clear();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final String id = widget.id;
-
-      // Implémenter un navigation.pop si aucun produit également
-      // Je regarde si le produit a déjà été chargé
-      Product? product =
-          provider.products[id] ??
-          provider.suggestedProducts[id] ??
-          provider.lastProducts[id];
-
-      // Si le produit n'a pas encore été chargé, on le charge
-      if (product == null) {
-        await provider.fetchProductById(id);
-        product = provider.product;
-      }
-
-      // Si le produit n'est toujours pas trouvé, on retourne sur la page précédente
-      if (product.id.isEmpty) {
-        navigator.pop('Produit non trouvé');
-      }
-
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (product.nutriscore != 'a' || int.tryParse(product.nova) != 1) {
-        provider.fetchSuggestedProducts(
-          categories: product.categories,
-          id: product.id,
-        );
+        provider
+            .fetchSuggestedProducts(
+              id: product.id,
+              categories: product.categories,
+              nutriscore: product.nutriscore,
+              nova: product.nova,
+            )
+            .then((products) {
+              setState(() {
+                provider.suggestedProducts.addAll(products);
+              });
+            });
       }
     });
   }
@@ -62,13 +53,9 @@ class ProductPageState extends State<ProductPage> {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ProductsProvider>(context);
-    final String id = widget.id;
-    final Product? product =
-        provider.products[id] ??
-        provider.suggestedProducts[id] ??
-        provider.lastProducts[id];
+    final Product product = widget.product;
 
-    if (product == null) {
+    if (product.id.isEmpty) {
       return Container(
         width: MediaQuery.of(context).size.width,
         padding: const EdgeInsets.all(32),
@@ -166,9 +153,16 @@ class ProductPageState extends State<ProductPage> {
 
   // Affichage des informations du produit
   Widget productInfo(BuildContext context, Product product) {
-    final date = DateTime.fromMillisecondsSinceEpoch(
-      int.parse(product.lastUpdate) * 1000,
-    );
+    String formattedDate = '';
+
+    if (product.lastUpdate.isNotEmpty) {
+      final date = DateTime.fromMillisecondsSinceEpoch(
+        int.parse(product.lastUpdate) * 1000,
+      );
+      formattedDate =
+          'Dernière mise à jour : ${date.day}-${date.month}-${date.year}';
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -193,7 +187,7 @@ class ProductPageState extends State<ProductPage> {
           ),
         ),
         const SizedBox(height: 8),
-        Text("Dernière mise à jour : ${date.day}-${date.month}-${date.year}"),
+        Text(formattedDate),
         const SizedBox(height: 16),
         productImages(product.nutriscore, product.nova),
         const SizedBox(height: 32),
@@ -354,10 +348,12 @@ class ProductPageState extends State<ProductPage> {
                         foregroundColor: Colors.white,
                         backgroundColor: Colors.grey[400],
                       ),
-                      onPressed: () {
-                        provider.searchProductsByQuery(
-                          userInput: category,
-                          method: 'complete',
+                      onPressed: () async {
+                        provider.updateProducts(
+                          await provider.searchProductsByQuery(
+                            input: category,
+                            method: 'complete',
+                          ),
                         );
                         Navigator.push(
                           context,
@@ -385,15 +381,14 @@ class ProductPageState extends State<ProductPage> {
   Widget alternativeProducts(
     BuildContext context,
     ProductsProvider provider,
-    Map<String, Product> suggestedProducts,
+    List<Product> suggestedProducts,
   ) {
     return AnimatedSize(
       duration: Duration(milliseconds: 350),
       curve: Curves.easeInOut,
       child: Container(
         height:
-            provider.suggestedProductsIsLoading ||
-                    provider.suggestedProducts.isNotEmpty
+            provider.suggestedProductsIsLoading || suggestedProducts.isNotEmpty
                 ? null
                 : 0,
         width: MediaQuery.of(context).size.width,
@@ -450,15 +445,10 @@ class ProductPageState extends State<ProductPage> {
                   alignment: WrapAlignment.spaceBetween,
                   spacing: MediaQuery.of(context).size.width / 100 * 4,
                   children:
-                      suggestedProducts.entries.map((entry) {
+                      suggestedProducts.map((product) {
                         return ProductCard(
-                          id: entry.key,
+                          product: product,
                           widthAjustment: 32,
-                          image: entry.value.image,
-                          title: entry.value.brand,
-                          description: entry.value.name,
-                          nutriscore: entry.value.nutriscore,
-                          nova: entry.value.nova,
                         );
                       }).toList(),
                 ),

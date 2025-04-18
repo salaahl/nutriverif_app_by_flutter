@@ -24,13 +24,6 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
 
   final ScrollController _scrollController = ScrollController();
 
-  final Map<String, String> _filters = {
-    'Popularité': 'popularity_key',
-    'Nom': 'product_name',
-    'Date de création': 'created_t',
-    'Nutriscore': 'nutriscore_score',
-    'Nova Score': 'nova_score',
-  };
   final Set<String> _animatedProductIds = {};
 
   @override
@@ -51,7 +44,7 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
     super.dispose();
   }
 
-  void _onScroll() {
+  void _onScroll() async {
     double currentScrollPos = _scrollController.position.pixels;
 
     if (currentScrollPos > _prevScrollPos) {
@@ -65,7 +58,9 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
         provider.hasMorePages &&
         _refresh) {
       _refresh = false;
-      provider.searchProductsByQuery(method: 'more');
+      provider.products.addAll(
+        await provider.searchProductsByQuery(method: 'more'),
+      );
       Timer(Duration(seconds: 1), () => _refresh = true);
     }
 
@@ -88,42 +83,7 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                   margin: const EdgeInsets.only(top: 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AppSearchBar(provider: provider),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 12,
-                        children:
-                            _filters.entries.map((filter) {
-                              return Material(
-                                child: FilterChip(
-                                  label: Text(filter.key),
-                                  selected: provider.filter == filter.value,
-                                  onSelected: (selected) {
-                                    setState(
-                                      () => provider.updateFilter(filter.value),
-                                    );
-                                  },
-                                  backgroundColor: Colors.grey,
-                                  selectedColor: const Color.fromRGBO(
-                                    0,
-                                    189,
-                                    126,
-                                    1,
-                                  ),
-                                  labelStyle: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(999),
-                                  ),
-                                  showCheckmark: false,
-                                ),
-                              );
-                            }).toList(),
-                      ),
-                    ],
+                    children: [AppSearchBar(provider: provider)],
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -137,29 +97,24 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                     childAspectRatio: 0.55,
                   ),
                   children:
-                      provider.products.entries.isEmpty
+                      provider.products.isEmpty
                           ? []
-                          : provider.products.entries.map((entry) {
+                          : provider.products.map((product) {
                             final productCard = ProductCard(
-                              id: entry.key,
+                              product: product,
                               widthAjustment: 16,
-                              image: entry.value.image,
-                              title: entry.value.brand,
-                              description: entry.value.name,
-                              nutriscore: entry.value.nutriscore,
-                              nova: entry.value.nova,
                             );
 
                             final alreadyAnimated = _animatedProductIds
-                                .contains(entry.key);
+                                .contains(product.id);
 
                             return VisibilityDetector(
-                              key: Key(entry.key),
+                              key: Key(product.id),
                               onVisibilityChanged: (info) {
                                 if (info.visibleFraction >= 0.20 &&
-                                    !_animatedProductIds.contains(entry.key)) {
+                                    !_animatedProductIds.contains(product.id)) {
                                   setState(() {
-                                    _animatedProductIds.add(entry.key);
+                                    _animatedProductIds.add(product.id);
                                   });
                                 }
                               },

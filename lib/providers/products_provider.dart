@@ -11,13 +11,13 @@ class ProductsProvider with ChangeNotifier {
   static const String fields =
       'id,image_url,brands,generic_name_fr,main_category_fr,main_category_fr,categories_tags,created_t,last_modified_t,nutriscore_grade,nova_group,quantity,serving_size,ingredients_text_fr,nutriments,nutrient_levels,manufacturing_places,url,completeness,popularity_key';
 
-  Map<String, Product> _products = {};
+  final List<Product> _products = [];
   bool _productsIsLoading = false;
-  Product _product = Product.fromJson({});
+  final Product _product = Product.fromJson({});
   bool _productIsLoading = false;
-  Map<String, Product> _lastProducts = {};
+  final List<Product> _lastProducts = [];
   bool _lastProductsIsLoading = false;
-  Map<String, Product> _suggestedProducts = {};
+  final List<Product> _suggestedProducts = [];
   bool _suggestedProductsIsLoading = false;
   String _ajrSelected = 'women';
   String _input = '';
@@ -26,13 +26,13 @@ class ProductsProvider with ChangeNotifier {
   int _pages = 1;
   String? _error;
 
-  Map<String, Product> get products => _products;
+  List<Product> get products => _products;
   bool get productsIsLoading => _productsIsLoading;
   Product get product => _product;
   bool get productIsLoading => _productIsLoading;
-  Map<String, Product> get lastProducts => _lastProducts;
+  List<Product> get lastProducts => _lastProducts;
   bool get lastProductsIsLoading => _lastProductsIsLoading;
-  Map<String, Product> get suggestedProducts => _suggestedProducts;
+  List<Product> get suggestedProducts => _suggestedProducts;
   bool get suggestedProductsIsLoading => _suggestedProductsIsLoading;
   String get ajrSelected => _ajrSelected;
   String get input => _input;
@@ -83,68 +83,61 @@ class ProductsProvider with ChangeNotifier {
   }
 
   void updateFilter(String value) {
-    if (_filter == value) return;
+    if (filter == value) return;
 
     _filter = value;
-
-    // Relancer une recherche de produits avec le nouveau filtre si des produits sont actuellement affichés
-    if (_products.isNotEmpty) {
-      searchProductsByQuery(
-        userInput: _input,
-        sortBy: value,
-        method: 'complete',
-      );
-    } else {
-      // Sinon, notifier les listeners que la tâche est terminée
-      notifyListeners();
-    }
+    notifyListeners();
   }
 
-  Future<void> searchProductsByQuery({
-    String userInput = '',
-    String sortBy = 'popularity_key',
+  void updateProducts(List<Product> products) {
+    _products.clear();
+    _products.addAll(products);
+    notifyListeners();
+  }
+
+  Future<List<Product>> searchProductsByQuery({
+    String input = '',
+    String filter = 'popularity_key',
     required String method,
   }) async {
+    _error = null;
+    _productsIsLoading = true;
+
     if (method == 'more') {
       _page++;
     } else {
-      _products = {};
-      _input = userInput;
+      _products.clear();
+      if (input.isNotEmpty) _input = input;
+      if (filter.isNotEmpty) _filter = filter;
       _page = 1;
     }
 
+    print("input: $input filter: $filter page: $_page");
+
+    notifyListeners();
+
     final url =
-        '$_apiBaseUrl?search_terms=${Uri.encodeComponent(_input)}&fields=${Uri.encodeComponent(fields)}&purchase_places_tags=france&sort_by=${Uri.encodeComponent(_filter)}&page_size=20&page=$_page&search_simple=1&action=process&json=1';
+        '$_apiBaseUrl?search_terms=${Uri.encodeComponent(input)}&fields=${Uri.encodeComponent(fields)}&purchase_places_tags=france&sort_by=${Uri.encodeComponent(filter)}&page_size=20&page=$_page&search_simple=1&action=process&json=1';
 
     try {
-      _error = null;
-      _productsIsLoading = true;
-      notifyListeners();
-
       final response = await http
           .get(Uri.parse(url))
           .timeout(Duration(seconds: 30));
       final data = json.decode(response.body);
 
-      // ceil() arrondit à l'entier supérieur
-      if (method == 'complete') _pages = (data['count'] / 20).ceil();
-
-      _products.addAll(
-        Map.fromEntries(
-          (data['products'] as List).map(
-            (p) => MapEntry(p['id'] as String, Product.fromJson(p)),
-          ),
-        ),
-      );
+      return (data['products'] as List)
+          .map((p) => Product.fromJson(p))
+          .toList();
     } catch (e) {
-      _error = e.toString();
+      _error = 'search product error: ${e.toString()}';
+      return [];
     } finally {
       _productsIsLoading = false;
       notifyListeners();
     }
   }
 
-  Future<void> fetchProductById(String id) async {
+  Future<Product> fetchProductById(String id) async {
     _error = null;
     _productIsLoading = true;
     notifyListeners();
@@ -157,51 +150,30 @@ class ProductsProvider with ChangeNotifier {
           .get(Uri.parse(url))
           .timeout(Duration(seconds: 30));
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+      final data = json.decode(response.body);
 
-        if (data['product'] != null) {
-          try {
-            _product = Product.fromJson(data['product']);
-            notifyListeners();
-          } catch (e) {
-            _error = 'Erreur lors du parsing du produit: $e';
-          }
-
-          // Ne chercher des alternatives que si "neccessaire"
-          if (_product.nutriscore != 'a' || int.parse(_product.nova) != 1) {
-            fetchSuggestedProducts(
-              id: _product.id,
-              categories: _product.categories,
-            );
-          }
-        } else {
-          _error = 'Produit non trouvé';
-        }
-      } else {
-        _error = 'Erreur HTTP ${response.statusCode}: ${response.reasonPhrase}';
-      }
+      return Product.fromJson(data['product']);
     } catch (e) {
-      // Gère les erreurs réseau
-      _error = 'Erreur réseau: $e';
+      _error = 'single product error: ${e.toString()}';
+      return Product.fromJson({});
     } finally {
       _productIsLoading = false;
       notifyListeners();
     }
   }
 
-  Future<void> fetchSuggestedProducts({
+  Future<List<Product>> fetchSuggestedProducts({
     required String id,
     required List<String> categories,
+    required String nutriscore,
+    required String nova,
   }) async {
-    id = _product.id;
-    categories = _product.categories;
+    _error = null;
+    _suggestedProducts.clear();
+    _suggestedProductsIsLoading = true;
 
     String categoriesString = categories.join(',');
 
-    _suggestedProducts = {};
-    _suggestedProductsIsLoading = true;
-    _error = null;
     notifyListeners();
 
     const fields =
@@ -222,27 +194,39 @@ class ProductsProvider with ChangeNotifier {
               final eNutriscore = e['nutriscore_grade'];
               final eNova = e['nova_group'];
               final completeness = e['completeness'];
-              final eId = e['id'];
+              final eId = e['id'] ?? e['code'];
 
-              if (eId == null || eId == id) return false;
-              if (eNutriscore == 'not-applicable' || eNutriscore == 'unknown')
+              if (eId == null || eId == id) {
                 return false;
-              if (!score.contains(eNutriscore) ||
-                  !score.contains(_product.nutriscore))
+              }
+
+              if (eNutriscore == 'not-applicable' || eNutriscore == 'unknown') {
                 return false;
+              }
 
-              final scoreDiff = score
-                  .indexOf(eNutriscore)
-                  .compareTo(score.indexOf(_product.nutriscore));
-              final bothNovaOk = eNova is num && _product.nova is num;
+              if (!score.contains(eNutriscore) || !score.contains(nutriscore)) {
+                return false;
+              }
 
-              if (scoreDiff < 0) return true;
-              if (scoreDiff == 0 &&
-                  bothNovaOk &&
-                  eNova < (_product.nova as num))
+              final eScoreIndex = score.indexOf(eNutriscore);
+              final pScoreIndex = score.indexOf(nutriscore);
+              final scoreDiff = eScoreIndex.compareTo(pScoreIndex);
+
+              final eNovaParsed = num.tryParse(eNova.toString());
+              final pNovaParsed = num.tryParse(nova);
+              final bothNovaOk = eNovaParsed != null && pNovaParsed != null;
+
+              if (scoreDiff < 0) {
                 return true;
+              }
 
-              if (completeness is double && completeness >= 0.35) return true;
+              if (scoreDiff == 0 && bothNovaOk && eNovaParsed! < pNovaParsed!) {
+                return true;
+              }
+
+              if (completeness is double && completeness >= 0.35) {
+                return true;
+              }
 
               return false;
             }).toList()
@@ -252,9 +236,9 @@ class ProductsProvider with ChangeNotifier {
               final scoreComp = aScore.compareTo(bScore);
               if (scoreComp != 0) return scoreComp;
 
-              final aNova = a['nova_group'];
-              final bNova = b['nova_group'];
-              if (aNova is num && bNova is num) {
+              final aNova = num.tryParse(a['nova_group'].toString());
+              final bNova = num.tryParse(b['nova_group'].toString());
+              if (aNova != null && bNova != null) {
                 final novaComp = (aNova - bNova).toInt();
                 if (novaComp != 0) return novaComp;
               }
@@ -267,21 +251,26 @@ class ProductsProvider with ChangeNotifier {
 
               return 0;
             });
-
-      _suggestedProducts = Map.fromEntries(
-        selectedProducts
-            .take(4)
-            .map((p) => MapEntry(p['id'] as String, Product.fromJson(p))),
-      );
+      try {
+        final result =
+            selectedProducts.take(4).map((p) => Product.fromJson(p)).toList();
+        print('Produits retournés : ${result.length}');
+        return result;
+      } catch (e, stack) {
+        print('Erreur dans le mapping des produits : $e');
+        print(stack);
+        return [];
+      }
     } catch (e) {
-      _error = e.toString();
+      _error = 'suggestion product error: ${e.toString()}';
+      return [];
     } finally {
       _suggestedProductsIsLoading = false;
       notifyListeners();
     }
   }
 
-  Future<void> fetchLastProducts() async {
+  Future<List<Product>> fetchLastProducts() async {
     _error = null;
     _lastProductsIsLoading = true;
     notifyListeners();
@@ -305,13 +294,10 @@ class ProductsProvider with ChangeNotifier {
               ),
             );
 
-      _lastProducts = Map.fromEntries(
-        filteredProducts
-            .take(4)
-            .map((p) => MapEntry(p['id'] as String, Product.fromJson(p))),
-      );
+      return filteredProducts.take(4).map((p) => Product.fromJson(p)).toList();
     } catch (e) {
-      _error = e.toString();
+      _error = 'last products error: ${e.toString()}';
+      return [];
     } finally {
       _lastProductsIsLoading = false;
       notifyListeners();

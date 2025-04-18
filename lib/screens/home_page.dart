@@ -21,7 +21,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final Set<String> _animatedProductIds = {};
   final YoutubePlayerController _youtubePlayerController =
       YoutubePlayerController(
         initialVideoId: 'D1jzT02IBRA',
@@ -33,6 +32,11 @@ class _HomePageState extends State<HomePage> {
         ),
       );
 
+  final Set<String> _animatedProductIds = {};
+  Product product = Product.fromJson({});
+  late List<Product> suggestedProducts = [];
+  late List<Product> lastProducts = [];
+
   @override
   void initState() {
     super.initState();
@@ -41,8 +45,24 @@ class _HomePageState extends State<HomePage> {
       final provider = Provider.of<ProductsProvider>(context, listen: false);
 
       // Attente des appels asynchrones
-      await provider.fetchProductById('8000500310427');
-      await provider.fetchLastProducts();
+      product = await provider.fetchProductById('8000500310427');
+
+      if (product.id.isNotEmpty) {
+        final fetched = await provider.fetchSuggestedProducts(
+          id: product.id,
+          categories: product.categories,
+          nutriscore: product.nutriscore,
+          nova: product.nova,
+        );
+
+        if (mounted) {
+          setState(() {
+            suggestedProducts = fetched;
+          });
+        }
+      }
+
+      lastProducts.addAll(await provider.fetchLastProducts());
     });
   }
 
@@ -58,16 +78,13 @@ class _HomePageState extends State<HomePage> {
     final provider = context.watch<ProductsProvider>();
     String formattedDate = '';
 
-    if (provider.product.lastUpdate.isNotEmpty) {
+    if (product.lastUpdate.isNotEmpty) {
       final date = DateTime.fromMillisecondsSinceEpoch(
-        int.parse(provider.product.lastUpdate) * 1000,
+        int.parse(product.lastUpdate) * 1000,
       );
       formattedDate =
           'Dernière mise à jour : ${date.day}-${date.month}-${date.year}';
     }
-
-    final Map<String, Product> suggestedProductsDemo =
-        provider.suggestedProducts;
 
     return Scaffold(
       body: Center(
@@ -157,22 +174,14 @@ class _HomePageState extends State<HomePage> {
                                             100 *
                                             4,
                                         children:
-                                            provider.products.entries
-                                                .take(4)
-                                                .map((entry) {
-                                                  return ProductCard(
-                                                    id: entry.key,
-                                                    widthAjustment: 32,
-                                                    image: entry.value.image,
-                                                    title: entry.value.brand,
-                                                    description:
-                                                        entry.value.name,
-                                                    nutriscore:
-                                                        entry.value.nutriscore,
-                                                    nova: entry.value.nova,
-                                                  );
-                                                })
-                                                .toList(),
+                                            provider.products.take(4).map((
+                                              product,
+                                            ) {
+                                              return ProductCard(
+                                                product: product,
+                                                widthAjustment: 32,
+                                              );
+                                            }).toList(),
                                       ),
                                 ],
                               ),
@@ -778,10 +787,10 @@ class _HomePageState extends State<HomePage> {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child:
-                                    provider.product.image.isEmpty
+                                    product.image.isEmpty
                                         ? Loader()
                                         : Image.network(
-                                          provider.product.image,
+                                          product.image,
                                           width: 160,
                                           semanticLabel: 'Image du produit',
                                         ),
@@ -794,7 +803,7 @@ class _HomePageState extends State<HomePage> {
                                 // Nom et marque
                                 Text.rich(
                                   TextSpan(
-                                    text: "${provider.product.brand} - ",
+                                    text: "${product.brand} - ",
                                     style: const TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.w500,
@@ -802,7 +811,7 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                     children: [
                                       TextSpan(
-                                        text: provider.product.name,
+                                        text: product.name,
                                         style: const TextStyle(
                                           color: Colors.black,
                                         ),
@@ -821,22 +830,21 @@ class _HomePageState extends State<HomePage> {
                                         maxWidth: 100,
                                       ),
                                       child: SvgPicture.network(
-                                        "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-${provider.product.nutriscore}-new-fr.svg",
+                                        "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-${product.nutriscore}-new-fr.svg",
                                         width: 100,
                                         fit: BoxFit.cover,
                                         semanticsLabel:
-                                            'Nutriscore ${provider.product.nutriscore}',
+                                            'Nutriscore ${product.nutriscore}',
                                       ),
                                     ),
                                     const SizedBox(height: 8),
                                     Container(
                                       constraints: BoxConstraints(maxWidth: 30),
                                       child: SvgPicture.network(
-                                        "https://static.openfoodfacts.org/images/attributes/dist/nova-group-${provider.product.nova}.svg",
+                                        "https://static.openfoodfacts.org/images/attributes/dist/nova-group-${product.nova}.svg",
                                         width: 30,
                                         fit: BoxFit.cover,
-                                        semanticsLabel:
-                                            'NOVA ${provider.product.nova}',
+                                        semanticsLabel: 'NOVA ${product.nova}',
                                       ),
                                     ),
                                   ],
@@ -846,45 +854,45 @@ class _HomePageState extends State<HomePage> {
                                   spacing: 8,
                                   runSpacing: 8,
                                   children:
-                                      provider.product.nutrientLevels.entries
-                                          .map((entry) {
-                                            Color bgColor;
+                                      product.nutrientLevels.entries.map((
+                                        entry,
+                                      ) {
+                                        Color bgColor;
 
-                                            switch (entry.value) {
-                                              case 'high':
-                                                bgColor = Colors.red;
-                                                break;
-                                              case 'moderate':
-                                                bgColor = Colors.orange;
-                                                break;
-                                              case 'low':
-                                                bgColor = Colors.green;
-                                                break;
-                                              default:
-                                                bgColor = Colors.grey;
-                                            }
+                                        switch (entry.value) {
+                                          case 'high':
+                                            bgColor = Colors.red;
+                                            break;
+                                          case 'moderate':
+                                            bgColor = Colors.orange;
+                                            break;
+                                          case 'low':
+                                            bgColor = Colors.green;
+                                            break;
+                                          default:
+                                            bgColor = Colors.grey;
+                                        }
 
-                                            return Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 12,
-                                                    vertical: 6,
-                                                  ),
-                                              decoration: BoxDecoration(
-                                                color: bgColor,
-                                                borderRadius:
-                                                    BorderRadius.circular(20),
-                                              ),
-                                              child: Text(
-                                                entry.key,
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            );
-                                          })
-                                          .toList(),
+                                        return Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 6,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: bgColor,
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            entry.key,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
                                 ),
                               ],
                             ),
@@ -979,7 +987,7 @@ class _HomePageState extends State<HomePage> {
                             : ProductPageState().alternativeProducts(
                               context,
                               provider,
-                              suggestedProductsDemo,
+                              suggestedProducts,
                             ),
                       ],
                     ],
@@ -1096,11 +1104,7 @@ class _HomePageState extends State<HomePage> {
                               duration: Duration(milliseconds: 350),
                               curve: Curves.easeInOut,
                               child: SizedBox(
-                                height:
-                                    provider.lastProductsIsLoading ||
-                                            provider.lastProducts.isNotEmpty
-                                        ? null
-                                        : 0,
+                                height: lastProducts.isNotEmpty ? null : 0,
                                 width: MediaQuery.of(context).size.width,
                                 child: Wrap(
                                   alignment: WrapAlignment.spaceBetween,
@@ -1109,17 +1113,10 @@ class _HomePageState extends State<HomePage> {
                                       100 *
                                       4,
                                   children:
-                                      provider.lastProducts.entries.map((
-                                        entry,
-                                      ) {
+                                      lastProducts.map((product) {
                                         return ProductCard(
-                                          id: entry.key,
+                                          product: product,
                                           widthAjustment: 32,
-                                          image: entry.value.image,
-                                          title: entry.value.brand,
-                                          description: entry.value.name,
-                                          nutriscore: entry.value.nutriscore,
-                                          nova: entry.value.nova,
                                         );
                                       }).toList(),
                                 ),

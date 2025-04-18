@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import 'models/model_products.dart';
+
 import 'package:app_nutriverif/screens/main_scaffold.dart';
 import 'package:app_nutriverif/screens/products_page.dart';
 import 'package:app_nutriverif/screens/about_page.dart';
@@ -39,8 +42,8 @@ class MyApp extends StatelessWidget {
             page = const ProductSearchPage();
             break;
           case '/product':
-            final id = settings.arguments as String;
-            page = ProductPage(id: id);
+            final Product product = settings.arguments as Product;
+            page = ProductPage(product: product);
             break;
           default:
             page = const MainScaffold();
