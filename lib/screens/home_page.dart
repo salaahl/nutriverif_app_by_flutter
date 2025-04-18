@@ -1136,50 +1136,19 @@ class _HomePageState extends State<HomePage> {
                         width: MediaQuery.of(context).size.width,
                       ),
             ),
-            VisibilityDetector(
-              key: Key('last_section'),
-              onVisibilityChanged: (info) {
-                if (info.visibleBounds.height > 25 &&
-                    !_animatedProductIds.contains('last_section')) {
-                  setState(() {
-                    _animatedProductIds.add('last_section');
-                  });
-                }
-              },
-              child:
-                  _animatedProductIds.contains('last_section')
-                      ? TweenAnimationBuilder<double>(
-                        tween: Tween(begin: 0.0, end: 1.0),
-                        curve: Curves.easeInOut,
-                        duration: Duration(milliseconds: 250),
-                        builder: (context, value, child) {
-                          return Opacity(
-                            opacity: value,
-                            child: Transform.translate(
-                              offset: Offset(0, 50 * (1 - value)),
-                              child: child,
-                            ),
-                          );
-                        },
-                        child: Column(
-                          children: [
-                            Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(64),
-                                child: Image.asset(
-                                  'assets/images/logo.png',
-                                  height: 160,
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                      : SizedBox(
-                        height: 150,
-                        width: MediaQuery.of(context).size.width,
-                      ),
+            Column(
+              children: [
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(64),
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      height: 160,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
