@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import '../widgets/app_bar.dart';
+import '../widgets/loader.dart';
 import '../widgets/search_bar.dart';
 import '../widgets/product_card.dart';
 import 'package:provider/provider.dart';
@@ -190,10 +191,7 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                   const Center(
                     child: Padding(
                       padding: EdgeInsets.all(16),
-                      child: CircularProgressIndicator(
-                        color: Color(0xFF00BD7E),
-                        strokeWidth: 8,
-                      ),
+                      child: Loader(),
                     ),
                   ),
               ],

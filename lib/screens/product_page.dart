@@ -6,6 +6,7 @@ import 'package:visibility_detector/visibility_detector.dart';
 import 'package:app_nutriverif/providers/products_provider.dart';
 import '../screens/products_page.dart';
 import '../widgets/app_bar.dart';
+import '../widgets/loader.dart';
 import '../widgets/product_card.dart';
 import '../models/model_products.dart';
 
@@ -20,16 +21,6 @@ class ProductPage extends StatefulWidget {
 
 class ProductPageState extends State<ProductPage> {
   final Set<String> _isAnimated = {};
-
-  Widget loadingWidget() => const Center(
-    child: Padding(
-      padding: EdgeInsets.all(64),
-      child: CircularProgressIndicator(
-        color: Color(0xFF00BD7E),
-        strokeWidth: 8,
-      ),
-    ),
-  );
 
   @override
   void initState() {
@@ -85,7 +76,7 @@ class ProductPageState extends State<ProductPage> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
         ),
-        child: loadingWidget(),
+        child: Loader(),
       );
     }
 
@@ -157,7 +148,7 @@ class ProductPageState extends State<ProductPage> {
               ),
               child:
                   product.image.isEmpty
-                      ? loadingWidget()
+                      ? Loader()
                       : Image.network(
                         product.image,
                         width: 160,
@@ -454,7 +445,7 @@ class ProductPageState extends State<ProductPage> {
             ),
             const SizedBox(height: 16),
             provider.suggestedProductsIsLoading
-                ? loadingWidget()
+                ? Loader()
                 : Wrap(
                   alignment: WrapAlignment.spaceBetween,
                   spacing: MediaQuery.of(context).size.width / 100 * 4,

@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../widgets/app_bar.dart';
+import '../widgets/loader.dart';
 import '../widgets/search_bar.dart';
 import '../widgets/product_card.dart';
 
@@ -148,7 +149,7 @@ class _HomePageState extends State<HomePage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   provider.productsIsLoading
-                                      ? ProductPageState().loadingWidget()
+                                      ? Loader()
                                       : Wrap(
                                         alignment: WrapAlignment.spaceBetween,
                                         spacing:
@@ -755,7 +756,7 @@ class _HomePageState extends State<HomePage> {
                               Column(
                                 children: [
                                   if (provider.productIsLoading)
-                                    ProductPageState().loadingWidget()
+                                    Loader()
                                   else ...[
                                     Column(
                                       crossAxisAlignment:
@@ -777,8 +778,7 @@ class _HomePageState extends State<HomePage> {
                                             ),
                                             child:
                                                 provider.product.image.isEmpty
-                                                    ? ProductPageState()
-                                                        .loadingWidget()
+                                                    ? Loader()
                                                     : Image.network(
                                                       provider.product.image,
                                                       width: 160,
@@ -960,7 +960,7 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                     const SizedBox(height: 48),
                                     provider.suggestedProductsIsLoading
-                                        ? ProductPageState().loadingWidget()
+                                        ? Loader()
                                         : ProductPageState()
                                             .alternativeProducts(
                                               context,
@@ -1075,7 +1075,7 @@ class _HomePageState extends State<HomePage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     provider.lastProductsIsLoading
-                                        ? ProductPageState().loadingWidget()
+                                        ? Loader()
                                         : AnimatedSize(
                                           duration: Duration(milliseconds: 350),
                                           curve: Curves.easeInOut,
