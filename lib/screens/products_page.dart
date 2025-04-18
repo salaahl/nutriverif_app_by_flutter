@@ -83,7 +83,9 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                   margin: const EdgeInsets.only(top: 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [AppSearchBar(provider: provider)],
+                    children: [
+                      AppSearchBar(provider: provider, showFilters: true),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -141,11 +143,11 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                             );
                           }).toList(),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 16),
                 if (provider.productsIsLoading)
                   const Center(
                     child: Padding(
-                      padding: EdgeInsets.all(16),
+                      padding: EdgeInsets.only(bottom: 32),
                       child: Loader(),
                     ),
                   ),

@@ -4,8 +4,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 class AppSearchBar extends StatefulWidget {
   final ProductsProvider provider;
+  final bool showFilters;
 
-  const AppSearchBar({super.key, required this.provider});
+  const AppSearchBar({super.key, required this.provider, this.showFilters = false});
 
   @override
   State<AppSearchBar> createState() => _AppSearchBarState();
@@ -167,33 +168,35 @@ class _AppSearchBarState extends State<AppSearchBar> {
           ],
         ),
         const SizedBox(height: 8),
-        Wrap(
-          spacing: 12,
-          children:
-              _filters.entries.map((filter) {
-                return Material(
-                  child: FilterChip(
-                    label: Text(filter.key),
-                    selected: filter.value == widget.provider.filter,
-                    onSelected: (s) {
-                      setState(() {
-                        widget.provider.updateFilter(filter.value);
-                      });
-                    },
-                    backgroundColor: Colors.grey,
-                    selectedColor: const Color.fromRGBO(0, 189, 126, 1),
-                    labelStyle: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    showCheckmark: false,
-                  ),
-                );
-              }).toList(),
-        ),
+        widget.showFilters
+            ? Wrap(
+              spacing: 12,
+              children:
+                  _filters.entries.map((filter) {
+                    return Material(
+                      child: FilterChip(
+                        label: Text(filter.key),
+                        selected: filter.value == widget.provider.filter,
+                        onSelected: (s) {
+                          setState(() {
+                            widget.provider.updateFilter(filter.value);
+                          });
+                        },
+                        backgroundColor: Colors.grey,
+                        selectedColor: const Color.fromRGBO(0, 189, 126, 1),
+                        labelStyle: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        showCheckmark: false,
+                      ),
+                    );
+                  }).toList(),
+            )
+            : SizedBox.shrink(),
       ],
     );
   }

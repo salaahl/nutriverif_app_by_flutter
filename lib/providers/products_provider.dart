@@ -102,7 +102,7 @@ class ProductsProvider with ChangeNotifier {
   }) async {
     _error = null;
     _productsIsLoading = true;
-
+    print("method : $method");
     if (method == 'more') {
       _page++;
     } else {
@@ -111,8 +111,6 @@ class ProductsProvider with ChangeNotifier {
       if (filter.isNotEmpty) _filter = filter;
       _page = 1;
     }
-
-    print("input: $input filter: $filter page: $_page");
 
     notifyListeners();
 
@@ -124,6 +122,8 @@ class ProductsProvider with ChangeNotifier {
           .get(Uri.parse(url))
           .timeout(Duration(seconds: 30));
       final data = json.decode(response.body);
+
+      if (method == 'complete') _pages = (data['count'] / 20).ceil();
 
       return (data['products'] as List)
           .map((p) => Product.fromJson(p))
@@ -220,7 +220,7 @@ class ProductsProvider with ChangeNotifier {
                 return true;
               }
 
-              if (scoreDiff == 0 && bothNovaOk && eNovaParsed! < pNovaParsed!) {
+              if (scoreDiff == 0 && bothNovaOk && eNovaParsed < pNovaParsed) {
                 return true;
               }
 
@@ -254,11 +254,8 @@ class ProductsProvider with ChangeNotifier {
       try {
         final result =
             selectedProducts.take(4).map((p) => Product.fromJson(p)).toList();
-        print('Produits retournés : ${result.length}');
         return result;
-      } catch (e, stack) {
-        print('Erreur dans le mapping des produits : $e');
-        print(stack);
+      } catch (e) {
         return [];
       }
     } catch (e) {

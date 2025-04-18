@@ -349,16 +349,17 @@ class ProductPageState extends State<ProductPage> {
                         backgroundColor: Colors.grey[400],
                       ),
                       onPressed: () async {
-                        provider.updateProducts(
-                          await provider.searchProductsByQuery(
-                            input: category,
-                            method: 'complete',
-                          ),
-                        );
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => ProductSearchPage(),
+                          ),
+                        );
+
+                        provider.updateProducts(
+                          await provider.searchProductsByQuery(
+                            input: category,
+                            method: 'complete',
                           ),
                         );
                       },

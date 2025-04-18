@@ -144,7 +144,7 @@ class _HomePageState extends State<HomePage> {
                   child: Column(
                     children: [
                       AppSearchBar(provider: provider),
-                      SizedBox(height: 32),
+                      SizedBox(height: 16),
                       AnimatedSize(
                         duration: Duration(milliseconds: 350),
                         curve: Curves.easeInOut,
