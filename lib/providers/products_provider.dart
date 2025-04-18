@@ -191,11 +191,11 @@ class ProductsProvider with ChangeNotifier {
   }
 
   Future<void> fetchSuggestedProducts({
-    String? id,
-    List<String>? categories,
+    required String id,
+    required List<String> categories,
   }) async {
-    id ??= _product.id;
-    categories ??= _product.categories;
+    id = _product.id;
+    categories = _product.categories;
 
     String categoriesString = categories.join(',');
 

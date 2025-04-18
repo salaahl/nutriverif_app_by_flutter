@@ -46,7 +46,7 @@ class ProductPageState extends State<ProductPage> {
       }
 
       // Si le produit n'est toujours pas trouvé, on retourne sur la page précédente
-      if (product == null) {
+      if (product.id.isEmpty) {
         navigator.pop('Produit non trouvé');
       }
 

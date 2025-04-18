@@ -264,6 +264,7 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           Expanded(
                             child: ClipRRect(
+                              clipBehavior: Clip.antiAlias,
                               borderRadius: BorderRadius.circular(12),
                               child: YoutubePlayer(
                                 controller: _youtubePlayerController,
@@ -277,7 +278,7 @@ class _HomePageState extends State<HomePage> {
                       VisibilityDetector(
                         key: Key('about_text_1'),
                         onVisibilityChanged: (info) {
-                          if (info.visibleBounds.height > 40 &&
+                          if (info.visibleBounds.height > 15 &&
                               !_animatedProductIds.contains('about_text_1')) {
                             setState(() {
                               _animatedProductIds.add('about_text_1');
@@ -294,7 +295,7 @@ class _HomePageState extends State<HomePage> {
                                     return Opacity(
                                       opacity: value,
                                       child: Transform.translate(
-                                        offset: Offset(0, 100 * (1 - value)),
+                                        offset: Offset(0, 30 * (1 - value)),
                                         child: child,
                                       ),
                                     );
@@ -333,7 +334,7 @@ class _HomePageState extends State<HomePage> {
                       VisibilityDetector(
                         key: Key('about_text_2'),
                         onVisibilityChanged: (info) {
-                          if (info.visibleBounds.height > 40 &&
+                          if (info.visibleBounds.height > 15 &&
                               !_animatedProductIds.contains('about_text_2')) {
                             setState(() {
                               _animatedProductIds.add('about_text_2');
@@ -350,7 +351,7 @@ class _HomePageState extends State<HomePage> {
                                     return Opacity(
                                       opacity: value,
                                       child: Transform.translate(
-                                        offset: Offset(0, 100 * (1 - value)),
+                                        offset: Offset(0, 30 * (1 - value)),
                                         child: child,
                                       ),
                                     );
@@ -390,7 +391,7 @@ class _HomePageState extends State<HomePage> {
                       VisibilityDetector(
                         key: Key('about_text_3'),
                         onVisibilityChanged: (info) {
-                          if (info.visibleBounds.height > 40 &&
+                          if (info.visibleBounds.height > 15 &&
                               !_animatedProductIds.contains('about_text_3')) {
                             setState(() {
                               _animatedProductIds.add('about_text_3');
@@ -407,7 +408,7 @@ class _HomePageState extends State<HomePage> {
                                     return Opacity(
                                       opacity: value,
                                       child: Transform.translate(
-                                        offset: Offset(0, 100 * (1 - value)),
+                                        offset: Offset(0, 30 * (1 - value)),
                                         child: child,
                                       ),
                                     );
@@ -453,17 +454,17 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   VisibilityDetector(
-                    key: Key('scores_header'),
+                    key: Key('scores_title'),
                     onVisibilityChanged: (info) {
                       if (info.visibleFraction == 1 &&
-                          !_animatedProductIds.contains('scores_header')) {
+                          !_animatedProductIds.contains('scores_title')) {
                         setState(() {
-                          _animatedProductIds.add('scores_header');
+                          _animatedProductIds.add('scores_title');
                         });
                       }
                     },
                     child:
-                        _animatedProductIds.contains('scores_header')
+                        _animatedProductIds.contains('scores_title')
                             ? TweenAnimationBuilder<double>(
                               tween: Tween(begin: 0.0, end: 1.0),
                               curve: Curves.easeInOut,
@@ -535,7 +536,7 @@ class _HomePageState extends State<HomePage> {
                               VisibilityDetector(
                                 key: Key('nutriscore_text'),
                                 onVisibilityChanged: (info) {
-                                  if (info.visibleBounds.height > 30 &&
+                                  if (info.visibleBounds.height > 15 &&
                                       !_animatedProductIds.contains(
                                         'nutriscore_text',
                                       )) {
@@ -618,7 +619,7 @@ class _HomePageState extends State<HomePage> {
                               VisibilityDetector(
                                 key: Key('nova_text'),
                                 onVisibilityChanged: (info) {
-                                  if (info.visibleBounds.height > 30 &&
+                                  if (info.visibleBounds.height > 15 &&
                                       !_animatedProductIds.contains(
                                         'nova_text',
                                       )) {
@@ -669,38 +670,38 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SizedBox(height: 80),
-            VisibilityDetector(
-              key: Key('product_demo'),
-              onVisibilityChanged: (info) {
-                if (info.visibleBounds.height > 50 &&
-                    !_animatedProductIds.contains('product_demo')) {
-                  setState(() {
-                    _animatedProductIds.add('product_demo');
-                  });
-                }
-              },
-              child:
-                  _animatedProductIds.contains('product_demo')
-                      ? TweenAnimationBuilder<double>(
-                        tween: Tween(begin: 0.0, end: 1.0),
-                        curve: Curves.easeInOut,
-                        duration: Duration(milliseconds: 250),
-                        builder: (context, value, child) {
-                          return Opacity(
-                            opacity: value,
-                            child: Transform.translate(
-                              offset: Offset(0, 50 * (1 - value)),
-                              child: child,
-                            ),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.only(left: 16, right: 16),
-                          decoration: BoxDecoration(color: Colors.grey[300]),
-                          child: Column(
-                            children: [
-                              const SizedBox(height: 40),
-                              Row(
+            Container(
+              padding: const EdgeInsets.only(left: 16, right: 16),
+              decoration: BoxDecoration(color: Colors.grey[300]),
+              child: Column(
+                children: [
+                  const SizedBox(height: 40),
+                  VisibilityDetector(
+                    key: Key('scores_title'),
+                    onVisibilityChanged: (info) {
+                      if (info.visibleFraction == 1 &&
+                          !_animatedProductIds.contains('scores_title')) {
+                        setState(() {
+                          _animatedProductIds.add('scores_title');
+                        });
+                      }
+                    },
+                    child:
+                        _animatedProductIds.contains('scores_title')
+                            ? TweenAnimationBuilder<double>(
+                              tween: Tween(begin: 0.0, end: 1.0),
+                              curve: Curves.easeInOut,
+                              duration: Duration(milliseconds: 250),
+                              builder: (context, value, child) {
+                                return Opacity(
+                                  opacity: value,
+                                  child: Transform.translate(
+                                    offset: Offset(0, 30 * (1 - value)),
+                                    child: child,
+                                  ),
+                                );
+                              },
+                              child: Row(
                                 children: [
                                   Expanded(
                                     child: Text.rich(
@@ -725,221 +726,229 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 48),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: const Text.rich(
-                                      TextSpan(
-                                        text:
-                                            "Vous méritez le meilleur pour votre alimentation",
-                                        style: TextStyle(
-                                          backgroundColor: Color(0xFF00BD7E),
+                            )
+                            : SizedBox(
+                              height: 50,
+                              width: MediaQuery.of(context).size.width,
+                            ),
+                  ),
+                  const SizedBox(height: 48),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: const Text.rich(
+                          TextSpan(
+                            text:
+                                "Vous méritez le meilleur pour votre alimentation",
+                            style: TextStyle(
+                              backgroundColor: Color(0xFF00BD7E),
+                            ),
+                            children: [
+                              TextSpan(
+                                text:
+                                    ". Si un produit a un Nutri-Score jugé trop faible :",
+                                style: TextStyle(
+                                  backgroundColor: Colors.transparent,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 32),
+                  // Présentation partielle d'un produit
+                  Column(
+                    children: [
+                      if (provider.productIsLoading)
+                        Loader()
+                      else ...[
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Image du produit
+                            AspectRatio(
+                              aspectRatio: 1,
+                              child: Container(
+                                width: MediaQuery.of(context).size.width,
+                                padding: const EdgeInsets.all(32),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child:
+                                    provider.product.image.isEmpty
+                                        ? Loader()
+                                        : Image.network(
+                                          provider.product.image,
+                                          width: 160,
+                                          semanticLabel: 'Image du produit',
                                         ),
-                                        children: [
-                                          TextSpan(
-                                            text:
-                                                ". Si un produit a un Nutri-Score jugé trop faible :",
-                                            style: TextStyle(
-                                              backgroundColor:
-                                                  Colors.transparent,
-                                            ),
-                                          ),
-                                        ],
+                              ),
+                            ),
+                            const SizedBox(height: 32),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Nom et marque
+                                Text.rich(
+                                  TextSpan(
+                                    text: "${provider.product.brand} - ",
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w500,
+                                      color: Color(0xFF00BD7E),
+                                    ),
+                                    children: [
+                                      TextSpan(
+                                        text: provider.product.name,
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(formattedDate),
+                                const SizedBox(height: 16),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      constraints: BoxConstraints(
+                                        maxWidth: 100,
+                                      ),
+                                      child: SvgPicture.network(
+                                        "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-${provider.product.nutriscore}-new-fr.svg",
+                                        width: 100,
+                                        fit: BoxFit.cover,
+                                        semanticsLabel:
+                                            'Nutriscore ${provider.product.nutriscore}',
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 32),
-                              // Présentation partielle d'un produit
-                              Column(
-                                children: [
-                                  if (provider.productIsLoading)
-                                    Loader()
-                                  else ...[
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        // Image du produit
-                                        AspectRatio(
-                                          aspectRatio: 1,
-                                          child: Container(
-                                            width:
-                                                MediaQuery.of(
-                                                  context,
-                                                ).size.width,
-                                            padding: const EdgeInsets.all(32),
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            child:
-                                                provider.product.image.isEmpty
-                                                    ? Loader()
-                                                    : Image.network(
-                                                      provider.product.image,
-                                                      width: 160,
-                                                      semanticLabel:
-                                                          'Image du produit',
-                                                    ),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 32),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            // Nom et marque
-                                            Text.rich(
-                                              TextSpan(
-                                                text:
-                                                    "${provider.product.brand} - ",
-                                                style: const TextStyle(
-                                                  fontSize: 20,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Color(0xFF00BD7E),
-                                                ),
-                                                children: [
-                                                  TextSpan(
-                                                    text: provider.product.name,
-                                                    style: const TextStyle(
-                                                      color: Colors.black,
-                                                    ),
+                                    const SizedBox(height: 8),
+                                    Container(
+                                      constraints: BoxConstraints(maxWidth: 30),
+                                      child: SvgPicture.network(
+                                        "https://static.openfoodfacts.org/images/attributes/dist/nova-group-${provider.product.nova}.svg",
+                                        width: 30,
+                                        fit: BoxFit.cover,
+                                        semanticsLabel:
+                                            'NOVA ${provider.product.nova}',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 32),
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  children:
+                                      provider.product.nutrientLevels.entries
+                                          .map((entry) {
+                                            Color bgColor;
+
+                                            switch (entry.value) {
+                                              case 'high':
+                                                bgColor = Colors.red;
+                                                break;
+                                              case 'moderate':
+                                                bgColor = Colors.orange;
+                                                break;
+                                              case 'low':
+                                                bgColor = Colors.green;
+                                                break;
+                                              default:
+                                                bgColor = Colors.grey;
+                                            }
+
+                                            return Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 12,
+                                                    vertical: 6,
                                                   ),
-                                                ],
+                                              decoration: BoxDecoration(
+                                                color: bgColor,
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
                                               ),
-                                            ),
-                                            const SizedBox(height: 8),
-                                            Text(formattedDate),
-                                            const SizedBox(height: 16),
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Container(
-                                                  constraints: BoxConstraints(
-                                                    maxWidth: 100,
-                                                  ),
-                                                  child: SvgPicture.network(
-                                                    "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-${provider.product.nutriscore}-new-fr.svg",
-                                                    width: 100,
-                                                    fit: BoxFit.cover,
-                                                    semanticsLabel:
-                                                        'Nutriscore ${provider.product.nutriscore}',
-                                                  ),
+                                              child: Text(
+                                                entry.key,
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
                                                 ),
-                                                const SizedBox(height: 8),
-                                                Container(
-                                                  constraints: BoxConstraints(
-                                                    maxWidth: 30,
-                                                  ),
-                                                  child: SvgPicture.network(
-                                                    "https://static.openfoodfacts.org/images/attributes/dist/nova-group-${provider.product.nova}.svg",
-                                                    width: 30,
-                                                    fit: BoxFit.cover,
-                                                    semanticsLabel:
-                                                        'NOVA ${provider.product.nova}',
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            const SizedBox(height: 32),
-                                            Wrap(
-                                              spacing: 8,
-                                              runSpacing: 8,
-                                              children:
-                                                  provider
-                                                      .product
-                                                      .nutrientLevels
-                                                      .entries
-                                                      .map((entry) {
-                                                        Color bgColor;
-
-                                                        switch (entry.value) {
-                                                          case 'high':
-                                                            bgColor =
-                                                                Colors.red;
-                                                            break;
-                                                          case 'moderate':
-                                                            bgColor =
-                                                                Colors.orange;
-                                                            break;
-                                                          case 'low':
-                                                            bgColor =
-                                                                Colors.green;
-                                                            break;
-                                                          default:
-                                                            bgColor =
-                                                                Colors.grey;
-                                                        }
-
-                                                        return Container(
-                                                          padding:
-                                                              const EdgeInsets.symmetric(
-                                                                horizontal: 12,
-                                                                vertical: 6,
-                                                              ),
-                                                          decoration: BoxDecoration(
-                                                            color: bgColor,
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  20,
-                                                                ),
-                                                          ),
-                                                          child: Text(
-                                                            entry.key,
-                                                            style:
-                                                                const TextStyle(
-                                                                  color:
-                                                                      Colors
-                                                                          .white,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                ),
-                                                          ),
-                                                        );
-                                                      })
-                                                      .toList(),
-                                            ),
-                                          ],
+                                              ),
+                                            );
+                                          })
+                                          .toList(),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 64),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: const Text.rich(
+                                TextSpan(
+                                  text:
+                                      "Notre fonctionnalité intelligente vous propose instantanément des alternatives ",
+                                  children: [
+                                    TextSpan(
+                                      text:
+                                          "mieux notées et tout aussi savoureuses",
+                                      style: TextStyle(
+                                        backgroundColor: Color.fromRGBO(
+                                          0,
+                                          189,
+                                          126,
+                                          0.6,
                                         ),
-                                        const SizedBox(height: 64),
-                                      ],
+                                      ),
                                     ),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: const Text.rich(
-                                            TextSpan(
-                                              text:
-                                                  "Notre fonctionnalité intelligente vous propose instantanément des alternatives ",
-                                              children: [
-                                                TextSpan(
-                                                  text:
-                                                      "mieux notées et tout aussi savoureuses",
-                                                  style: TextStyle(
-                                                    backgroundColor:
-                                                        Color.fromRGBO(
-                                                          0,
-                                                          189,
-                                                          126,
-                                                          0.6,
-                                                        ),
-                                                  ),
-                                                ),
-                                                TextSpan(text: " :"),
-                                              ],
-                                            ),
-                                          ),
+                                    TextSpan(text: " :"),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 32),
+                        VisibilityDetector(
+                          key: Key('products_demo_arrow'),
+                          onVisibilityChanged: (info) {
+                            if (info.visibleBounds.height > 25 &&
+                                !_animatedProductIds.contains(
+                                  'products_demo_arrow',
+                                )) {
+                              setState(() {
+                                _animatedProductIds.add('products_demo_arrow');
+                              });
+                            }
+                          },
+                          child:
+                              _animatedProductIds.contains(
+                                    'products_demo_arrow',
+                                  )
+                                  ? TweenAnimationBuilder<double>(
+                                    tween: Tween(begin: 0.0, end: 1.0),
+                                    curve: Curves.easeInOut,
+                                    duration: Duration(milliseconds: 250),
+                                    builder: (context, value, child) {
+                                      return Opacity(
+                                        opacity: value,
+                                        child: Transform.translate(
+                                          offset: Offset(0, 30 * (1 - value)),
+                                          child: child,
                                         ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 32),
-                                    Row(
+                                      );
+                                    },
+                                    child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
@@ -958,88 +967,89 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                       ],
                                     ),
-                                    const SizedBox(height: 48),
-                                    provider.suggestedProductsIsLoading
-                                        ? Loader()
-                                        : ProductPageState()
-                                            .alternativeProducts(
-                                              context,
-                                              provider,
-                                              suggestedProductsDemo,
-                                            ),
-                                  ],
-                                ],
-                              ),
-                              const SizedBox(height: 32),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: const Text.rich(
-                                      TextSpan(
-                                        text: "Trouvez des options ",
-                                        children: [
-                                          TextSpan(
-                                            text: "plus saines",
-                                            style: TextStyle(
-                                              backgroundColor: Color.fromRGBO(
-                                                0,
-                                                189,
-                                                126,
-                                                0.6,
-                                              ),
-                                            ),
-                                          ),
-                                          TextSpan(
-                                            text:
-                                                " et faites de chaque choix un pas vers une meilleure santé.",
-                                          ),
-                                        ],
-                                      ),
-                                    ),
+                                  )
+                                  : SizedBox(
+                                    height: 50,
+                                    width: MediaQuery.of(context).size.width,
                                   ),
-                                ],
+                        ),
+                        const SizedBox(height: 48),
+                        provider.suggestedProductsIsLoading
+                            ? Loader()
+                            : ProductPageState().alternativeProducts(
+                              context,
+                              provider,
+                              suggestedProductsDemo,
+                            ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 32),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: const Text.rich(
+                          TextSpan(
+                            text: "Trouvez des options ",
+                            children: [
+                              TextSpan(
+                                text: "plus saines",
+                                style: TextStyle(
+                                  backgroundColor: Color.fromRGBO(
+                                    0,
+                                    189,
+                                    126,
+                                    0.6,
+                                  ),
+                                ),
                               ),
-                              const SizedBox(height: 40),
+                              TextSpan(
+                                text:
+                                    " et faites de chaque choix un pas vers une meilleure santé.",
+                              ),
                             ],
                           ),
                         ),
-                      )
-                      : SizedBox(
-                        height: 300,
-                        width: MediaQuery.of(context).size.width,
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: 40),
+                ],
+              ),
             ),
             const SizedBox(height: 80),
-            VisibilityDetector(
-              key: Key('last_products'),
-              onVisibilityChanged: (info) {
-                if (info.visibleBounds.height > 75 &&
-                    !_animatedProductIds.contains('last_products')) {
-                  setState(() {
-                    _animatedProductIds.add('last_products');
-                  });
-                }
-              },
-              child:
-                  _animatedProductIds.contains('last_products')
-                      ? TweenAnimationBuilder<double>(
-                        tween: Tween(begin: 0.0, end: 1.0),
-                        curve: Curves.easeInOut,
-                        duration: Duration(milliseconds: 250),
-                        builder: (context, value, child) {
-                          return Opacity(
-                            opacity: value,
-                            child: Transform.translate(
-                              offset: Offset(0, 150 * (1 - value)),
-                              child: child,
-                            ),
-                          );
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 16, right: 16),
-                          child: Column(
-                            children: [
-                              Row(
+            Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16),
+              child: Column(
+                children: [
+                  VisibilityDetector(
+                    key: Key('last_products_title'),
+                    onVisibilityChanged: (info) {
+                      if (info.visibleFraction == 1 &&
+                          !_animatedProductIds.contains(
+                            'last_products_title',
+                          )) {
+                        setState(() {
+                          _animatedProductIds.add('last_products_title');
+                        });
+                      }
+                    },
+                    child:
+                        _animatedProductIds.contains('last_products_title')
+                            ? TweenAnimationBuilder<double>(
+                              tween: Tween(begin: 0.0, end: 1.0),
+                              curve: Curves.easeInOut,
+                              duration: Duration(milliseconds: 250),
+                              builder: (context, value, child) {
+                                return Opacity(
+                                  opacity: value,
+                                  child: Transform.translate(
+                                    offset: Offset(0, 30 * (1 - value)),
+                                    child: child,
+                                  ),
+                                );
+                              },
+                              child: Row(
                                 children: [
                                   Expanded(
                                     child: Text.rich(
@@ -1064,77 +1074,62 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 32),
-                              Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[200],
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    provider.lastProductsIsLoading
-                                        ? Loader()
-                                        : AnimatedSize(
-                                          duration: Duration(milliseconds: 350),
-                                          curve: Curves.easeInOut,
-                                          child: SizedBox(
-                                            height:
-                                                provider.lastProductsIsLoading ||
-                                                        provider
-                                                            .lastProducts
-                                                            .isNotEmpty
-                                                    ? null
-                                                    : 0,
-                                            width:
-                                                MediaQuery.of(
-                                                  context,
-                                                ).size.width,
-                                            child: Wrap(
-                                              alignment:
-                                                  WrapAlignment.spaceBetween,
-                                              spacing:
-                                                  MediaQuery.of(
-                                                    context,
-                                                  ).size.width /
-                                                  100 *
-                                                  4,
-                                              children:
-                                                  provider.lastProducts.entries
-                                                      .map((entry) {
-                                                        return ProductCard(
-                                                          id: entry.key,
-                                                          widthAjustment: 32,
-                                                          image:
-                                                              entry.value.image,
-                                                          title:
-                                                              entry.value.brand,
-                                                          description:
-                                                              entry.value.name,
-                                                          nutriscore:
-                                                              entry
-                                                                  .value
-                                                                  .nutriscore,
-                                                          nova:
-                                                              entry.value.nova,
-                                                        );
-                                                      })
-                                                      .toList(),
-                                            ),
-                                          ),
-                                        ),
-                                  ],
+                            )
+                            : SizedBox(
+                              height: 30,
+                              width: MediaQuery.of(context).size.width,
+                            ),
+                  ),
+                  const SizedBox(height: 32),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        provider.lastProductsIsLoading
+                            ? Loader()
+                            : AnimatedSize(
+                              duration: Duration(milliseconds: 350),
+                              curve: Curves.easeInOut,
+                              child: SizedBox(
+                                height:
+                                    provider.lastProductsIsLoading ||
+                                            provider.lastProducts.isNotEmpty
+                                        ? null
+                                        : 0,
+                                width: MediaQuery.of(context).size.width,
+                                child: Wrap(
+                                  alignment: WrapAlignment.spaceBetween,
+                                  spacing:
+                                      MediaQuery.of(context).size.width /
+                                      100 *
+                                      4,
+                                  children:
+                                      provider.lastProducts.entries.map((
+                                        entry,
+                                      ) {
+                                        return ProductCard(
+                                          id: entry.key,
+                                          widthAjustment: 32,
+                                          image: entry.value.image,
+                                          title: entry.value.brand,
+                                          description: entry.value.name,
+                                          nutriscore: entry.value.nutriscore,
+                                          nova: entry.value.nova,
+                                        );
+                                      }).toList(),
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                      )
-                      : SizedBox(
-                        height: 300,
-                        width: MediaQuery.of(context).size.width,
-                      ),
+                            ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
             Column(
               children: [
