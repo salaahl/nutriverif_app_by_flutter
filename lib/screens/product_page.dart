@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -22,8 +24,6 @@ class ProductPage extends StatefulWidget {
 class ProductPageState extends State<ProductPage> {
   final Set<String> _isAnimated = {};
 
-  late List<Product> suggestedProducts = [];
-
   @override
   void initState() {
     super.initState();
@@ -43,7 +43,7 @@ class ProductPageState extends State<ProductPage> {
             )
             .then((products) {
               setState(() {
-                provider.suggestedProducts.addAll(products);
+                provider.updateSuggestedProducts(products);
               });
             });
       }
@@ -77,7 +77,7 @@ class ProductPageState extends State<ProductPage> {
           VisibilityDetector(
             key: Key('alternatives'),
             onVisibilityChanged: (info) {
-              if (info.visibleBounds.height > 50 &&
+              if (info.visibleBounds.height > 80 &&
                   !_isAnimated.contains('alternatives')) {
                 setState(() {
                   _isAnimated.add('alternatives');
@@ -93,7 +93,7 @@ class ProductPageState extends State<ProductPage> {
                         return Opacity(
                           opacity: value,
                           child: Transform.translate(
-                            offset: Offset(0, 100 * (1 - value)),
+                            offset: Offset(0, 140 * (1 - value)),
                             child: child,
                           ),
                         );
@@ -105,7 +105,7 @@ class ProductPageState extends State<ProductPage> {
                       ),
                     )
                     : SizedBox(
-                      height: 200,
+                      height: 280,
                       width: MediaQuery.of(context).size.width,
                     ),
           ),
@@ -296,6 +296,12 @@ class ProductPageState extends State<ProductPage> {
   // Détails supplémentaires du produit
   Widget productDetailsBottom(BuildContext context, Product product) {
     final provider = Provider.of<ProductsProvider>(context);
+    // Categories "nettoyées"
+    final categories = product.categories
+        .where((e) => e.contains(':'))
+        .map((e) => e.split(':')[1].replaceAll('-', ' '))
+        .toList()
+        .sublist(0, min(5, product.categories.length));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -341,7 +347,7 @@ class ProductPageState extends State<ProductPage> {
         Wrap(
           spacing: 8,
           children:
-              product.categories
+              categories
                   .map(
                     (category) => ElevatedButton(
                       style: ElevatedButton.styleFrom(

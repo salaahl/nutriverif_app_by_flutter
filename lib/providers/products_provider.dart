@@ -9,7 +9,7 @@ class ProductsProvider with ChangeNotifier {
       'https://world.openfoodfacts.org/cgi/search.pl';
 
   static const String fields =
-      'id,image_url,brands,generic_name_fr,main_category_fr,main_category_fr,categories_tags,created_t,last_modified_t,nutriscore_grade,nova_group,quantity,serving_size,ingredients_text_fr,nutriments,nutrient_levels,manufacturing_places,url,completeness,popularity_key';
+      'id,image_url,brands,generic_name_fr,main_category_fr,categories_tags,created_t,last_modified_t,nutriscore_grade,nova_group,quantity,serving_size,ingredients_text_fr,nutriments,nutrient_levels,manufacturing_places,url,completeness,popularity_key';
 
   final List<Product> _products = [];
   bool _productsIsLoading = false;
@@ -95,6 +95,19 @@ class ProductsProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void updateSuggestedProducts(List<Product> products) {
+    _suggestedProducts.clear();
+    _suggestedProducts.addAll(products);
+    notifyListeners();
+  }
+
+  Future<Map<String, dynamic>> _getJson(String url) async {
+    final response = await http
+        .get(Uri.parse(url))
+        .timeout(Duration(seconds: 30));
+    return json.decode(response.body);
+  }
+
   Future<List<Product>> searchProductsByQuery({
     String input = '',
     String filter = 'popularity_key',
@@ -102,7 +115,7 @@ class ProductsProvider with ChangeNotifier {
   }) async {
     _error = null;
     _productsIsLoading = true;
-    print("method : $method");
+
     if (method == 'more') {
       _page++;
     } else {
@@ -118,10 +131,7 @@ class ProductsProvider with ChangeNotifier {
         '$_apiBaseUrl?search_terms=${Uri.encodeComponent(input)}&fields=${Uri.encodeComponent(fields)}&purchase_places_tags=france&sort_by=${Uri.encodeComponent(filter)}&page_size=20&page=$_page&search_simple=1&action=process&json=1';
 
     try {
-      final response = await http
-          .get(Uri.parse(url))
-          .timeout(Duration(seconds: 30));
-      final data = json.decode(response.body);
+      final data = await _getJson(url);
 
       if (method == 'complete') _pages = (data['count'] / 20).ceil();
 
@@ -146,11 +156,7 @@ class ProductsProvider with ChangeNotifier {
         'https://world.openfoodfacts.org/api/v3/product/$id?fields=$fields';
 
     try {
-      final response = await http
-          .get(Uri.parse(url))
-          .timeout(Duration(seconds: 30));
-
-      final data = json.decode(response.body);
+      final data = await _getJson(url);
 
       return Product.fromJson(data['product']);
     } catch (e) {
@@ -172,20 +178,15 @@ class ProductsProvider with ChangeNotifier {
     _suggestedProducts.clear();
     _suggestedProductsIsLoading = true;
 
-    String categoriesString = categories.join(',');
-
     notifyListeners();
 
     const fields =
         'id,image_url,brands,generic_name_fr,main_category_fr,main_category_fr,categories_tags,last_modified_t,nutriscore_grade,nova_group,quantity,serving_size,ingredients_text_fr,nutriments,nutrient_levels,manufacturing_places,url,completeness,popularity_key';
     final url =
-        'https://world.openfoodfacts.org/api/v2/search?categories_tags=${Uri.encodeComponent(categoriesString)}&fields=${Uri.encodeComponent(fields)}&purchase_places_tags=france&sort_by=nutriscore_score,nova_group,popularity_key&page_size=300&action=process&json=1';
+        'https://world.openfoodfacts.org/api/v2/search?categories_tags=${Uri.encodeComponent(categories.last)}&fields=${Uri.encodeComponent(fields)}&purchase_places_tags=france&sort_by=nutriscore_score,nova_group,popularity_key&page_size=300&action=process&json=1';
 
     try {
-      final response = await http
-          .get(Uri.parse(url))
-          .timeout(Duration(seconds: 30));
-      final data = json.decode(response.body);
+      final data = await _getJson(url);
 
       const score = ['a', 'b', 'c', 'd', 'e'];
 
@@ -276,10 +277,7 @@ class ProductsProvider with ChangeNotifier {
         '$_apiBaseUrl?&fields=${Uri.encodeComponent(fields)}&purchase_places_tags=france&sort_by=created_t&page_size=300&action=process&json=1';
 
     try {
-      final response = await http
-          .get(Uri.parse(url))
-          .timeout(Duration(seconds: 30));
-      final data = json.decode(response.body);
+      final data = await _getJson(url);
 
       final filteredProducts =
           (data['products'] as List)
