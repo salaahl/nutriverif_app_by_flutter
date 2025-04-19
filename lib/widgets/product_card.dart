@@ -26,13 +26,13 @@ class ProductCard extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(
+          const BoxShadow(
             color: Color.fromRGBO(50, 50, 93, 0.025),
             offset: Offset(0, 50),
             blurRadius: 100,
             spreadRadius: -20,
           ),
-          BoxShadow(
+          const BoxShadow(
             color: Color.fromRGBO(0, 0, 0, 0.075),
             offset: Offset(0, 30),
             blurRadius: 60,
@@ -81,7 +81,7 @@ class ProductCard extends StatelessWidget {
                             key: Key(product.id),
                             tag: product.id,
                             child: Container(
-                              constraints: BoxConstraints(
+                              constraints: const BoxConstraints(
                                 maxHeight: 100,
                                 maxWidth: 100,
                               ),
@@ -116,7 +116,7 @@ class ProductCard extends StatelessWidget {
                             ),
                           )
                           : Container(
-                            constraints: BoxConstraints(
+                            constraints: const BoxConstraints(
                               maxHeight: 100,
                               maxWidth: 100,
                             ),

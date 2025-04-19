@@ -16,24 +16,14 @@ class ProductSearchPage extends StatefulWidget {
 }
 
 class _ProductSearchPageState extends State<ProductSearchPage> {
-  late ProductsProvider provider = Provider.of<ProductsProvider>(context);
-
-  double _prevScrollPos = 0;
-  double searchBarPos = 0;
-  bool _refresh = true;
+  late ProductsProvider _provider;
 
   final ScrollController _scrollController = ScrollController();
-
   final Set<String> _animatedProductIds = {};
 
   @override
   void initState() {
     super.initState();
-
-    // Cette méthode permet d'appeler mon provider une fois le widget construit
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      provider = Provider.of<ProductsProvider>(context, listen: false);
-    });
 
     _scrollController.addListener(_onScroll);
   }
@@ -44,31 +34,27 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
     super.dispose();
   }
 
+  bool _refresh = true;
+
   void _onScroll() async {
-    double currentScrollPos = _scrollController.position.pixels;
+    final scrollPos = _scrollController.position;
 
-    if (currentScrollPos > _prevScrollPos) {
-      setState(() => searchBarPos = -176);
-    } else {
-      setState(() => searchBarPos = 0);
-    }
-
-    if (_scrollController.position.pixels >=
-            _scrollController.position.maxScrollExtent - 100 &&
-        provider.hasMorePages &&
+    // 280 = hauteur de la carte d'un produit
+    if (scrollPos.pixels >= scrollPos.maxScrollExtent - 280 &&
+        _provider.hasMorePages &&
         _refresh) {
       _refresh = false;
-      provider.products.addAll(
-        await provider.searchProductsByQuery(method: 'more'),
+      _provider.addProducts(
+        await _provider.searchProductsByQuery(method: 'more'),
       );
-      Timer(Duration(seconds: 1), () => _refresh = true);
+      Timer(Duration(milliseconds: 1500), () => _refresh = true);
     }
-
-    _prevScrollPos = currentScrollPos;
   }
 
   @override
   Widget build(BuildContext context) {
+    _provider = Provider.of<ProductsProvider>(context);
+
     return Scaffold(
       body: Stack(
         children: [
@@ -84,12 +70,12 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      AppSearchBar(provider: provider, showFilters: true),
+                      AppSearchBar(provider: _provider, showFilters: true),
                     ],
                   ),
                 ),
                 const SizedBox(height: 12),
-                GridView(
+                GridView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -98,53 +84,53 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                     mainAxisSpacing: 16,
                     childAspectRatio: 0.55,
                   ),
-                  children:
-                      provider.products.isEmpty
-                          ? []
-                          : provider.products.map((product) {
-                            final productCard = ProductCard(
-                              product: product,
-                              widthAjustment: 16,
-                            );
+                  itemCount: _provider.products.length,
+                  itemBuilder: (context, index) {
+                    final product = _provider.products[index];
+                    final productCard = ProductCard(
+                      product: product,
+                      widthAjustment: 16,
+                    );
 
-                            final alreadyAnimated = _animatedProductIds
-                                .contains(product.id);
+                    final alreadyAnimated = _animatedProductIds.contains(
+                      product.id,
+                    );
 
-                            return VisibilityDetector(
-                              key: Key(product.id),
-                              onVisibilityChanged: (info) {
-                                if (info.visibleFraction >= 0.20 &&
-                                    !_animatedProductIds.contains(product.id)) {
-                                  setState(() {
-                                    _animatedProductIds.add(product.id);
-                                  });
-                                }
-                              },
-                              child:
-                                  alreadyAnimated
-                                      ? TweenAnimationBuilder<double>(
-                                        tween: Tween(begin: 0.0, end: 1.0),
-                                        duration: Duration(milliseconds: 250),
-                                        builder: (context, value, child) {
-                                          return Opacity(
-                                            opacity: value,
-                                            child: Transform.translate(
-                                              offset: Offset(
-                                                0,
-                                                35 * (1 - value),
-                                              ),
-                                              child: child,
-                                            ),
-                                          );
-                                        },
-                                        child: productCard,
-                                      )
-                                      : Opacity(opacity: 0, child: productCard),
-                            );
-                          }).toList(),
+                    return VisibilityDetector(
+                      key: Key(product.id),
+                      onVisibilityChanged: (info) {
+                        if (info.visibleFraction >= 0.20 &&
+                            !_animatedProductIds.contains(product.id)) {
+                          setState(() {
+                            _animatedProductIds.add(product.id);
+                          });
+                        }
+                      },
+                      child:
+                          alreadyAnimated
+                              ? TweenAnimationBuilder<double>(
+                                tween: Tween(begin: 0.0, end: 1.0),
+                                duration: const Duration(milliseconds: 250),
+                                builder: (context, value, child) {
+                                  return Opacity(
+                                    opacity: value,
+                                    child: Transform.translate(
+                                      offset: Offset(0, 35 * (1 - value)),
+                                      child: child,
+                                    ),
+                                  );
+                                },
+                                child: productCard,
+                              )
+                              : const SizedBox(
+                                height: 280,
+                                width: double.infinity,
+                              ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 16),
-                if (provider.productsIsLoading)
+                if (_provider.productsIsLoading)
                   const Center(
                     child: Padding(
                       padding: EdgeInsets.only(bottom: 32),

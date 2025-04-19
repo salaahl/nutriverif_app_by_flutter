@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:visibility_detector/visibility_detector.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'package:app_nutriverif/providers/products_provider.dart';
 import '../screens/products_page.dart';
@@ -30,11 +29,15 @@ class ProductPageState extends State<ProductPage> {
   void initState() {
     super.initState();
 
-    final provider = Provider.of<ProductsProvider>(context, listen: false);
+    final ProductsProvider provider = Provider.of<ProductsProvider>(
+      context,
+      listen: false,
+    );
     final Product product = widget.product;
-    provider.suggestedProducts.clear();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      provider.setSuggestedProducts([]);
+
       if (product.nutriscore != 'a' || int.tryParse(product.nova) != 1) {
         provider
             .fetchSuggestedProducts(
@@ -46,7 +49,7 @@ class ProductPageState extends State<ProductPage> {
             .then((products) {
               if (mounted) {
                 setState(() {
-                  provider.updateSuggestedProducts(products);
+                  provider.setSuggestedProducts(products);
                 });
               }
             });
@@ -61,13 +64,13 @@ class ProductPageState extends State<ProductPage> {
 
     if (product.id.isEmpty) {
       return Container(
-        width: MediaQuery.of(context).size.width,
+        width: double.infinity,
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Loader(),
+        child: const Loader(),
       );
     }
 
@@ -79,7 +82,7 @@ class ProductPageState extends State<ProductPage> {
           productDetails(context, product),
           const SizedBox(height: 32),
           VisibilityDetector(
-            key: Key('alternatives'),
+            key: const Key('alternatives'),
             onVisibilityChanged: (info) {
               if (info.visibleBounds.height > 0 &&
                   !_isAnimated.contains('alternatives')) {
@@ -108,14 +111,7 @@ class ProductPageState extends State<ProductPage> {
                         provider.suggestedProducts,
                       ),
                     )
-                    : Opacity(
-                      opacity: 0.0,
-                      child: alternativeProducts(
-                        context,
-                        provider,
-                        provider.suggestedProducts,
-                      ),
-                    ),
+                    : SizedBox.shrink(),
           ),
           const SizedBox(height: 32),
         ],
@@ -135,7 +131,7 @@ class ProductPageState extends State<ProductPage> {
             key: Key(product.id),
             tag: product.id,
             child: Container(
-              width: MediaQuery.of(context).size.width,
+              width: double.infinity,
               padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -143,7 +139,7 @@ class ProductPageState extends State<ProductPage> {
               ),
               child:
                   product.image.isEmpty
-                      ? Loader()
+                      ? const Loader()
                       : Image.network(
                         product.image,
                         width: 160,
@@ -337,17 +333,17 @@ class ProductPageState extends State<ProductPage> {
           const SizedBox(height: 24),
         ],
         if (product.id.isNotEmpty) ...[
-          Text(
+          const Text(
             "Code-barres :",
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
           Text(product.id),
           const SizedBox(height: 24),
         ],
         if (product.link.isNotEmpty) ...[
-          Text(
+          const Text(
             "Plus d'informations : ",
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
           InkWell(
             child: Text(
@@ -378,9 +374,9 @@ class ProductPageState extends State<ProductPage> {
                           ),
                         );
 
-                        provider.updateProducts(
+                        provider.setProducts(
                           await provider.searchProductsByQuery(
-                            input: category,
+                            query: category,
                             method: 'complete',
                           ),
                         );
@@ -407,34 +403,34 @@ class ProductPageState extends State<ProductPage> {
     List<Product> suggestedProducts,
   ) {
     return AnimatedSize(
-      duration: Duration(milliseconds: 350),
+      duration: const Duration(milliseconds: 350),
       curve: Curves.easeInOut,
       child: Container(
         height:
             provider.suggestedProductsIsLoading || suggestedProducts.isNotEmpty
                 ? null
                 : 0,
-        width: MediaQuery.of(context).size.width,
+        width: double.infinity,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.grey[200],
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
-            BoxShadow(
-              color: const Color.fromRGBO(255, 255, 255, 0.01),
-              offset: const Offset(0, 1),
+            const BoxShadow(
+              color: Color.fromRGBO(255, 255, 255, 0.01),
+              offset: Offset(0, 1),
               blurRadius: 1,
               spreadRadius: 0,
             ),
-            BoxShadow(
-              color: const Color.fromRGBO(50, 50, 93, 0.025),
-              offset: const Offset(0, 50),
+            const BoxShadow(
+              color: Color.fromRGBO(50, 50, 93, 0.025),
+              offset: Offset(0, 50),
               blurRadius: 100,
               spreadRadius: -20,
             ),
-            BoxShadow(
-              color: const Color.fromRGBO(0, 0, 0, 0.03),
-              offset: const Offset(0, 30),
+            const BoxShadow(
+              color: Color.fromRGBO(0, 0, 0, 0.03),
+              offset: Offset(0, 30),
               blurRadius: 60,
               spreadRadius: -30,
             ),
@@ -443,11 +439,11 @@ class ProductPageState extends State<ProductPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
+            const Center(
               child: Text.rich(
                 TextSpan(
                   text: "A",
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'Grand Hotel',
                     fontSize: 32,
                     color: Colors.redAccent,
@@ -455,7 +451,7 @@ class ProductPageState extends State<ProductPage> {
                   children: [
                     TextSpan(
                       text: "lternatives",
-                      style: const TextStyle(color: Colors.black),
+                      style: TextStyle(color: Colors.black),
                     ),
                   ],
                 ),
@@ -463,7 +459,7 @@ class ProductPageState extends State<ProductPage> {
             ),
             const SizedBox(height: 16),
             provider.suggestedProductsIsLoading
-                ? Loader()
+                ? const Loader()
                 : Wrap(
                   alignment: WrapAlignment.spaceBetween,
                   spacing: MediaQuery.of(context).size.width / 100 * 4,
@@ -508,14 +504,14 @@ class NutritionalTableState extends State<NutritionalTable> {
           children: [
             Material(
               child: FilterChip(
-                label: Text('Femme'),
+                label: const Text('Femme'),
                 selected: provider.ajrSelected == 'women',
                 onSelected: (selected) {
-                  provider.updateAjrSelected('women');
+                  provider.setAjrSelected('women');
                 },
                 backgroundColor: Colors.grey,
                 selectedColor: Color.fromRGBO(0, 189, 126, 1),
-                labelStyle: TextStyle(
+                labelStyle: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
@@ -528,14 +524,14 @@ class NutritionalTableState extends State<NutritionalTable> {
             const SizedBox(width: 16),
             Material(
               child: FilterChip(
-                label: Text('Homme'),
+                label: const Text('Homme'),
                 selected: provider.ajrSelected == 'men',
                 onSelected: (selected) {
-                  provider.updateAjrSelected('men');
+                  provider.setAjrSelected('men');
                 },
                 backgroundColor: Colors.grey,
-                selectedColor: Color.fromRGBO(0, 189, 126, 1),
-                labelStyle: TextStyle(
+                selectedColor: const Color.fromRGBO(0, 189, 126, 1),
+                labelStyle: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
@@ -547,14 +543,14 @@ class NutritionalTableState extends State<NutritionalTable> {
             ),
           ],
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         Container(
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
-              BoxShadow(
-                color: const Color.fromRGBO(0, 0, 0, 0.08),
+              const BoxShadow(
+                color: Color.fromRGBO(0, 0, 0, 0.08),
                 spreadRadius: 0,
                 blurRadius: 6,
                 offset: Offset(0, 2),
@@ -566,20 +562,20 @@ class NutritionalTableState extends State<NutritionalTable> {
             child: Table(
               defaultVerticalAlignment: TableCellVerticalAlignment.middle,
               columnWidths: {
-                0: FractionColumnWidth(0.50),
-                1: FractionColumnWidth(0.30),
-                2: FractionColumnWidth(0.20),
+                0: const FractionColumnWidth(0.50),
+                1: const FractionColumnWidth(0.30),
+                2: const FractionColumnWidth(0.20),
               },
               children: [
                 TableRow(
                   children: [
                     Container(
                       height: rowHeight,
-                      decoration: BoxDecoration(color: Colors.white),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
+                      decoration: const BoxDecoration(color: Colors.white),
+                      child: const Padding(
+                        padding: EdgeInsets.all(12),
                         child: Text(
-                          'Valeurs nutritionnelles'.toUpperCase(),
+                          'VALEURS NUTRITIONELLES',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -590,7 +586,7 @@ class NutritionalTableState extends State<NutritionalTable> {
                     ),
                     Container(
                       height: rowHeight,
-                      decoration: BoxDecoration(color: Colors.white),
+                      decoration: const BoxDecoration(color: Colors.white),
                       child: Padding(
                         padding: const EdgeInsets.all(12),
                         child: Text(
@@ -598,7 +594,7 @@ class NutritionalTableState extends State<NutritionalTable> {
                               ? 'Par portion (${widget.product.servingSize})'
                                   .toUpperCase()
                               : 'Par portion (N/A)',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
@@ -609,10 +605,10 @@ class NutritionalTableState extends State<NutritionalTable> {
                     Container(
                       height: rowHeight,
                       decoration: BoxDecoration(color: Colors.grey[100]),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
+                      child: const Padding(
+                        padding: EdgeInsets.all(12),
                         child: Text(
-                          'Ajr*'.toUpperCase(),
+                          'AJR*',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -637,7 +633,7 @@ class NutritionalTableState extends State<NutritionalTable> {
                       ),
                       children: [
                         Container(
-                          decoration: BoxDecoration(color: Colors.white),
+                          decoration: const BoxDecoration(color: Colors.white),
                           child: Padding(
                             padding: const EdgeInsets.all(12),
                             child: Text(
@@ -651,12 +647,12 @@ class NutritionalTableState extends State<NutritionalTable> {
                           ),
                         ),
                         Container(
-                          decoration: BoxDecoration(color: Colors.white),
+                          decoration: const BoxDecoration(color: Colors.white),
                           child: Padding(
                             padding: EdgeInsets.all(12),
                             child: Text(
                               entry.value.toString(),
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey,
                               ),
@@ -666,14 +662,14 @@ class NutritionalTableState extends State<NutritionalTable> {
                         Container(
                           decoration: BoxDecoration(color: Colors.grey[100]),
                           child: Padding(
-                            padding: EdgeInsets.all(12),
+                            padding: const EdgeInsets.all(12),
                             child: Text(
                               (double.tryParse(entry.value.toString()) !=
                                           null &&
                                       provider.ajrValues[entry.key] != null)
                                   ? ('${(((double.parse(entry.value.toString())) / provider.ajrValues[entry.key]?['value']!) * 100).toStringAsFixed(0)}%')
                                   : '—',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey,
                               ),
@@ -686,8 +682,8 @@ class NutritionalTableState extends State<NutritionalTable> {
             ),
           ),
         ),
-        SizedBox(height: 8),
-        Text(
+        const SizedBox(height: 8),
+        const Text(
           'Ajr* : Apports Journaliers Recommandés',
           style: TextStyle(fontSize: 12),
         ),

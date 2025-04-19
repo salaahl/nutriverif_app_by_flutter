@@ -6,7 +6,11 @@ class AppSearchBar extends StatefulWidget {
   final ProductsProvider provider;
   final bool showFilters;
 
-  const AppSearchBar({super.key, required this.provider, this.showFilters = false});
+  const AppSearchBar({
+    super.key,
+    required this.provider,
+    this.showFilters = false,
+  });
 
   @override
   State<AppSearchBar> createState() => _AppSearchBarState();
@@ -138,15 +142,13 @@ class _AppSearchBarState extends State<AppSearchBar> {
                     );
                   }
                 } else {
-                  widget.provider.products
-                    ..clear()
-                    ..addAll(
-                      await widget.provider.searchProductsByQuery(
-                        input: input,
-                        filter: widget.provider.filter,
-                        method: 'complete',
-                      ),
-                    );
+                  widget.provider.setProducts(
+                    await widget.provider.searchProductsByQuery(
+                      query: input,
+                      selected: widget.provider.filter,
+                      method: 'complete',
+                    ),
+                  );
 
                   if (widget.provider.products.isEmpty && context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -179,7 +181,7 @@ class _AppSearchBarState extends State<AppSearchBar> {
                         selected: filter.value == widget.provider.filter,
                         onSelected: (s) {
                           setState(() {
-                            widget.provider.updateFilter(filter.value);
+                            widget.provider.setFilter(filter.value);
                           });
                         },
                         backgroundColor: Colors.grey,

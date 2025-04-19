@@ -28,11 +28,11 @@ class _MainScaffoldState extends State<MainScaffold> {
     return Scaffold(
       body: _pages[_currentIndex],
       bottomNavigationBar: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           border: Border(
             top: BorderSide(
               width: 4,
-              color: const Color.fromRGBO(158, 158, 158, 0.25),
+              color: Color.fromRGBO(158, 158, 158, 0.25),
             ),
           ),
         ),

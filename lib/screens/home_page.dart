@@ -94,15 +94,15 @@ class _HomePageState extends State<HomePage> {
               children: [
                 myAppBar(context, route: '/'),
                 const SizedBox(height: 80),
-                Padding(
-                  padding: const EdgeInsets.only(left: 16, right: 16),
+                const Padding(
+                  padding: EdgeInsets.only(left: 16, right: 16),
                   child: Column(
                     children: [
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
+                          Text(
                             'Nutri',
                             style: TextStyle(
                               fontFamily: 'Grand Hotel',
@@ -110,7 +110,7 @@ class _HomePageState extends State<HomePage> {
                               fontWeight: FontWeight.w300,
                             ),
                           ),
-                          const Text(
+                          Text(
                             'Vérif',
                             style: TextStyle(
                               fontFamily: 'Grand Hotel',
@@ -125,7 +125,7 @@ class _HomePageState extends State<HomePage> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
+                          Text(
                             'Manger (plus) sain',
                             textAlign: TextAlign.center,
                             style: TextStyle(
@@ -144,7 +144,7 @@ class _HomePageState extends State<HomePage> {
                   child: Column(
                     children: [
                       AppSearchBar(provider: provider),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       AnimatedSize(
                         duration: Duration(milliseconds: 350),
                         curve: Curves.easeInOut,
@@ -156,7 +156,7 @@ class _HomePageState extends State<HomePage> {
                                           provider.products.isNotEmpty
                                       ? null
                                       : 0,
-                              width: MediaQuery.of(context).size.width,
+                              width: double.infinity,
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
                                 color: Colors.grey[200],
@@ -166,13 +166,10 @@ class _HomePageState extends State<HomePage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   provider.productsIsLoading
-                                      ? Loader()
+                                      ? const Loader()
                                       : Wrap(
                                         alignment: WrapAlignment.spaceBetween,
-                                        spacing:
-                                            MediaQuery.of(context).size.width /
-                                            100 *
-                                            4,
+                                        spacing: MediaQuery.of(context).size.width / 100 * 4,
                                         children:
                                             provider.products.take(4).map((
                                               product,
@@ -193,7 +190,7 @@ class _HomePageState extends State<HomePage> {
                                   vertical: 16,
                                 ),
                                 child: SizedBox(
-                                  width: MediaQuery.of(context).size.width,
+                                  width: double.infinity,
                                   child: ElevatedButton(
                                     onPressed: () {
                                       Navigator.pushNamed(context, '/products');
@@ -309,10 +306,10 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                     );
                                   },
-                                  child: Row(
+                                  child: const Row(
                                     children: [
                                       Expanded(
-                                        child: const Text.rich(
+                                        child: Text.rich(
                                           TextSpan(
                                             children: [
                                               TextSpan(
@@ -334,9 +331,9 @@ class _HomePageState extends State<HomePage> {
                                     ],
                                   ),
                                 )
-                                : SizedBox(
+                                : const SizedBox(
                                   height: 60,
-                                  width: MediaQuery.of(context).size.width,
+                                  width: double.infinity,
                                 ),
                       ),
                       const SizedBox(height: 16),
@@ -391,9 +388,9 @@ class _HomePageState extends State<HomePage> {
                                     ],
                                   ),
                                 )
-                                : SizedBox(
+                                : const SizedBox(
                                   height: 60,
-                                  width: MediaQuery.of(context).size.width,
+                                  width: double.infinity,
                                 ),
                       ),
                       const SizedBox(height: 8),
@@ -446,9 +443,9 @@ class _HomePageState extends State<HomePage> {
                                     ],
                                   ),
                                 )
-                                : SizedBox(
+                                : const SizedBox(
                                   height: 60,
-                                  width: MediaQuery.of(context).size.width,
+                                  width: double.infinity,
                                 ),
                       ),
                     ],
@@ -510,9 +507,9 @@ class _HomePageState extends State<HomePage> {
                                 ],
                               ),
                             )
-                            : SizedBox(
+                            : const SizedBox(
                               height: 30,
-                              width: MediaQuery.of(context).size.width,
+                              width: double.infinity,
                             ),
                   ),
                   const SizedBox(height: 48),
@@ -586,10 +583,9 @@ class _HomePageState extends State<HomePage> {
                                             ),
                                           ),
                                         )
-                                        : SizedBox(
+                                        : const SizedBox(
                                           height: 150,
-                                          width:
-                                              MediaQuery.of(context).size.width,
+                                          width: double.infinity,
                                         ),
                               ),
                             ],
@@ -663,10 +659,9 @@ class _HomePageState extends State<HomePage> {
                                             ),
                                           ),
                                         )
-                                        : SizedBox(
+                                        : const SizedBox(
                                           height: 150,
-                                          width:
-                                              MediaQuery.of(context).size.width,
+                                          width: double.infinity,
                                         ),
                               ),
                             ],
@@ -736,9 +731,9 @@ class _HomePageState extends State<HomePage> {
                                 ],
                               ),
                             )
-                            : SizedBox(
+                            : const SizedBox(
                               height: 50,
-                              width: MediaQuery.of(context).size.width,
+                              width: double.infinity,
                             ),
                   ),
                   const SizedBox(height: 48),
@@ -780,7 +775,7 @@ class _HomePageState extends State<HomePage> {
                             AspectRatio(
                               aspectRatio: 1,
                               child: Container(
-                                width: MediaQuery.of(context).size.width,
+                                width: double.infinity,
                                 padding: const EdgeInsets.all(32),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
@@ -976,9 +971,9 @@ class _HomePageState extends State<HomePage> {
                                       ],
                                     ),
                                   )
-                                  : SizedBox(
+                                  : const SizedBox(
                                     height: 50,
-                                    width: MediaQuery.of(context).size.width,
+                                    width: double.infinity,
                                   ),
                         ),
                         const SizedBox(height: 48),
@@ -1083,9 +1078,9 @@ class _HomePageState extends State<HomePage> {
                                 ],
                               ),
                             )
-                            : SizedBox(
+                            : const SizedBox(
                               height: 30,
-                              width: MediaQuery.of(context).size.width,
+                              width: double.infinity,
                             ),
                   ),
                   const SizedBox(height: 32),
@@ -1105,13 +1100,10 @@ class _HomePageState extends State<HomePage> {
                               curve: Curves.easeInOut,
                               child: SizedBox(
                                 height: lastProducts.isNotEmpty ? null : 0,
-                                width: MediaQuery.of(context).size.width,
+                                width: double.infinity,
                                 child: Wrap(
                                   alignment: WrapAlignment.spaceBetween,
-                                  spacing:
-                                      MediaQuery.of(context).size.width /
-                                      100 *
-                                      4,
+                                  spacing: MediaQuery.of(context).size.width / 100 * 4,
                                   children:
                                       lastProducts.map((product) {
                                         return ProductCard(

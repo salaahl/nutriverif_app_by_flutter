@@ -32,8 +32,8 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
               TextSpan(
                 style: Theme.of(context).textTheme.displayLarge!,
                 children: [
-                  TextSpan(text: 'Retrouver un produit par son '),
-                  TextSpan(
+                  const TextSpan(text: 'Retrouver un produit par son '),
+                  const TextSpan(
                     text: 'code-barres',
                     style: TextStyle(color: Colors.redAccent),
                   ),
@@ -49,7 +49,7 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
                     width: 8,
                     color:
                         _isDetected
-                            ? Color.fromRGBO(0, 189, 126, 1)
+                            ? const Color.fromRGBO(0, 189, 126, 1)
                             : Colors.redAccent,
                   ),
                 ),

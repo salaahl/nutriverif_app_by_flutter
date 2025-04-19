@@ -13,7 +13,7 @@ class ProductsProvider with ChangeNotifier {
 
   final List<Product> _products = [];
   bool _productsIsLoading = false;
-  final Product _product = Product.fromJson({});
+  Product _product = Product.fromJson({});
   bool _productIsLoading = false;
   final List<Product> _lastProducts = [];
   bool _lastProductsIsLoading = false;
@@ -68,36 +68,81 @@ class ProductsProvider with ChangeNotifier {
     }
   }
 
-  void updateAjrSelected(String value) {
-    if (_ajrSelected == value) return;
-
-    _ajrSelected = value;
+  void addProducts(List<Product> newProducts) {
+    _products.addAll(newProducts);
     notifyListeners();
   }
 
-  void updateInput(String value) {
-    if (_input == value) return;
-
-    _input = value;
-    notifyListeners();
-  }
-
-  void updateFilter(String value) {
-    if (filter == value) return;
-
-    _filter = value;
-    notifyListeners();
-  }
-
-  void updateProducts(List<Product> products) {
+  void setProducts(List<Product> products) {
     _products.clear();
     _products.addAll(products);
     notifyListeners();
   }
 
-  void updateSuggestedProducts(List<Product> products) {
+  void setProductsIsLoading(bool isLoading) {
+    _productsIsLoading = isLoading;
+    notifyListeners();
+  }
+
+  void setProduct(Product product) {
+    _product = product;
+    notifyListeners();
+  }
+
+  void setProductIsLoading(bool isLoading) {
+    _productIsLoading = isLoading;
+    notifyListeners();
+  }
+
+  void setLastProducts(List<Product> products) {
+    _lastProducts.clear();
+    _lastProducts.addAll(products);
+    notifyListeners();
+  }
+
+  void setLastProductsIsLoading(bool isLoading) {
+    _lastProductsIsLoading = isLoading;
+    notifyListeners();
+  }
+
+  void setSuggestedProducts(List<Product> products) {
     _suggestedProducts.clear();
     _suggestedProducts.addAll(products);
+    notifyListeners();
+  }
+
+  void setSuggestedProductsIsLoading(bool isLoading) {
+    _suggestedProductsIsLoading = isLoading;
+    notifyListeners();
+  }
+
+  void setAjrSelected(String ajr) {
+    _ajrSelected = ajr;
+    notifyListeners();
+  }
+
+  void setInput(String input) {
+    _input = input;
+    notifyListeners();
+  }
+
+  void setFilter(String filter) {
+    _filter = filter;
+    notifyListeners();
+  }
+
+  void setPage(int page) {
+    _page = page;
+    notifyListeners();
+  }
+
+  void setPages(int pages) {
+    _pages = pages;
+    notifyListeners();
+  }
+
+  void setError(String? error) {
+    _error = error;
     notifyListeners();
   }
 
@@ -109,26 +154,25 @@ class ProductsProvider with ChangeNotifier {
   }
 
   Future<List<Product>> searchProductsByQuery({
-    String input = '',
-    String filter = 'popularity_key',
+    String query = '',
+    String selected = 'popularity_key',
     required String method,
   }) async {
     _error = null;
-    _productsIsLoading = true;
 
     if (method == 'more') {
       _page++;
     } else {
-      _products.clear();
-      if (input.isNotEmpty) _input = input;
-      if (filter.isNotEmpty) _filter = filter;
+      setProducts([]);
+      if (query.isNotEmpty) _input = query;
+      if (selected.isNotEmpty) _filter = selected;
       _page = 1;
     }
 
-    notifyListeners();
+    setProductsIsLoading(true);
 
     final url =
-        '$_apiBaseUrl?search_terms=${Uri.encodeComponent(input)}&fields=${Uri.encodeComponent(fields)}&purchase_places_tags=france&sort_by=${Uri.encodeComponent(filter)}&page_size=20&page=$_page&search_simple=1&action=process&json=1';
+        '$_apiBaseUrl?search_terms=${Uri.encodeComponent(input)}&fields=${Uri.encodeComponent(fields)}&purchase_places_tags=france&sort_by=${Uri.encodeComponent(filter)}&page_size=20&page=$page&search_simple=1&action=process&json=1';
 
     try {
       final data = await _getJson(url);
@@ -142,15 +186,13 @@ class ProductsProvider with ChangeNotifier {
       _error = 'search product error: ${e.toString()}';
       return [];
     } finally {
-      _productsIsLoading = false;
-      notifyListeners();
+      setProductsIsLoading(false);
     }
   }
 
   Future<Product> fetchProductById(String id) async {
     _error = null;
-    _productIsLoading = true;
-    notifyListeners();
+    setProductIsLoading(true);
 
     final url =
         'https://world.openfoodfacts.org/api/v3/product/$id?fields=$fields';
@@ -163,8 +205,7 @@ class ProductsProvider with ChangeNotifier {
       _error = 'single product error: ${e.toString()}';
       return Product.fromJson({});
     } finally {
-      _productIsLoading = false;
-      notifyListeners();
+      setProductIsLoading(false);
     }
   }
 
@@ -175,10 +216,7 @@ class ProductsProvider with ChangeNotifier {
     required String nova,
   }) async {
     _error = null;
-    _suggestedProducts.clear();
-    _suggestedProductsIsLoading = true;
-
-    notifyListeners();
+    setSuggestedProductsIsLoading(true);
 
     const fields =
         'id,image_url,brands,generic_name_fr,main_category_fr,main_category_fr,categories_tags,last_modified_t,nutriscore_grade,nova_group,quantity,serving_size,ingredients_text_fr,nutriments,nutrient_levels,manufacturing_places,url,completeness,popularity_key';
@@ -263,15 +301,13 @@ class ProductsProvider with ChangeNotifier {
       _error = 'suggestion product error: ${e.toString()}';
       return [];
     } finally {
-      _suggestedProductsIsLoading = false;
-      notifyListeners();
+      setSuggestedProductsIsLoading(false);
     }
   }
 
   Future<List<Product>> fetchLastProducts() async {
     _error = null;
-    _lastProductsIsLoading = true;
-    notifyListeners();
+    setLastProductsIsLoading(true);
 
     final url =
         '$_apiBaseUrl?&fields=${Uri.encodeComponent(fields)}&purchase_places_tags=france&sort_by=created_t&page_size=300&action=process&json=1';
@@ -294,8 +330,7 @@ class ProductsProvider with ChangeNotifier {
       _error = 'last products error: ${e.toString()}';
       return [];
     } finally {
-      _lastProductsIsLoading = false;
-      notifyListeners();
+      setLastProductsIsLoading(false);
     }
   }
 }
