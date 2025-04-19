@@ -951,7 +951,7 @@ class _HomePageState extends State<HomePage> {
                                       return Opacity(
                                         opacity: value,
                                         child: Transform.translate(
-                                          offset: Offset(0, 30 * (1 - value)),
+                                          offset: Offset(0, -30 * (1 - value)),
                                           child: child,
                                         ),
                                       );

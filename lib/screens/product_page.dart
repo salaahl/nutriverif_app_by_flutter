@@ -3,7 +3,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:app_nutriverif/providers/products_provider.dart';
 import '../screens/products_page.dart';
@@ -42,9 +44,11 @@ class ProductPageState extends State<ProductPage> {
               nova: product.nova,
             )
             .then((products) {
-              setState(() {
-                provider.updateSuggestedProducts(products);
-              });
+              if (mounted) {
+                setState(() {
+                  provider.updateSuggestedProducts(products);
+                });
+              }
             });
       }
     });
@@ -77,7 +81,7 @@ class ProductPageState extends State<ProductPage> {
           VisibilityDetector(
             key: Key('alternatives'),
             onVisibilityChanged: (info) {
-              if (info.visibleBounds.height > 80 &&
+              if (info.visibleBounds.height > 0 &&
                   !_isAnimated.contains('alternatives')) {
                 setState(() {
                   _isAnimated.add('alternatives');
@@ -93,7 +97,7 @@ class ProductPageState extends State<ProductPage> {
                         return Opacity(
                           opacity: value,
                           child: Transform.translate(
-                            offset: Offset(0, 140 * (1 - value)),
+                            offset: Offset(0, 80 * (1 - value)),
                             child: child,
                           ),
                         );
@@ -104,9 +108,13 @@ class ProductPageState extends State<ProductPage> {
                         provider.suggestedProducts,
                       ),
                     )
-                    : SizedBox(
-                      height: 280,
-                      width: MediaQuery.of(context).size.width,
+                    : Opacity(
+                      opacity: 0.0,
+                      child: alternativeProducts(
+                        context,
+                        provider,
+                        provider.suggestedProducts,
+                      ),
                     ),
           ),
           const SizedBox(height: 32),
@@ -341,7 +349,15 @@ class ProductPageState extends State<ProductPage> {
             "Plus d'informations : ",
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
-          Text(product.link),
+          InkWell(
+            child: Text(
+              product.link,
+              style: const TextStyle(color: Colors.blue),
+            ),
+            onTap: () {
+              launchUrlString(product.link);
+            },
+          ),
           const SizedBox(height: 24),
         ],
         Wrap(
