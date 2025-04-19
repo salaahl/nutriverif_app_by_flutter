@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:app_nutriverif/providers/products_provider.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../widgets/app_bar.dart';
 import '../widgets/loader.dart';
 import '../widgets/search_bar.dart';
+import '../widgets/youtube_player.dart';
 import '../widgets/product_card.dart';
 
 import '../models/model_products.dart';
@@ -21,17 +21,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final YoutubePlayerController _youtubePlayerController =
-      YoutubePlayerController(
-        initialVideoId: 'D1jzT02IBRA',
-        flags: const YoutubePlayerFlags(
-          autoPlay: false,
-          mute: false,
-          isLive: false,
-          forceHD: true,
-        ),
-      );
-
   final Set<String> _animatedProductIds = {};
   Product product = Product.fromJson({});
   late List<Product> suggestedProducts = [];
@@ -69,7 +58,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     // Libérer les ressources
-    _youtubePlayerController.dispose();
     super.dispose();
   }
 
@@ -268,16 +256,7 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Row(
                         children: [
-                          Expanded(
-                            child: ClipRRect(
-                              clipBehavior: Clip.antiAlias,
-                              borderRadius: BorderRadius.circular(12),
-                              child: YoutubePlayer(
-                                controller: _youtubePlayerController,
-                                bottomActions: [], // Hide the bottom actions
-                              ),
-                            ),
-                          ),
+                          LazyYoutubePlayer(),
                         ],
                       ),
                       const SizedBox(height: 32),
