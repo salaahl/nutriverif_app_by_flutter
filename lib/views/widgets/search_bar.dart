@@ -133,6 +133,8 @@ class _AppSearchBarState extends State<AppSearchBar> {
                   );
                 }
 
+                FocusScope.of(context).unfocus();
+
                 // Recherche par code-barres
                 if (RegExp(r'^\d{8,13}$').hasMatch(input)) {
                   final product = await _service.fetchProductById(input);

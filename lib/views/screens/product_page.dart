@@ -610,7 +610,7 @@ class NutritionalTableState extends State<NutritionalTable> {
                           child: Padding(
                             padding: EdgeInsets.all(12),
                             child: Text(
-                              entry.value.toString(),
+                              "${entry.value.toStringAsFixed(0)} ${widget.product.nutriments[entry.key.replaceAll('_serving', '_unit')]}",
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey,
