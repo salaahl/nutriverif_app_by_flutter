@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../models/model_products.dart';
+import '../../models/model_products.dart';
 
-import 'package:app_nutriverif/screens/product_page.dart';
+import 'package:app_nutriverif/views/screens/product_page.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;

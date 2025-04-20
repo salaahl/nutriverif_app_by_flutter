@@ -6,11 +6,11 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import 'package:app_nutriverif/providers/products_provider.dart';
-import '../screens/products_page.dart';
+import 'products_page.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/loader.dart';
 import '../widgets/product_card.dart';
-import '../models/model_products.dart';
+import '../../models/model_products.dart';
 
 class ProductPage extends StatefulWidget {
   final Product product;

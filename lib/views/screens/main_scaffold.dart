@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:app_nutriverif/screens/home_page.dart';
-import 'package:app_nutriverif/screens/barcode_scanner_page.dart';
-import 'package:app_nutriverif/screens/products_page.dart';
+import 'package:app_nutriverif/views/screens/home/home_page.dart';
+import 'package:app_nutriverif/views/screens/barcode_scanner_page.dart';
+import 'package:app_nutriverif/views/screens/products_page.dart';
 
 class MainScaffold extends StatefulWidget {
-  const MainScaffold({super.key});
+  final bool showRouteError;
+  const MainScaffold({super.key, this.showRouteError = false});
 
   @override
   State<MainScaffold> createState() => _MainScaffoldState();
@@ -25,6 +26,16 @@ class _MainScaffoldState extends State<MainScaffold> {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.showRouteError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Erreur lors du chargement, retour à l’accueil'),
+          ),
+        );
+      }
+    });
+
     return Scaffold(
       body: _pages[_currentIndex],
       bottomNavigationBar: Container(

@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:app_nutriverif/services/api_products.dart';
+import 'package:app_nutriverif/core/services/api_products.dart';
 import 'package:app_nutriverif/providers/products_provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
-import '../widgets/app_bar.dart';
-import '../widgets/loader.dart';
-import '../widgets/search_bar.dart';
-import '../widgets/youtube_player.dart';
-import '../widgets/product_card.dart';
+import '../../widgets/app_bar.dart';
+import '../../widgets/loader.dart';
+import '../../widgets/search_bar.dart';
+import 'widgets/youtube_player.dart';
+import '../../widgets/product_card.dart';
 
-import '../models/model_products.dart';
-import 'package:app_nutriverif/screens/product_page.dart';
+import '../../../models/model_products.dart';
+import 'package:app_nutriverif/views/screens/product_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

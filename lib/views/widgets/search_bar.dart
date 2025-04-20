@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:app_nutriverif/services/api_products.dart';
+import 'package:app_nutriverif/core/services/api_products.dart';
 import 'package:app_nutriverif/providers/products_provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
