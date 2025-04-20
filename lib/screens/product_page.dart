@@ -400,8 +400,9 @@ class ProductPageState extends State<ProductPage> {
   Widget alternativeProducts(
     BuildContext context,
     ProductsProvider provider,
-    List<Product> suggestedProducts,
-  ) {
+    List<Product> suggestedProducts, {
+    double widthAdjustment = 32,
+  }) {
     return AnimatedSize(
       duration: const Duration(milliseconds: 350),
       curve: Curves.easeInOut,
@@ -467,7 +468,7 @@ class ProductPageState extends State<ProductPage> {
                       suggestedProducts.map((product) {
                         return ProductCard(
                           product: product,
-                          widthAjustment: 32,
+                          widthAjustment: widthAdjustment,
                         );
                       }).toList(),
                 ),
