@@ -9,7 +9,7 @@ class AboutPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final customStyles = {
       'textColor': Colors.redAccent,
-      'arrowColor': const Color.fromRGBO(255, 255, 255, 0.5),
+      'arrowColor': const Color.fromRGBO(255, 255, 255, 0.35),
     };
 
     return Scaffold(
@@ -19,7 +19,7 @@ class AboutPage extends StatelessWidget {
         child: ListView(
           children: [
             myAppBar(context, customStyles: customStyles),
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 children: [
@@ -34,15 +34,30 @@ class AboutPage extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: 8),
-                  Text(
-                    '(et un peu d\'Open Food Facts)',
-                    style: TextStyle(
-                      fontSize: 14,
-                      decoration: TextDecoration.underline,
-                      decorationThickness: 4,
-                      decorationColor: Color.fromRGBO(255, 82, 82, 0.75),
-                    ),
-                    textAlign: TextAlign.center,
+                  TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0.0, end: 1.0),
+                    curve: Curves.easeInOutCubicEmphasized,
+                    duration: Duration(milliseconds: 2500),
+                    builder: (context, value, child) {
+                      return Stack(
+                        children: [
+                          Positioned(
+                            left: 0,
+                            bottom: 0,
+                            child: Container(
+                              height: 4,
+                              width: 200 * value,
+                              color: const Color.fromRGBO(255, 82, 82, 0.75),
+                            ),
+                          ),
+                          Text(
+                            '(et un peu d\'Open Food Facts)',
+                            style: const TextStyle(fontSize: 14),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      );
+                    },
                   ),
                   SizedBox(height: 24),
                   Text(

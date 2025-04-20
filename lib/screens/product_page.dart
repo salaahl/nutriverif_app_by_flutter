@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 
 import 'package:app_nutriverif/providers/products_provider.dart';
 import '../screens/products_page.dart';
@@ -23,8 +22,6 @@ class ProductPage extends StatefulWidget {
 }
 
 class ProductPageState extends State<ProductPage> {
-  final Set<String> _isAnimated = {};
-
   @override
   void initState() {
     super.initState();
@@ -80,40 +77,7 @@ class ProductPageState extends State<ProductPage> {
         children: [
           myAppBar(context),
           productDetails(context, product),
-          const SizedBox(height: 32),
-          VisibilityDetector(
-            key: const Key('alternatives'),
-            onVisibilityChanged: (info) {
-              if (info.visibleBounds.height > 0 &&
-                  !_isAnimated.contains('alternatives')) {
-                setState(() {
-                  _isAnimated.add('alternatives');
-                });
-              }
-            },
-            child:
-                _isAnimated.contains('alternatives')
-                    ? TweenAnimationBuilder<double>(
-                      tween: Tween(begin: 0.0, end: 1.0),
-                      duration: Duration(milliseconds: 250),
-                      builder: (context, value, child) {
-                        return Opacity(
-                          opacity: value,
-                          child: Transform.translate(
-                            offset: Offset(0, 80 * (1 - value)),
-                            child: child,
-                          ),
-                        );
-                      },
-                      child: alternativeProducts(
-                        context,
-                        provider,
-                        provider.suggestedProducts,
-                      ),
-                    )
-                    : SizedBox.shrink(),
-          ),
-          const SizedBox(height: 32),
+          alternativeProducts(context, provider, provider.suggestedProducts),
         ],
       ),
     );
@@ -193,27 +157,27 @@ class ProductPageState extends State<ProductPage> {
         const SizedBox(height: 8),
         Text(formattedDate),
         const SizedBox(height: 16),
-        productImages(product.nutriscore, product.nova),
+        productScores(product.nutriscore, product.nova),
         const SizedBox(height: 32),
-        productLabel(product.nutrientLevels),
+        productNutrients(product.nutrientLevels),
         const SizedBox(height: 32),
-        productDetailsBottom(context, product),
+        productMoreDetails(context, product),
       ],
     );
   }
 
   // Affichage des logos
-  Widget productImages(String nutriscore, String nova) {
+  Widget productScores(String nutriscore, String nova) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        productImage(
+        productScore(
           "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-$nutriscore-new-fr.svg",
           100,
           nutriscore,
         ),
         const SizedBox(height: 8),
-        productImage(
+        productScore(
           "https://static.openfoodfacts.org/images/attributes/dist/nova-group-$nova.svg",
           30,
           nova,
@@ -223,7 +187,7 @@ class ProductPageState extends State<ProductPage> {
   }
 
   // Affichage d'une image avec une contrainte de largeur
-  Widget productImage(String image, double width, String score) {
+  Widget productScore(String image, double width, String score) {
     return Container(
       constraints: BoxConstraints(maxWidth: width),
       child:
@@ -239,7 +203,7 @@ class ProductPageState extends State<ProductPage> {
   }
 
   // Affichage des niveaux de nutriments
-  Widget productLabel(Map<String, dynamic> nutrientLevels) {
+  Widget productNutrients(Map<String, dynamic> nutrientLevels) {
     return Wrap(
       spacing: 8,
       runSpacing: 8,
@@ -267,13 +231,13 @@ class ProductPageState extends State<ProductPage> {
 
             switch (entry.value) {
               case 'high':
-                bgColor = Colors.red;
+                bgColor = Colors.redAccent;
                 break;
               case 'moderate':
-                bgColor = Colors.orange;
+                bgColor = Colors.orangeAccent;
                 break;
               case 'low':
-                bgColor = Colors.green;
+                bgColor = Colors.greenAccent;
                 break;
               default:
                 bgColor = Colors.grey;
@@ -298,7 +262,7 @@ class ProductPageState extends State<ProductPage> {
   }
 
   // Détails supplémentaires du produit
-  Widget productDetailsBottom(BuildContext context, Product product) {
+  Widget productMoreDetails(BuildContext context, Product product) {
     final provider = Provider.of<ProductsProvider>(context);
     // Categories "nettoyées"
     final categories = product.categories
@@ -313,7 +277,7 @@ class ProductPageState extends State<ProductPage> {
         if (product.quantity.isNotEmpty) ...[
           Text(
             "Quantité :",
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold, height: 1.5),
           ),
           Text(product.quantity),
           const SizedBox(height: 16),
@@ -327,7 +291,7 @@ class ProductPageState extends State<ProductPage> {
         if (product.ingredients.isNotEmpty) ...[
           Text(
             "Ingrédients :",
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold, height: 1.5),
           ),
           Text(product.ingredients),
           const SizedBox(height: 24),
@@ -335,7 +299,7 @@ class ProductPageState extends State<ProductPage> {
         if (product.id.isNotEmpty) ...[
           const Text(
             "Code-barres :",
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold, height: 1.5),
           ),
           Text(product.id),
           const SizedBox(height: 24),
@@ -343,12 +307,16 @@ class ProductPageState extends State<ProductPage> {
         if (product.link.isNotEmpty) ...[
           const Text(
             "Plus d'informations : ",
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold, height: 1.5),
           ),
           InkWell(
             child: Text(
               product.link,
-              style: const TextStyle(color: Colors.blue),
+              style: const TextStyle(
+                decoration: TextDecoration.underline,
+                decorationThickness: 4,
+                decorationColor: Colors.redAccent,
+              ),
             ),
             onTap: () {
               launchUrlString(product.link);
@@ -400,80 +368,73 @@ class ProductPageState extends State<ProductPage> {
   Widget alternativeProducts(
     BuildContext context,
     ProductsProvider provider,
-    List<Product> suggestedProducts, {
-    double widthAdjustment = 32,
-  }) {
-    return AnimatedSize(
-      duration: const Duration(milliseconds: 350),
-      curve: Curves.easeInOut,
-      child: Container(
-        height:
-            provider.suggestedProductsIsLoading || suggestedProducts.isNotEmpty
-                ? null
-                : 0,
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.grey[200],
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            const BoxShadow(
-              color: Color.fromRGBO(255, 255, 255, 0.01),
-              offset: Offset(0, 1),
-              blurRadius: 1,
-              spreadRadius: 0,
-            ),
-            const BoxShadow(
-              color: Color.fromRGBO(50, 50, 93, 0.025),
-              offset: Offset(0, 50),
-              blurRadius: 100,
-              spreadRadius: -20,
-            ),
-            const BoxShadow(
-              color: Color.fromRGBO(0, 0, 0, 0.03),
-              offset: Offset(0, 30),
-              blurRadius: 60,
-              spreadRadius: -30,
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Center(
-              child: Text.rich(
-                TextSpan(
-                  text: "A",
-                  style: TextStyle(
-                    fontFamily: 'Grand Hotel',
-                    fontSize: 32,
-                    color: Colors.redAccent,
-                  ),
-                  children: [
-                    TextSpan(
-                      text: "lternatives",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  ],
+    List<Product> suggestedProducts,
+  ) {
+    return Container(
+      height:
+          provider.suggestedProductsIsLoading || suggestedProducts.isNotEmpty
+              ? null
+              : 0,
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(vertical: 32),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          const BoxShadow(
+            color: Color.fromRGBO(255, 255, 255, 0.01),
+            offset: Offset(0, 1),
+            blurRadius: 1,
+            spreadRadius: 0,
+          ),
+          const BoxShadow(
+            color: Color.fromRGBO(50, 50, 93, 0.025),
+            offset: Offset(0, 50),
+            blurRadius: 100,
+            spreadRadius: -20,
+          ),
+          const BoxShadow(
+            color: Color.fromRGBO(0, 0, 0, 0.03),
+            offset: Offset(0, 30),
+            blurRadius: 60,
+            spreadRadius: -30,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Center(
+            child: Text.rich(
+              TextSpan(
+                text: "A",
+                style: TextStyle(
+                  fontFamily: 'Grand Hotel',
+                  fontSize: 32,
+                  color: Colors.redAccent,
                 ),
+                children: [
+                  TextSpan(
+                    text: "lternatives",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 16),
-            provider.suggestedProductsIsLoading
-                ? const Loader()
-                : Wrap(
-                  alignment: WrapAlignment.spaceBetween,
-                  spacing: MediaQuery.of(context).size.width / 100 * 4,
-                  children:
-                      suggestedProducts.map((product) {
-                        return ProductCard(
-                          product: product,
-                          widthAjustment: widthAdjustment,
-                        );
-                      }).toList(),
-                ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 16),
+          provider.suggestedProductsIsLoading
+              ? const Loader()
+              : Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                spacing: MediaQuery.of(context).size.width / 100 * 4,
+                children:
+                    suggestedProducts.map((product) {
+                      return ProductCard(product: product, widthAjustment: 32);
+                    }).toList(),
+              ),
+        ],
       ),
     );
   }
