@@ -81,7 +81,7 @@ class _HomePageState extends State<HomePage> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           children: [
             myAppBar(context, route: '/'),
-            const SizedBox(height: 60),
+            const SizedBox(height: 20),
             Text.rich(
               textAlign: TextAlign.center,
               TextSpan(
@@ -767,6 +767,7 @@ class _HomePageState extends State<HomePage> {
                       ),
             ),
             Center(
+              heightFactor: 1.5,
               child: Image.asset(
                 'assets/images/logo.png',
                 height: 160,

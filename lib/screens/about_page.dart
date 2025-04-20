@@ -45,31 +45,26 @@ class AboutPage extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: 24),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      'NutriVérif est une application web de food checking alimentée par la base de données d\'Open Food Facts et développée par '
-                      'Salaha Sokhona (https://www.linkedin.com/in/salaha-sokhona). Elle résulte d\'une volonté de pouvoir vérifier la composition de ses aliments par le biais d\'une application simple, '
-                      'ne requiérant pas d\'inscription et fournissant le strict minimum de fonctionnalités. Elle liste les produits alimentaires avec leurs ingrédients, '
-                      'valeurs nutritionnelles et autres juteuses informations que l\'on peut trouver sur les labels de ces produits.',
-                      style: TextStyle(fontSize: 16),
-                      textAlign: TextAlign.center,
-                    ),
+                  Text(
+                    'NutriVérif est une application web de food checking alimentée par la base de données d\'Open Food Facts et développée par '
+                    'Salaha Sokhona (https://www.linkedin.com/in/salaha-sokhona). Elle résulte d\'une volonté de pouvoir vérifier la composition de ses aliments par le biais d\'une application simple, '
+                    'ne requiérant pas d\'inscription et fournissant le strict minimum de fonctionnalités. Elle liste les produits alimentaires avec leurs ingrédients, '
+                    'valeurs nutritionnelles et autres juteuses informations que l\'on peut trouver sur les labels de ces produits.',
+                    style: TextStyle(fontSize: 16),
+                    textAlign: TextAlign.center,
                   ),
                   SizedBox(height: 16),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      'Open Food Facts est une association à but non-lucratif composée de volontaires. Plus de 100.000 contributeurs comme vous ont ajouté plus de 3 000 000 '
-                      'produits de 150 pays. Les données sur la nourriture sont d\'intérêt public et doivent être libres et ouvertes. La base de données complète est publiée en open data '
-                      'et peut être réutilisée par quiconque et pour n\'importe quel usage.',
-                      style: TextStyle(fontSize: 16),
-                      textAlign: TextAlign.center,
-                    ),
+                  Text(
+                    'Open Food Facts est une association à but non-lucratif composée de volontaires. Plus de 100.000 contributeurs comme vous ont ajouté plus de 3 000 000 '
+                    'produits de 150 pays. Les données sur la nourriture sont d\'intérêt public et doivent être libres et ouvertes. La base de données complète est publiée en open data '
+                    'et peut être réutilisée par quiconque et pour n\'importe quel usage.',
+                    style: TextStyle(fontSize: 16),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
             ),
+            const SizedBox(height: 64),
           ],
         ),
       ),
