@@ -1,15 +1,10 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 import '../models/model_products.dart';
+import '../services/api_products.dart';
 
 class ProductsProvider with ChangeNotifier {
-  static const String _apiBaseUrl =
-      'https://world.openfoodfacts.org/cgi/search.pl';
-
-  static const String fields =
-      'id,image_url,brands,generic_name_fr,main_category_fr,categories_tags,created_t,last_modified_t,nutriscore_grade,nova_group,quantity,serving_size,ingredients_text_fr,nutriments,nutrient_levels,manufacturing_places,url,completeness,popularity_key';
+  final ProductsService _service = ProductsService();
 
   final List<Product> _products = [];
   bool _productsIsLoading = false;
@@ -146,189 +141,94 @@ class ProductsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<Map<String, dynamic>> _getJson(String url) async {
-    final response = await http
-        .get(Uri.parse(url))
-        .timeout(Duration(seconds: 30));
-    return json.decode(response.body);
-  }
-
-  Future<List<Product>> searchProductsByQuery({
+  Future<void> searchProducts({
     String query = '',
     String selected = 'popularity_key',
     required String method,
   }) async {
-    _error = null;
+    setError(null);
 
     if (method == 'more') {
       _page++;
     } else {
       setProducts([]);
-      if (query.isNotEmpty) _input = query;
-      if (selected.isNotEmpty) _filter = selected;
-      _page = 1;
+      if (query.isNotEmpty) setInput(query);
+      if (selected.isNotEmpty) setFilter(selected);
+      setPage(1);
     }
 
     setProductsIsLoading(true);
 
-    final url =
-        '$_apiBaseUrl?search_terms=${Uri.encodeComponent(input)}&fields=${Uri.encodeComponent(fields)}&purchase_places_tags=france&sort_by=${Uri.encodeComponent(filter)}&page_size=20&page=$page&search_simple=1&action=process&json=1';
-
     try {
-      final data = await _getJson(url);
+      final data = await _service.searchProductsByQuery(
+        query: _input,
+        sortBy: _filter,
+        page: _page,
+      );
 
-      if (method == 'complete') _pages = (data['count'] / 20).ceil();
+      if (method == 'complete') {
+        setPages((data['count'] / 20).ceil());
+      }
 
-      return (data['products'] as List)
-          .map((p) => Product.fromJson(p))
-          .toList();
+      final products =
+          (data['products'] as List).map((p) => Product.fromJson(p)).toList();
+
+      setProducts(products);
     } catch (e) {
-      _error = 'search product error: ${e.toString()}';
-      return [];
+      setError('search product error: $e');
     } finally {
       setProductsIsLoading(false);
     }
   }
 
-  Future<Product> fetchProductById(String id) async {
-    _error = null;
+  Future<void> loadProductById(String id) async {
+    setError(null);
     setProductIsLoading(true);
 
-    final url =
-        'https://world.openfoodfacts.org/api/v3/product/$id?fields=$fields';
-
     try {
-      final data = await _getJson(url);
-
-      return Product.fromJson(data['product']);
+      setProduct(await _service.fetchProductById(id));
     } catch (e) {
-      _error = 'single product error: ${e.toString()}';
-      return Product.fromJson({});
+      setError('single product error: $e');
+      setProduct(Product.fromJson({}));
     } finally {
       setProductIsLoading(false);
     }
   }
 
-  Future<List<Product>> fetchSuggestedProducts({
+  Future<void> loadSuggestedProducts({
     required String id,
     required List<String> categories,
     required String nutriscore,
     required String nova,
   }) async {
-    _error = null;
+    setError(null);
     setSuggestedProductsIsLoading(true);
 
-    const fields =
-        'id,image_url,brands,generic_name_fr,main_category_fr,main_category_fr,categories_tags,last_modified_t,nutriscore_grade,nova_group,quantity,serving_size,ingredients_text_fr,nutriments,nutrient_levels,manufacturing_places,url,completeness,popularity_key';
-    final url =
-        'https://world.openfoodfacts.org/api/v2/search?categories_tags=${Uri.encodeComponent(categories.last)}&fields=${Uri.encodeComponent(fields)}&purchase_places_tags=france&sort_by=nutriscore_score,nova_group,popularity_key&page_size=300&action=process&json=1';
-
     try {
-      final data = await _getJson(url);
+      final result = await _service.fetchSuggestedProducts(
+        id: id,
+        categories: categories,
+        nutriscore: nutriscore,
+        nova: nova,
+      );
 
-      const score = ['a', 'b', 'c', 'd', 'e'];
-
-      final selectedProducts =
-          (data['products'] as List).where((e) {
-              final eNutriscore = e['nutriscore_grade'];
-              final eNova = e['nova_group'];
-              final completeness = e['completeness'];
-              final eId = e['id'] ?? e['code'];
-
-              if (eId == null || eId == id) {
-                return false;
-              }
-
-              if (eNutriscore == 'not-applicable' || eNutriscore == 'unknown') {
-                return false;
-              }
-
-              if (!score.contains(eNutriscore) || !score.contains(nutriscore)) {
-                return false;
-              }
-
-              final eScoreIndex = score.indexOf(eNutriscore);
-              final pScoreIndex = score.indexOf(nutriscore);
-              final scoreDiff = eScoreIndex.compareTo(pScoreIndex);
-
-              final eNovaParsed = num.tryParse(eNova.toString());
-              final pNovaParsed = num.tryParse(nova);
-              final bothNovaOk = eNovaParsed != null && pNovaParsed != null;
-
-              if (scoreDiff < 0) {
-                return true;
-              }
-
-              if (scoreDiff == 0 && bothNovaOk && eNovaParsed < pNovaParsed) {
-                return true;
-              }
-
-              if (completeness is double && completeness >= 0.35) {
-                return true;
-              }
-
-              return false;
-            }).toList()
-            ..sort((a, b) {
-              final aScore = score.indexOf(a['nutriscore_grade']);
-              final bScore = score.indexOf(b['nutriscore_grade']);
-              final scoreComp = aScore.compareTo(bScore);
-              if (scoreComp != 0) return scoreComp;
-
-              final aNova = num.tryParse(a['nova_group'].toString());
-              final bNova = num.tryParse(b['nova_group'].toString());
-              if (aNova != null && bNova != null) {
-                final novaComp = (aNova - bNova).toInt();
-                if (novaComp != 0) return novaComp;
-              }
-
-              final aPop = a['popularity_key'];
-              final bPop = b['popularity_key'];
-              if (aPop is int && bPop is int) {
-                return bPop - aPop;
-              }
-
-              return 0;
-            });
-      try {
-        final result =
-            selectedProducts.take(4).map((p) => Product.fromJson(p)).toList();
-        return result;
-      } catch (e) {
-        return [];
-      }
+      setSuggestedProducts(result);
     } catch (e) {
-      _error = 'suggestion product error: ${e.toString()}';
-      return [];
+      setError('suggestion product error: $e');
     } finally {
       setSuggestedProductsIsLoading(false);
     }
   }
 
-  Future<List<Product>> fetchLastProducts() async {
-    _error = null;
+  Future<void> loadLastProducts() async {
+    setError(null);
     setLastProductsIsLoading(true);
 
-    final url =
-        '$_apiBaseUrl?&fields=${Uri.encodeComponent(fields)}&purchase_places_tags=france&sort_by=created_t&page_size=300&action=process&json=1';
-
     try {
-      final data = await _getJson(url);
-
-      final filteredProducts =
-          (data['products'] as List)
-              .where((p) => (p['completeness'] as num).toDouble() >= 0.35)
-              .toList()
-            ..sort(
-              (a, b) => (b['created_t'] as num).toDouble().compareTo(
-                (a['created_t'] as num).toDouble(),
-              ),
-            );
-
-      return filteredProducts.take(4).map((p) => Product.fromJson(p)).toList();
+      final products = await _service.fetchLastProducts();
+      setLastProducts(products);
     } catch (e) {
-      _error = 'last products error: ${e.toString()}';
-      return [];
+      setError('last products error: $e');
     } finally {
       setLastProductsIsLoading(false);
     }

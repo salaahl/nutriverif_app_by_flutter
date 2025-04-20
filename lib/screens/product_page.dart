@@ -36,20 +36,12 @@ class ProductPageState extends State<ProductPage> {
       provider.setSuggestedProducts([]);
 
       if (product.nutriscore != 'a' || int.tryParse(product.nova) != 1) {
-        provider
-            .fetchSuggestedProducts(
-              id: product.id,
-              categories: product.categories,
-              nutriscore: product.nutriscore,
-              nova: product.nova,
-            )
-            .then((products) {
-              if (mounted) {
-                setState(() {
-                  provider.setSuggestedProducts(products);
-                });
-              }
-            });
+        provider.loadSuggestedProducts(
+          id: product.id,
+          categories: product.categories,
+          nutriscore: product.nutriscore,
+          nova: product.nova,
+        );
       }
     });
   }
@@ -237,7 +229,7 @@ class ProductPageState extends State<ProductPage> {
                 bgColor = Colors.orangeAccent;
                 break;
               case 'low':
-                bgColor = Colors.greenAccent;
+                bgColor = Colors.green;
                 break;
               default:
                 bgColor = Colors.grey;
@@ -342,11 +334,9 @@ class ProductPageState extends State<ProductPage> {
                           ),
                         );
 
-                        provider.setProducts(
-                          await provider.searchProductsByQuery(
-                            query: category,
-                            method: 'complete',
-                          ),
+                        await provider.searchProducts(
+                          query: category,
+                          method: 'complete',
                         );
                       },
                       child: Text(
@@ -370,71 +360,78 @@ class ProductPageState extends State<ProductPage> {
     ProductsProvider provider,
     List<Product> suggestedProducts,
   ) {
-    return Container(
-      height:
-          provider.suggestedProductsIsLoading || suggestedProducts.isNotEmpty
-              ? null
-              : 0,
-      width: double.infinity,
-      margin: const EdgeInsets.symmetric(vertical: 32),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          const BoxShadow(
-            color: Color.fromRGBO(255, 255, 255, 0.01),
-            offset: Offset(0, 1),
-            blurRadius: 1,
-            spreadRadius: 0,
-          ),
-          const BoxShadow(
-            color: Color.fromRGBO(50, 50, 93, 0.025),
-            offset: Offset(0, 50),
-            blurRadius: 100,
-            spreadRadius: -20,
-          ),
-          const BoxShadow(
-            color: Color.fromRGBO(0, 0, 0, 0.03),
-            offset: Offset(0, 30),
-            blurRadius: 60,
-            spreadRadius: -30,
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Center(
-            child: Text.rich(
-              TextSpan(
-                text: "A",
-                style: TextStyle(
-                  fontFamily: 'Grand Hotel',
-                  fontSize: 32,
-                  color: Colors.redAccent,
-                ),
-                children: [
-                  TextSpan(
-                    text: "lternatives",
-                    style: TextStyle(color: Colors.black),
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 350),
+      curve: Curves.easeInOut,
+      child: Container(
+        height:
+            provider.suggestedProductsIsLoading || suggestedProducts.isNotEmpty
+                ? null
+                : 0,
+        width: double.infinity,
+        margin: const EdgeInsets.symmetric(vertical: 32),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            const BoxShadow(
+              color: Color.fromRGBO(255, 255, 255, 0.01),
+              offset: Offset(0, 1),
+              blurRadius: 1,
+              spreadRadius: 0,
+            ),
+            const BoxShadow(
+              color: Color.fromRGBO(50, 50, 93, 0.025),
+              offset: Offset(0, 50),
+              blurRadius: 100,
+              spreadRadius: -20,
+            ),
+            const BoxShadow(
+              color: Color.fromRGBO(0, 0, 0, 0.03),
+              offset: Offset(0, 30),
+              blurRadius: 60,
+              spreadRadius: -30,
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Center(
+              child: Text.rich(
+                TextSpan(
+                  text: "A",
+                  style: TextStyle(
+                    fontFamily: 'Grand Hotel',
+                    fontSize: 32,
+                    color: Colors.redAccent,
                   ),
-                ],
+                  children: [
+                    TextSpan(
+                      text: "lternatives",
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-          provider.suggestedProductsIsLoading
-              ? const Loader()
-              : Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                spacing: MediaQuery.of(context).size.width / 100 * 4,
-                children:
-                    suggestedProducts.map((product) {
-                      return ProductCard(product: product, widthAjustment: 32);
-                    }).toList(),
-              ),
-        ],
+            const SizedBox(height: 16),
+            provider.suggestedProductsIsLoading
+                ? const Loader()
+                : Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  spacing: MediaQuery.of(context).size.width / 100 * 4,
+                  children:
+                      suggestedProducts.map((product) {
+                        return ProductCard(
+                          product: product,
+                          widthAjustment: 32,
+                        );
+                      }).toList(),
+                ),
+          ],
+        ),
       ),
     );
   }

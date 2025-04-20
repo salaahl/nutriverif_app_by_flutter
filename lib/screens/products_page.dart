@@ -44,9 +44,7 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
         _provider.hasMorePages &&
         _refresh) {
       _refresh = false;
-      _provider.addProducts(
-        await _provider.searchProductsByQuery(method: 'more'),
-      );
+      await _provider.searchProducts(method: 'more');
       Timer(Duration(milliseconds: 1500), () => _refresh = true);
     }
   }

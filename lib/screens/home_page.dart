@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:app_nutriverif/services/api_products.dart';
 import 'package:app_nutriverif/providers/products_provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -32,13 +33,13 @@ class _HomePageState extends State<HomePage> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final provider = Provider.of<ProductsProvider>(context, listen: false);
+      final service = ProductsService();
 
       // Attente des appels asynchrones
-      product = await provider.fetchProductById('8000500310427');
+      product = await service.fetchProductById('8000500310427');
 
       if (product.id.isNotEmpty) {
-        final fetched = await provider.fetchSuggestedProducts(
+        final fetched = await service.fetchSuggestedProducts(
           id: product.id,
           categories: product.categories,
           nutriscore: product.nutriscore,
@@ -52,7 +53,7 @@ class _HomePageState extends State<HomePage> {
         }
       }
 
-      lastProducts.addAll(await provider.fetchLastProducts());
+      lastProducts.addAll(await service.fetchLastProducts());
     });
   }
 
@@ -64,7 +65,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<ProductsProvider>();
+    final provider = Provider.of<ProductsProvider>(context);
     String formattedDate = '';
 
     if (product.lastUpdate.isNotEmpty) {

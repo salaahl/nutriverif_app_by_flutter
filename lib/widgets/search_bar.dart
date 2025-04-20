@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:app_nutriverif/services/api_products.dart';
 import 'package:app_nutriverif/providers/products_provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -18,6 +19,8 @@ class AppSearchBar extends StatefulWidget {
 
 class _AppSearchBarState extends State<AppSearchBar> {
   late TextEditingController _searchController;
+
+  final _service = ProductsService();
   final Map<String, String> _filters = {
     'Popularité': 'popularity_key',
     'Nom': 'product_name',
@@ -132,7 +135,7 @@ class _AppSearchBarState extends State<AppSearchBar> {
 
                 // Recherche par code-barres
                 if (RegExp(r'^\d{8,13}$').hasMatch(input)) {
-                  final product = await widget.provider.fetchProductById(input);
+                  final product = await _service.fetchProductById(input);
 
                   if (product.id.isNotEmpty && context.mounted) {
                     Navigator.pushNamed(
@@ -142,12 +145,10 @@ class _AppSearchBarState extends State<AppSearchBar> {
                     );
                   }
                 } else {
-                  widget.provider.setProducts(
-                    await widget.provider.searchProductsByQuery(
-                      query: input,
-                      selected: widget.provider.filter,
-                      method: 'complete',
-                    ),
+                  await widget.provider.searchProducts(
+                    query: input,
+                    selected: widget.provider.filter,
+                    method: 'complete',
                   );
 
                   if (widget.provider.products.isEmpty && context.mounted) {
