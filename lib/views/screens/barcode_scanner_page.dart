@@ -115,15 +115,6 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
                                 );
                               }
                             }
-
-                            // Prevenir le scan au changement de page
-                            await Future.delayed(
-                              const Duration(milliseconds: 1500),
-                            );
-
-                            if (mounted) {
-                              await startScanner();
-                            }
                           } else if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
@@ -141,6 +132,15 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
                               ),
                             );
                           }
+                        }
+
+                        // Prevenir le scan au changement de page
+                        await Future.delayed(
+                          const Duration(milliseconds: 1500),
+                        );
+
+                        if (mounted) {
+                          await startScanner();
                         }
                       },
                     ),
