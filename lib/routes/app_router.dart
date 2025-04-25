@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 
 import '../models/model_products.dart';
 
-import 'package:app_nutriverif/views/screens/main_scaffold.dart';
+import 'package:app_nutriverif/views/screens/home/home_page.dart';
 import 'package:app_nutriverif/views/screens/products_page.dart';
 import 'package:app_nutriverif/views/screens/about_page.dart';
 import 'package:app_nutriverif/views/screens/product_page.dart';
+import 'package:app_nutriverif/views/screens/barcode_scanner_page.dart';
 
 Route<dynamic> generateRoute(RouteSettings settings) {
   Widget page;
 
   switch (settings.name) {
     case '/':
-      page = const MainScaffold();
+      page = const HomePage();
       break;
     case '/about':
       page = const AboutPage();
@@ -25,11 +26,14 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       if (args is Product) {
         page = ProductPage(product: args);
       } else {
-        page = const MainScaffold();
+        page = const HomePage();
       }
       break;
+    case '/scanner':
+      page = const BarcodeScannerPage();
+      break;
     default:
-      page = const MainScaffold();
+      page = const HomePage();
   }
 
   return PageRouteBuilder(

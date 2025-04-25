@@ -210,98 +210,62 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 80),
                   Row(children: [LazyYoutubePlayer()]),
                   const SizedBox(height: 32),
-                  VisibilityDetector(
-                    key: Key('about_text'),
-                    onVisibilityChanged: (info) {
-                      if (info.visibleBounds.height > 35 &&
-                          !_animatedProductIds.contains('about_text')) {
-                        setState(() {
-                          _animatedProductIds.add('about_text');
-                        });
-                      }
-                    },
-                    child:
-                        _animatedProductIds.contains('about_text')
-                            ? TweenAnimationBuilder<double>(
-                              tween: Tween(begin: 0.0, end: 1.0),
-                              curve: Curves.easeInOut,
-                              duration: Duration(milliseconds: 250),
-                              builder: (context, value, child) {
-                                return Opacity(
-                                  opacity: value,
-                                  child: Transform.translate(
-                                    offset: Offset(0, 30 * (1 - value)),
-                                    child: child,
-                                  ),
-                                );
-                              },
-                              child: Column(
-                                children: [
-                                  const Text.rich(
-                                    TextSpan(
-                                      children: [
-                                        TextSpan(
-                                          text:
-                                              'NutriVérif est alimentée par "Open Food Facts", une base de données de produits alimentaires créée par tous et pour tous.',
-                                          style: TextStyle(
-                                            backgroundColor: Color.fromRGBO(
-                                              0,
-                                              189,
-                                              126,
-                                              0.6,
-                                            ), // Applique le surlignage seulement sur le texte
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  const Text.rich(
-                                    TextSpan(
-                                      children: [
-                                        TextSpan(
-                                          text:
-                                              'Vous pouvez l\'utiliser pour faire de meilleurs choix alimentaires, et comme les données sont ouvertes, tout le monde peut les réutiliser pour tout usage.',
-                                          style: TextStyle(
-                                            backgroundColor: Color.fromRGBO(
-                                              0,
-                                              189,
-                                              126,
-                                              0.6,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Row(
-                                    children: [
-                                      GestureDetector(
-                                        onTap: () {
-                                          Navigator.pushNamed(
-                                            context,
-                                            '/about',
-                                          );
-                                        },
-                                        child: Text(
-                                          'En savoir plus',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(width: 8),
-                                      Icon(
-                                        Icons.arrow_forward_rounded,
-                                        size: 18,
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                  Column(
+                    children: [
+                      const Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text:
+                                  'NutriVérif est alimentée par "Open Food Facts", une base de données de produits alimentaires créée par tous et pour tous.',
+                              style: TextStyle(
+                                backgroundColor: Color.fromRGBO(
+                                  0,
+                                  189,
+                                  126,
+                                  0.6,
+                                ), // Applique le surlignage seulement sur le texte
                               ),
-                            )
-                            : const SizedBox(height: 60, width: 60),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text:
+                                  'Vous pouvez l\'utiliser pour faire de meilleurs choix alimentaires, et comme les données sont ouvertes, tout le monde peut les réutiliser pour tout usage.',
+                              style: TextStyle(
+                                backgroundColor: Color.fromRGBO(
+                                  0,
+                                  189,
+                                  126,
+                                  0.6,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pushNamed(context, '/about');
+                            },
+                            child: Text(
+                              'En savoir plus',
+                              style: TextStyle(fontWeight: FontWeight.w500),
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          Icon(Icons.arrow_forward_rounded, size: 18),
+                        ],
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 80),
                   VisibilityDetector(

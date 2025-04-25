@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:app_nutriverif/core/services/api_products.dart';
 import 'package:app_nutriverif/providers/products_provider.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class AppSearchBar extends StatefulWidget {
   final ProductsProvider provider;
@@ -20,7 +18,6 @@ class AppSearchBar extends StatefulWidget {
 class _AppSearchBarState extends State<AppSearchBar> {
   late TextEditingController _searchController;
 
-  final _service = ProductsService();
   final Map<String, String> _filters = {
     'Popularité': 'popularity_key',
     'Nom': 'product_name',
@@ -52,23 +49,18 @@ class _AppSearchBarState extends State<AppSearchBar> {
               child: TextField(
                 controller: _searchController,
                 decoration: InputDecoration(
-                  hintText: 'Entrez un nom de produit, un code-barres...',
+                  hintText: 'Un nom de produit, une marque ou une categorie...',
                   hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
-                  prefixIcon: Padding(
-                    // La valeur "top" réequilibre le décalage apporté par le viewport
-                    padding: EdgeInsets.only(top: 6, left: 20, right: 6),
-                    child: SvgPicture.string(
-                      '''
-                      <svg data-v-e8019d2a="" id="search-bar-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 640">
-                        <path data-v-e8019d2a="" d="M416 0C400 0 288 32 288 176V288c0 35.3 28.7 64 64 64h32V480c0 17.7 14.3 32 32 32s32-14.3 32-32V352 240 32c0-17.7-14.3-32-32-32zM64 16C64 7.8 57.9 1 49.7 .1S34.2 4.6 32.4 12.5L2.1 148.8C.7 155.1 0 161.5 0 167.9c0 45.9 35.1 83.6 80 87.7V480c0 17.7 14.3 32 32 32s32-14.3 32-32V255.6c44.9-4.1 80-41.8 80-87.7c0-6.4-.7-12.8-2.1-19.1L191.6 12.5c-1.8-8-9.3-13.3-17.4-12.4S160 7.8 160 16V150.2c0 5.4-4.4 9.8-9.8 9.8c-5.1 0-9.3-3.9-9.8-9L127.9 14.6C127.2 6.3 120.3 0 112 0s-15.2 6.3-15.9 14.6L83.7 151c-.5 5.1-4.7 9-9.8 9c-5.4 0-9.8-4.4-9.8-9.8V16zm48.3 152l-.3 0-.3 0 .3-.7 .3 .7z"></path>
-                      </svg>
-                      ''',
-                      width: 6,
-                      colorFilter: ColorFilter.mode(
-                        Colors.grey[600]!,
-                        BlendMode.srcIn,
-                      ),
+                  prefixIcon: IconButton(
+                    padding: const EdgeInsets.only(
+                      left: 12,
+                    ), // rééquilibrage avec le padding appliqué sur le TextField
+                    icon: Icon(
+                      Icons.qr_code_rounded,
+                      color: Colors.grey,
+                      semanticLabel: 'Rechercher un produit par code-barres',
                     ),
+                    onPressed: () => Navigator.pushNamed(context, '/scanner'),
                   ),
                   filled: true,
                   fillColor: Colors.white,
@@ -116,8 +108,8 @@ class _AppSearchBarState extends State<AppSearchBar> {
               ),
               onPressed: () async {
                 final input = _searchController.text.trim();
+                FocusScope.of(context).unfocus();
 
-                // Validation
                 if (input.isEmpty || input.length < 2) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -131,21 +123,6 @@ class _AppSearchBarState extends State<AppSearchBar> {
                       behavior: SnackBarBehavior.floating,
                     ),
                   );
-                }
-
-                FocusScope.of(context).unfocus();
-
-                // Recherche par code-barres
-                if (RegExp(r'^\d{8,13}$').hasMatch(input)) {
-                  final product = await _service.fetchProductById(input);
-
-                  if (product.id.isNotEmpty && context.mounted) {
-                    Navigator.pushNamed(
-                      context,
-                      "/product",
-                      arguments: product,
-                    );
-                  }
                 } else {
                   await widget.provider.searchProducts(
                     query: input,
@@ -155,10 +132,12 @@ class _AppSearchBarState extends State<AppSearchBar> {
 
                   if (widget.provider.products.isEmpty && context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
+                      SnackBar(
                         content: Center(
                           child: Text(
-                            'Aucun produit trouvé',
+                            widget.provider.error != null
+                                ? 'Une erreur est survenue'
+                                : 'Aucun produit trouvé',
                             style: TextStyle(fontWeight: FontWeight.w500),
                           ),
                         ),

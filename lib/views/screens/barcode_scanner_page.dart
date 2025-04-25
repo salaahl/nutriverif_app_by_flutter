@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:provider/provider.dart';
+
+import 'package:app_nutriverif/providers/products_provider.dart';
 
 import '../widgets/app_bar.dart';
+import '../widgets/loader.dart';
 
 class BarcodeScannerPage extends StatefulWidget {
   const BarcodeScannerPage({super.key});
@@ -12,7 +16,23 @@ class BarcodeScannerPage extends StatefulWidget {
 }
 
 class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
-  bool _isDetected = false;
+  bool _isScannerRunning = true;
+
+  Future<void> stopScanner() async {
+    if (_isScannerRunning) {
+      setState(() {
+        _isScannerRunning = false;
+      });
+    }
+  }
+
+  Future<void> startScanner() async {
+    if (!_isScannerRunning) {
+      setState(() {
+        _isScannerRunning = true;
+      });
+    }
+  }
 
   bool _isValidEAN13(String code) {
     return RegExp(r'^\d{13}$').hasMatch(code);
@@ -20,9 +40,17 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<ProductsProvider>(context);
+    final MobileScannerController controller = MobileScannerController(
+      useNewCameraSelector: true,
+      detectionSpeed: DetectionSpeed.normal,
+      facing: CameraFacing.back,
+      returnImage: false,
+    );
+
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.only(left: 32, right: 32),
+        padding: const EdgeInsets.only(left: 16, right: 16),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -41,52 +69,71 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
               ),
             ),
             const SizedBox(height: 32),
-            AspectRatio(
-              aspectRatio: 1,
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    width: 8,
-                    color:
-                        _isDetected
-                            ? const Color.fromRGBO(0, 189, 126, 1)
-                            : Colors.redAccent,
-                  ),
-                ),
-                child: MobileScanner(
-                  controller: MobileScannerController(
-                    useNewCameraSelector: true,
-                    detectionSpeed: DetectionSpeed.normal,
-                    facing: CameraFacing.back,
-                    returnImage: false,
-                  ),
-                  onDetect: (capture) {
-                    if (_isDetected) return;
+            _isScannerRunning
+                ? AspectRatio(
+                  aspectRatio: 1,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(width: 8, color: Colors.white),
+                    ),
+                    child: MobileScanner(
+                      controller: controller,
+                      onDetect: (capture) async {
+                        await stopScanner();
 
-                    final List<Barcode> barcodes = capture.barcodes;
-                    for (final barcode in barcodes) {
-                      final String? rawValue = barcode.rawValue;
+                        // Laisser un temps minimal au loader
+                        await Future.delayed(const Duration(seconds: 1));
 
-                      if (rawValue != null && _isValidEAN13(rawValue)) {
-                        setState(() {
-                          _isDetected = true;
-                        });
+                        final List<Barcode> barcodes = capture.barcodes;
+                        for (final barcode in barcodes) {
+                          final String? rawValue = barcode.rawValue;
 
-                        // Delay de 500ms pour les besoins de l'animation
-                        Timer(const Duration(milliseconds: 500), () async {
-                          final result = await Navigator.pushNamed(
-                            context,
-                            '/product',
-                            arguments: rawValue,
-                          );
+                          // Validation
+                          if (rawValue != null && _isValidEAN13(rawValue)) {
+                            await provider.loadProductById(rawValue);
 
-                          if (context.mounted && result != null) {
+                            if (context.mounted) {
+                              if (provider.product.id.isNotEmpty) {
+                                Navigator.pushNamed(
+                                  context,
+                                  '/product',
+                                  arguments: provider.product,
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Produit non trouvé',
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    backgroundColor: Colors.redAccent,
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              }
+                            }
+
+                            // Prevenir le scan au changement de page
+                            await Future.delayed(
+                              const Duration(milliseconds: 1500),
+                            );
+
+                            if (mounted) {
+                              await startScanner();
+                            }
+                          } else if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  result.toString(),
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w500,
+                              const SnackBar(
+                                content: Center(
+                                  child: Text(
+                                    'Code-barres invalide',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ),
                                 backgroundColor: Colors.redAccent,
@@ -94,33 +141,18 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
                               ),
                             );
                           }
-
-                          setState(() {
-                            Timer(const Duration(milliseconds: 1500), () {
-                              _isDetected = false;
-                            });
-                          });
-                        });
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Center(
-                              child: Text(
-                                'Code-barres invalide',
-                                style: TextStyle(fontWeight: FontWeight.w500),
-                              ),
-                            ),
-                            backgroundColor: Colors.redAccent,
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      }
-                    }
-                  },
+                        }
+                      },
+                    ),
+                  ),
+                )
+                : AspectRatio(
+                  aspectRatio: 1,
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: const Loader(),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 32),
           ],
         ),
       ),
