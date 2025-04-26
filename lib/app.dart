@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:app_nutriverif/screens/main_scaffold.dart';
-import 'package:app_nutriverif/screens/products_page.dart';
-import 'package:app_nutriverif/screens/about_page.dart';
-import 'package:app_nutriverif/screens/product_page.dart';
+
+import 'routes/app_router.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -26,44 +24,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      onGenerateRoute: (settings) {
-        Widget page;
-        switch (settings.name) {
-          case '/':
-            page = const MainScaffold();
-            break;
-          case '/about':
-            page = const AboutPage();
-            break;
-          case '/products':
-            page = const ProductSearchPage();
-            break;
-          case '/product':
-            final id = settings.arguments as String?;
-            page = ProductPage(id: id);
-            break;
-          default:
-            page = const MainScaffold();
-        }
-
-        return PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => page,
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            const curve = Curves.easeInOut;
-
-            final slideInTween = Tween<Offset>(
-              begin: const Offset(1.0, 0.0),
-              end: Offset.zero,
-            ).chain(CurveTween(curve: curve));
-
-            return SlideTransition(
-              position: animation.drive(slideInTween),
-              child: 
-              child,
-            );
-          },
-        );
-      },
+      onGenerateRoute: generateRoute,
       initialRoute: '/',
     );
   }

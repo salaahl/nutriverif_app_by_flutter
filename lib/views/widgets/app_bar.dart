@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 
-Widget myAppBar(BuildContext context, {String? route = ''}) {
+Widget myAppBar(
+  BuildContext context, {
+  String? route = '',
+  Map<String, dynamic>? customStyles = const {
+    'textColor': Color(0xFF00BD7E),
+    'arrowColor': Colors.white,
+  },
+}) {
   return SafeArea(
     child: SizedBox(
       height: 172,
-      width: MediaQuery.of(context).size.width,
+      width: double.infinity,
       child: Stack(
         children: [
           Row(
@@ -28,7 +35,7 @@ Widget myAppBar(BuildContext context, {String? route = ''}) {
                         children: [
                           TextSpan(
                             text: 'Vérif',
-                            style: const TextStyle(color: Color(0xFF00BD7E)),
+                            style: TextStyle(color: customStyles?['textColor']),
                           ),
                         ],
                       ),
@@ -38,17 +45,18 @@ Widget myAppBar(BuildContext context, {String? route = ''}) {
               const Spacer(flex: 1),
             ],
           ),
-          if (Navigator.canPop(context)) // flèche si possible
+          if (Navigator.canPop(context) && route != '/')
             Positioned(
               top: 0,
               bottom: 0,
               left: 0,
               child: IconButton(
+                padding: const EdgeInsets.all(0),
                 icon: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: const BorderRadius.all(Radius.circular(999)),
+                    color: customStyles?['arrowColor'],
+                    borderRadius: BorderRadius.all(Radius.circular(999)),
                   ),
                   child: const Icon(Icons.arrow_back),
                 ),

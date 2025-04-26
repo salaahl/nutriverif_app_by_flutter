@@ -1,38 +1,8 @@
-// models.dart
-class Products {
-  final String id;
-  final String image;
-  final String brand;
-  final String name;
-  final String nutriscore;
-  final dynamic nova; // Peut être un String ou un int
-
-  Products({
-    required this.id,
-    required this.image,
-    required this.brand,
-    required this.name,
-    required this.nutriscore,
-    required this.nova,
-  });
-
-  factory Products.fromJson(Map<String, dynamic> json) {
-    return Products(
-      id: (json['id'] ?? '').toString(),
-      image: (json['image_front_small_url'] ?? '').toString(),
-      brand: (json['brands'] ?? '').toString(),
-      name: (json['generic_name_fr'] ?? '').toString(),
-      nutriscore: (json['nutriscore_grade'] ?? 'unknown').toString(),
-      nova: (json['nova_group'] ?? 'unknown').toString(),
-    );
-  }
-}
-
 class Product {
   final String id;
   final String image;
   final String brand;
-  final String genericName;
+  final String name;
   final String category;
   final List<String> categories;
   final String lastUpdate;
@@ -50,7 +20,7 @@ class Product {
     required this.id,
     required this.image,
     required this.brand,
-    required this.genericName,
+    required this.name,
     required this.category,
     required this.categories,
     required this.lastUpdate,
@@ -67,19 +37,15 @@ class Product {
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      id: (json['_id'] ?? '').toString(),
+      id: (json['id'] ?? json['code'] ?? '').toString(),
       image: (json['image_url'] ?? '').toString(),
       brand: (json['brands'] ?? '').toString(),
-      genericName: (json['generic_name_fr'] ?? '').toString(),
+      name: (json['generic_name_fr'] ?? '').toString(),
       category: (json['main_category_fr'] ?? '').toString(),
-      categories:
-          (json['categories_tags'] as List?)
-              ?.map((e) => e.split(':')[1].toString().replaceAll('-', ' '))
-              .toList() ??
-          [],
+      categories: (json['categories_tags'] as List?)?.cast<String>() ?? [],
       lastUpdate: (json['last_modified_t'] ?? '').toString(),
-      nutriscore: (json['nutriscore_grade'] ?? '').toString(),
-      nova: (json['nova_group'] ?? '').toString(),
+      nutriscore: (json['nutriscore_grade'] ?? 'unknown').toString(),
+      nova: (json['nova_group'] ?? 'unknown').toString(),
       quantity: (json['quantity'] ?? '').toString(),
       servingSize: (json['serving_size'] ?? '').toString(),
       ingredients: (json['ingredients_text_fr'] ?? '').toString(),

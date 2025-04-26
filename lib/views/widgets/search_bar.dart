@@ -1,0 +1,187 @@
+import 'package:flutter/material.dart';
+import 'package:app_nutriverif/providers/products_provider.dart';
+
+class AppSearchBar extends StatefulWidget {
+  final ProductsProvider provider;
+  final bool showFilters;
+
+  const AppSearchBar({
+    super.key,
+    required this.provider,
+    this.showFilters = false,
+  });
+
+  @override
+  State<AppSearchBar> createState() => _AppSearchBarState();
+}
+
+class _AppSearchBarState extends State<AppSearchBar> {
+  late TextEditingController _searchController;
+
+  final Map<String, String> _filters = {
+    'Popularité': 'popularity_key',
+    'Nom': 'product_name',
+    'Date de création': 'created_t',
+    'Nutriscore': 'nutriscore_score',
+    'Nova Score': 'nova_score',
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController(text: widget.provider.input);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Un nom de produit, une marque ou une categorie...',
+                  hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+                  prefixIcon: IconButton(
+                    padding: const EdgeInsets.only(
+                      left: 12,
+                    ), // rééquilibrage avec le padding appliqué sur le TextField
+                    icon: Icon(
+                      Icons.qr_code_rounded,
+                      color: Colors.grey,
+                      semanticLabel: 'Rechercher un produit par code-barres',
+                    ),
+                    onPressed: () => Navigator.pushNamed(context, '/scanner'),
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(999.0),
+                    borderSide: const BorderSide(
+                      color: Color.fromRGBO(156, 163, 175, 1),
+                      width: 4.0,
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(999.0),
+                    borderSide: const BorderSide(
+                      color: Color.fromRGBO(229, 231, 235, 1),
+                      width: 4.0,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(999.0),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF9CA3AF),
+                      width: 4.0,
+                    ),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 10.0,
+                    horizontal: 12.0,
+                  ),
+                ),
+                style: const TextStyle(color: Colors.black87, fontSize: 14),
+              ),
+            ),
+            IconButton(
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.blue[800],
+                  borderRadius: BorderRadius.circular(99),
+                ),
+                child: const Icon(
+                  Icons.search,
+                  color: Colors.white,
+                  semanticLabel: 'Rechercher',
+                ),
+              ),
+              onPressed: () async {
+                final input = _searchController.text.trim();
+                FocusScope.of(context).unfocus();
+
+                if (input.isEmpty || input.length < 2) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Center(
+                        child: Text(
+                          'Veuillez entrer un nom de produit valide',
+                          style: TextStyle(fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                      backgroundColor: Colors.redAccent,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                } else {
+                  await widget.provider.searchProducts(
+                    query: input,
+                    selected: widget.provider.filter,
+                    method: 'complete',
+                  );
+
+                  if (widget.provider.products.isEmpty && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Center(
+                          child: Text(
+                            widget.provider.error != null
+                                ? 'Une erreur est survenue'
+                                : 'Aucun produit trouvé',
+                            style: TextStyle(fontWeight: FontWeight.w500),
+                          ),
+                        ),
+                        backgroundColor: Colors.redAccent,
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
+                }
+              },
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        widget.showFilters
+            ? Wrap(
+              spacing: 12,
+              children:
+                  _filters.entries.map((filter) {
+                    return Material(
+                      child: FilterChip(
+                        label: Text(filter.key),
+                        selected: filter.value == widget.provider.filter,
+                        onSelected: (s) {
+                          setState(() {
+                            widget.provider.setFilter(filter.value);
+                          });
+                        },
+                        backgroundColor: Colors.grey,
+                        selectedColor: const Color.fromRGBO(0, 189, 126, 1),
+                        labelStyle: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        showCheckmark: false,
+                      ),
+                    );
+                  }).toList(),
+            )
+            : SizedBox.shrink(),
+      ],
+    );
+  }
+}

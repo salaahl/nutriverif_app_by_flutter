@@ -1,51 +1,47 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:visibility_detector/visibility_detector.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import 'package:app_nutriverif/providers/products_provider.dart';
-import '../screens/products_page.dart';
+import 'products_page.dart';
 import '../widgets/app_bar.dart';
+import '../widgets/loader.dart';
 import '../widgets/product_card.dart';
-import '../models/model_products.dart';
+import '../../models/model_products.dart';
 
 class ProductPage extends StatefulWidget {
-  final String? id;
+  final Product product;
 
-  const ProductPage({super.key, required this.id});
+  const ProductPage({super.key, required this.product});
 
   @override
   State<ProductPage> createState() => ProductPageState();
 }
 
 class ProductPageState extends State<ProductPage> {
-  final Set<String> _isAnimated = {};
-  Widget loadingWidget() => const Center(
-    child: Padding(
-      padding: EdgeInsets.all(64),
-      child: CircularProgressIndicator(
-        color: Color(0xFF00BD7E),
-        strokeWidth: 8,
-      ),
-    ),
-  );
-
   @override
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final id = widget.id;
+    final ProductsProvider provider = Provider.of<ProductsProvider>(
+      context,
+      listen: false,
+    );
+    final Product product = widget.product;
 
-      if (id != null) {
-        final provider = Provider.of<ProductsProvider>(context, listen: false);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      provider.setSuggestedProducts([]);
 
-        await provider.fetchProduct(id);
-        // mounted permet de rendre le context valide
-        if (mounted && provider.product.id.isEmpty) Navigator.pop(context);
-      } else {
-        if (mounted)
-          Navigator.pop(context, 'Erreur lors de la récupération du produit');
+      if (product.nutriscore != 'a' || int.tryParse(product.nova) != 1) {
+        provider.loadSuggestedProducts(
+          id: product.id,
+          categories: product.categories,
+          nutriscore: product.nutriscore,
+          nova: product.nova,
+        );
       }
     });
   }
@@ -53,54 +49,27 @@ class ProductPageState extends State<ProductPage> {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ProductsProvider>(context);
+    final Product product = widget.product;
+
+    if (product.id.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Loader(),
+      );
+    }
 
     return Scaffold(
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
           myAppBar(context),
-          if (provider.productIsLoading)
-            loadingWidget()
-          else ...[
-            productDetails(context, provider.product),
-            const SizedBox(height: 32),
-            VisibilityDetector(
-              key: Key('alternatives'),
-              onVisibilityChanged: (info) {
-                if (info.visibleBounds.height > 50 &&
-                    !_isAnimated.contains('alternatives')) {
-                  setState(() {
-                    _isAnimated.add('alternatives');
-                  });
-                }
-              },
-              child:
-                  _isAnimated.contains('alternatives')
-                      ? TweenAnimationBuilder<double>(
-                        tween: Tween(begin: 0.0, end: 1.0),
-                        duration: Duration(milliseconds: 250),
-                        builder: (context, value, child) {
-                          return Opacity(
-                            opacity: value,
-                            child: Transform.translate(
-                              offset: Offset(0, 100 * (1 - value)),
-                              child: child,
-                            ),
-                          );
-                        },
-                        child: alternativeProducts(
-                          context,
-                          provider,
-                          provider.suggestedProducts,
-                        ),
-                      )
-                      : SizedBox(
-                        height: 300,
-                        width: MediaQuery.of(context).size.width,
-                      ),
-            ),
-          ],
-          const SizedBox(height: 32),
+          productDetails(context, product),
+          alternativeProducts(context, provider, provider.suggestedProducts),
         ],
       ),
     );
@@ -114,25 +83,25 @@ class ProductPageState extends State<ProductPage> {
         // Image du produit
         AspectRatio(
           aspectRatio: 1,
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
+          child: Hero(
+            key: Key(product.id),
+            tag: product.id,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child:
+                  product.image.isEmpty
+                      ? const Loader()
+                      : Image.network(
+                        product.image,
+                        width: 160,
+                        semanticLabel: 'Image du produit',
+                      ),
             ),
-            child:
-                product.image.isEmpty
-                    ? Image.asset(
-                      'assets/images/logo.png',
-                      width: 160,
-                      semanticLabel: 'Image du produit',
-                    )
-                    : Image.network(
-                      product.image,
-                      width: 160,
-                      semanticLabel: 'Image du produit',
-                    ),
           ),
         ),
         const SizedBox(height: 32),
@@ -144,9 +113,16 @@ class ProductPageState extends State<ProductPage> {
 
   // Affichage des informations du produit
   Widget productInfo(BuildContext context, Product product) {
-    final date = DateTime.fromMillisecondsSinceEpoch(
-      int.parse(product.lastUpdate) * 1000,
-    );
+    String formattedDate = '';
+
+    if (product.lastUpdate.isNotEmpty) {
+      final date = DateTime.fromMillisecondsSinceEpoch(
+        int.parse(product.lastUpdate) * 1000,
+      );
+      formattedDate =
+          'Dernière mise à jour : ${date.day}-${date.month}-${date.year}';
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -161,7 +137,7 @@ class ProductPageState extends State<ProductPage> {
             ),
             children: [
               TextSpan(
-                text: product.genericName,
+                text: product.name,
                 style: const TextStyle(
                   fontWeight: FontWeight.normal,
                   color: Colors.black,
@@ -171,29 +147,29 @@ class ProductPageState extends State<ProductPage> {
           ),
         ),
         const SizedBox(height: 8),
-        Text("Dernière mise à jour : ${date.day}-${date.month}-${date.year}"),
+        Text(formattedDate),
         const SizedBox(height: 16),
-        productImages(product.nutriscore, product.nova),
+        productScores(product.nutriscore, product.nova),
         const SizedBox(height: 32),
-        productLabel(product.nutrientLevels),
+        productNutrients(product.nutrientLevels),
         const SizedBox(height: 32),
-        productDetailsBottom(context, product),
+        productMoreDetails(context, product),
       ],
     );
   }
 
   // Affichage des logos
-  Widget productImages(String nutriscore, String nova) {
+  Widget productScores(String nutriscore, String nova) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        productImage(
+        productScore(
           "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-$nutriscore-new-fr.svg",
           100,
           nutriscore,
         ),
         const SizedBox(height: 8),
-        productImage(
+        productScore(
           "https://static.openfoodfacts.org/images/attributes/dist/nova-group-$nova.svg",
           30,
           nova,
@@ -203,23 +179,23 @@ class ProductPageState extends State<ProductPage> {
   }
 
   // Affichage d'une image avec une contrainte de largeur
-  Widget productImage(String imageUrl, double width, String score) {
+  Widget productScore(String image, double width, String score) {
     return Container(
       constraints: BoxConstraints(maxWidth: width),
       child:
-          imageUrl.isEmpty
+          image.isEmpty
               ? Image.asset(
                 'assets/images/logo.png',
                 width: width,
                 fit: BoxFit.cover,
                 semanticLabel: 'Nutriscore $score',
               )
-              : SvgPicture.network(imageUrl, width: width, fit: BoxFit.cover),
+              : SvgPicture.network(image, width: width, fit: BoxFit.cover),
     );
   }
 
   // Affichage des niveaux de nutriments
-  Widget productLabel(Map<String, dynamic> nutrientLevels) {
+  Widget productNutrients(Map<String, dynamic> nutrientLevels) {
     return Wrap(
       spacing: 8,
       runSpacing: 8,
@@ -247,10 +223,10 @@ class ProductPageState extends State<ProductPage> {
 
             switch (entry.value) {
               case 'high':
-                bgColor = Colors.red;
+                bgColor = Colors.redAccent;
                 break;
               case 'moderate':
-                bgColor = Colors.orange;
+                bgColor = Colors.orangeAccent;
                 break;
               case 'low':
                 bgColor = Colors.green;
@@ -278,8 +254,14 @@ class ProductPageState extends State<ProductPage> {
   }
 
   // Détails supplémentaires du produit
-  Widget productDetailsBottom(BuildContext context, Product product) {
+  Widget productMoreDetails(BuildContext context, Product product) {
     final provider = Provider.of<ProductsProvider>(context);
+    // Categories "nettoyées"
+    final categories = product.categories
+        .where((e) => e.contains(':'))
+        .map((e) => e.split(':')[1].replaceAll('-', ' '))
+        .toList()
+        .sublist(0, min(5, product.categories.length));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -287,7 +269,7 @@ class ProductPageState extends State<ProductPage> {
         if (product.quantity.isNotEmpty) ...[
           Text(
             "Quantité :",
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold, height: 1.5),
           ),
           Text(product.quantity),
           const SizedBox(height: 16),
@@ -295,53 +277,66 @@ class ProductPageState extends State<ProductPage> {
         if (product.nutriments.keys.any(
           (key) => provider.ajrValues.containsKey(key),
         )) ...[
-          NutritionalTable(nutriments: product.nutriments),
+          NutritionalTable(product: product),
           SizedBox(height: 32),
         ],
         if (product.ingredients.isNotEmpty) ...[
           Text(
             "Ingrédients :",
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold, height: 1.5),
           ),
           Text(product.ingredients),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
         ],
         if (product.id.isNotEmpty) ...[
-          Text(
+          const Text(
             "Code-barres :",
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold, height: 1.5),
           ),
           Text(product.id),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
         ],
         if (product.link.isNotEmpty) ...[
-          Text(
+          const Text(
             "Plus d'informations : ",
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold, height: 1.5),
           ),
-          Text(product.link),
-          const SizedBox(height: 16),
+          InkWell(
+            child: Text(
+              product.link,
+              style: const TextStyle(
+                decoration: TextDecoration.underline,
+                decorationThickness: 4,
+                decorationColor: Colors.redAccent,
+              ),
+            ),
+            onTap: () {
+              launchUrlString(product.link);
+            },
+          ),
+          const SizedBox(height: 24),
         ],
         Wrap(
           spacing: 8,
           children:
-              product.categories
+              categories
                   .map(
                     (category) => ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor: Colors.grey[400],
                       ),
-                      onPressed: () {
-                        provider.searchProducts(
-                          userInput: category,
-                          method: 'complete',
-                        );
+                      onPressed: () async {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => ProductSearchPage(),
                           ),
+                        );
+
+                        await provider.searchProducts(
+                          query: category,
+                          method: 'complete',
                         );
                       },
                       child: Text(
@@ -363,32 +358,38 @@ class ProductPageState extends State<ProductPage> {
   Widget alternativeProducts(
     BuildContext context,
     ProductsProvider provider,
-    List<Products> suggestedProducts,
+    List<Product> suggestedProducts,
   ) {
-    if (provider.suggestedProductsIsLoading) {
-      return loadingWidget();
-    } else if (provider.suggestedProducts.isNotEmpty) {
-      return Container(
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 350),
+      curve: Curves.easeInOut,
+      child: Container(
+        height:
+            provider.suggestedProductsIsLoading || suggestedProducts.isNotEmpty
+                ? null
+                : 0,
+        width: double.infinity,
+        margin: const EdgeInsets.symmetric(vertical: 32),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.grey[200],
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
-            BoxShadow(
-              color: const Color.fromRGBO(255, 255, 255, 0.01),
-              offset: const Offset(0, 1),
+            const BoxShadow(
+              color: Color.fromRGBO(255, 255, 255, 0.01),
+              offset: Offset(0, 1),
               blurRadius: 1,
               spreadRadius: 0,
             ),
-            BoxShadow(
-              color: const Color.fromRGBO(50, 50, 93, 0.025),
-              offset: const Offset(0, 50),
+            const BoxShadow(
+              color: Color.fromRGBO(50, 50, 93, 0.025),
+              offset: Offset(0, 50),
               blurRadius: 100,
               spreadRadius: -20,
             ),
-            BoxShadow(
-              color: const Color.fromRGBO(0, 0, 0, 0.03),
-              offset: const Offset(0, 30),
+            const BoxShadow(
+              color: Color.fromRGBO(0, 0, 0, 0.03),
+              offset: Offset(0, 30),
               blurRadius: 60,
               spreadRadius: -30,
             ),
@@ -397,11 +398,11 @@ class ProductPageState extends State<ProductPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
+            const Center(
               child: Text.rich(
                 TextSpan(
                   text: "A",
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'Grand Hotel',
                     fontSize: 32,
                     color: Colors.redAccent,
@@ -409,42 +410,37 @@ class ProductPageState extends State<ProductPage> {
                   children: [
                     TextSpan(
                       text: "lternatives",
-                      style: const TextStyle(color: Colors.black),
+                      style: TextStyle(color: Colors.black),
                     ),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 16),
-            Wrap(
-              alignment: WrapAlignment.spaceBetween,
-              spacing: MediaQuery.of(context).size.width / 100 * 4,
-              children:
-                  suggestedProducts.map((product) {
-                    return ProductCard(
-                      widthAjustment: 32,
-                      id: product.id,
-                      imageUrl: product.image,
-                      title: product.brand,
-                      description: product.name,
-                      nutriscore: product.nutriscore,
-                      nova: product.nova,
-                    );
-                  }).toList(),
-            ),
+            provider.suggestedProductsIsLoading
+                ? const Loader()
+                : Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  spacing: MediaQuery.of(context).size.width / 100 * 4,
+                  children:
+                      suggestedProducts.map((product) {
+                        return ProductCard(
+                          product: product,
+                          widthAjustment: 32,
+                        );
+                      }).toList(),
+                ),
           ],
         ),
-      );
-    } else {
-      return SizedBox.shrink();
-    }
+      ),
+    );
   }
 }
 
 class NutritionalTable extends StatefulWidget {
-  final Object nutriments;
+  final Product product;
 
-  const NutritionalTable({super.key, required this.nutriments});
+  const NutritionalTable({super.key, required this.product});
 
   @override
   NutritionalTableState createState() => NutritionalTableState();
@@ -456,8 +452,7 @@ class NutritionalTableState extends State<NutritionalTable> {
     final provider = Provider.of<ProductsProvider>(context);
 
     // Convertir l'objet en une liste de paires (nom, valeur)
-    final entries =
-        (widget.nutriments as Map<String, dynamic>).entries.toList();
+    final entries = widget.product.nutriments.entries.toList();
 
     final double rowHeight = 85;
 
@@ -466,51 +461,55 @@ class NutritionalTableState extends State<NutritionalTable> {
       children: [
         Row(
           children: [
-            FilterChip(
-              label: Text('Femme'),
-              selected: provider.ajrSelected == 'women',
-              onSelected: (selected) {
-                provider.updateAjrSelected('women');
-              },
-              backgroundColor: Colors.grey,
-              selectedColor: Color.fromRGBO(0, 189, 126, 1),
-              labelStyle: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
+            Material(
+              child: FilterChip(
+                label: const Text('Femme'),
+                selected: provider.ajrSelected == 'women',
+                onSelected: (selected) {
+                  provider.setAjrSelected('women');
+                },
+                backgroundColor: Colors.grey,
+                selectedColor: Color.fromRGBO(0, 189, 126, 1),
+                labelStyle: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                showCheckmark: false,
               ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(999),
-              ),
-              showCheckmark: false,
             ),
             const SizedBox(width: 16),
-            FilterChip(
-              label: Text('Homme'),
-              selected: provider.ajrSelected == 'men',
-              onSelected: (selected) {
-                provider.updateAjrSelected('men');
-              },
-              backgroundColor: Colors.grey,
-              selectedColor: Color.fromRGBO(0, 189, 126, 1),
-              labelStyle: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
+            Material(
+              child: FilterChip(
+                label: const Text('Homme'),
+                selected: provider.ajrSelected == 'men',
+                onSelected: (selected) {
+                  provider.setAjrSelected('men');
+                },
+                backgroundColor: Colors.grey,
+                selectedColor: const Color.fromRGBO(0, 189, 126, 1),
+                labelStyle: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                showCheckmark: false,
               ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(999),
-              ),
-              showCheckmark: false,
             ),
           ],
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         Container(
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
-              BoxShadow(
-                color: const Color.fromRGBO(0, 0, 0, 0.08),
+              const BoxShadow(
+                color: Color.fromRGBO(0, 0, 0, 0.08),
                 spreadRadius: 0,
                 blurRadius: 6,
                 offset: Offset(0, 2),
@@ -522,20 +521,20 @@ class NutritionalTableState extends State<NutritionalTable> {
             child: Table(
               defaultVerticalAlignment: TableCellVerticalAlignment.middle,
               columnWidths: {
-                0: FractionColumnWidth(0.50),
-                1: FractionColumnWidth(0.30),
-                2: FractionColumnWidth(0.20),
+                0: const FractionColumnWidth(0.50),
+                1: const FractionColumnWidth(0.30),
+                2: const FractionColumnWidth(0.20),
               },
               children: [
                 TableRow(
                   children: [
                     Container(
                       height: rowHeight,
-                      decoration: BoxDecoration(color: Colors.white),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
+                      decoration: const BoxDecoration(color: Colors.white),
+                      child: const Padding(
+                        padding: EdgeInsets.all(12),
                         child: Text(
-                          'Valeurs nutritionnelles'.toUpperCase(),
+                          'VALEURS NUTRITIONELLES',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -546,15 +545,15 @@ class NutritionalTableState extends State<NutritionalTable> {
                     ),
                     Container(
                       height: rowHeight,
-                      decoration: BoxDecoration(color: Colors.white),
+                      decoration: const BoxDecoration(color: Colors.white),
                       child: Padding(
                         padding: const EdgeInsets.all(12),
                         child: Text(
-                          provider.product.servingSize.isNotEmpty
-                              ? 'Par portion (${provider.product.servingSize})'
+                          widget.product.servingSize.isNotEmpty
+                              ? 'Par portion (${widget.product.servingSize})'
                                   .toUpperCase()
                               : 'Par portion (N/A)',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
@@ -565,10 +564,10 @@ class NutritionalTableState extends State<NutritionalTable> {
                     Container(
                       height: rowHeight,
                       decoration: BoxDecoration(color: Colors.grey[100]),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
+                      child: const Padding(
+                        padding: EdgeInsets.all(12),
                         child: Text(
-                          'Ajr*'.toUpperCase(),
+                          'AJR*',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -593,7 +592,7 @@ class NutritionalTableState extends State<NutritionalTable> {
                       ),
                       children: [
                         Container(
-                          decoration: BoxDecoration(color: Colors.white),
+                          decoration: const BoxDecoration(color: Colors.white),
                           child: Padding(
                             padding: const EdgeInsets.all(12),
                             child: Text(
@@ -607,12 +606,12 @@ class NutritionalTableState extends State<NutritionalTable> {
                           ),
                         ),
                         Container(
-                          decoration: BoxDecoration(color: Colors.white),
+                          decoration: const BoxDecoration(color: Colors.white),
                           child: Padding(
                             padding: EdgeInsets.all(12),
                             child: Text(
-                              entry.value.toStringAsFixed(0).toString(),
-                              style: TextStyle(
+                              "${entry.value.toStringAsFixed(0)} ${widget.product.nutriments[entry.key.replaceAll('_serving', '_unit')]}",
+                              style: const TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey,
                               ),
@@ -622,14 +621,14 @@ class NutritionalTableState extends State<NutritionalTable> {
                         Container(
                           decoration: BoxDecoration(color: Colors.grey[100]),
                           child: Padding(
-                            padding: EdgeInsets.all(12),
+                            padding: const EdgeInsets.all(12),
                             child: Text(
                               (double.tryParse(entry.value.toString()) !=
                                           null &&
                                       provider.ajrValues[entry.key] != null)
                                   ? ('${(((double.parse(entry.value.toString())) / provider.ajrValues[entry.key]?['value']!) * 100).toStringAsFixed(0)}%')
                                   : '—',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey,
                               ),
@@ -642,8 +641,8 @@ class NutritionalTableState extends State<NutritionalTable> {
             ),
           ),
         ),
-        SizedBox(height: 8),
-        Text(
+        const SizedBox(height: 8),
+        const Text(
           'Ajr* : Apports Journaliers Recommandés',
           style: TextStyle(fontSize: 12),
         ),
