@@ -36,7 +36,7 @@ class _HomePageState extends State<HomePage> {
       final service = ProductsService();
 
       // Attente des appels asynchrones
-      product = await service.fetchProductById('8000500310427');
+      product = await service.fetchProductById('3608580758686');
 
       if (product.id.isNotEmpty) {
         final fetched = await service.fetchSuggestedProducts(
@@ -149,6 +149,7 @@ class _HomePageState extends State<HomePage> {
                                           return ProductCard(
                                             product: product,
                                             widthAjustment: 32,
+                                            heroTransition: true,
                                           );
                                         }).toList(),
                                   ),
@@ -658,7 +659,10 @@ class _HomePageState extends State<HomePage> {
                     ),
                     const SizedBox(height: 16),
                     provider.suggestedProductsIsLoading
-                        ? Loader()
+                        ? Padding(
+                          padding: const EdgeInsets.only(top: 48, bottom: 62),
+                          child: Loader(),
+                        )
                         : ProductPageState().alternativeProducts(
                           context,
                           provider,
@@ -765,6 +769,7 @@ class _HomePageState extends State<HomePage> {
                                         return ProductCard(
                                           product: product,
                                           widthAjustment: 32,
+                                          heroTransition: true,
                                         );
                                       }).toList(),
                                 ),

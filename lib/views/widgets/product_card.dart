@@ -8,11 +8,13 @@ import 'package:app_nutriverif/views/screens/product_page.dart';
 class ProductCard extends StatelessWidget {
   final Product product;
   final double widthAjustment;
+  final bool heroTransition;
 
   const ProductCard({
     super.key,
     required this.product,
     required this.widthAjustment,
+    this.heroTransition = false,
   });
 
   @override
@@ -62,12 +64,13 @@ class ProductCard extends StatelessWidget {
               children: [
                 Center(
                   child:
-                      ModalRoute.of(context)!.settings.name !=
-                              '/product/${product.id}'
+                      heroTransition ||
+                              ModalRoute.of(context)!.settings.name == '/'
                           ? Hero(
                             key: Key(product.id),
                             tag: product.id,
                             child: Container(
+                              padding: const EdgeInsets.all(8),
                               constraints: const BoxConstraints(
                                 maxHeight: 100,
                                 maxWidth: 100,
@@ -103,6 +106,7 @@ class ProductCard extends StatelessWidget {
                             ),
                           )
                           : Container(
+                            padding: const EdgeInsets.all(8),
                             constraints: const BoxConstraints(
                               maxHeight: 100,
                               maxWidth: 100,
@@ -138,13 +142,17 @@ class ProductCard extends StatelessWidget {
                   product.brand,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontWeight: FontWeight.w900),
                 ),
                 Text(
                   product.name,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Column(

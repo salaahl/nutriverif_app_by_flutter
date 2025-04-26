@@ -39,8 +39,8 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
   void _onScroll() async {
     final scrollPos = _scrollController.position;
 
-    // 280 = hauteur de la carte d'un produit
-    if (scrollPos.pixels >= scrollPos.maxScrollExtent - 280 &&
+    // 440 = hauteur de la carte d'un produit et demi
+    if (scrollPos.pixels >= scrollPos.maxScrollExtent - 440 &&
         _provider.hasMorePages &&
         _refresh) {
       _refresh = false;
@@ -88,6 +88,7 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                     final productCard = ProductCard(
                       product: product,
                       widthAjustment: 16,
+                      heroTransition: true,
                     );
 
                     final alreadyAnimated = _animatedProductIds.contains(

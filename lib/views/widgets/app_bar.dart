@@ -45,7 +45,7 @@ Widget myAppBar(
               const Spacer(flex: 1),
             ],
           ),
-          if (Navigator.canPop(context))
+          if (Navigator.canPop(context) && route != '/')
             Positioned(
               top: 0,
               bottom: 0,
