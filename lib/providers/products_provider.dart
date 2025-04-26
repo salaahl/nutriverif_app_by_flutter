@@ -68,8 +68,8 @@ class ProductsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void setProducts(List<Product> products) {
-    _products.clear();
+  void setProducts(List<Product> products, String method) {
+    if (method == 'complete') _products.clear();
     _products.addAll(products);
     notifyListeners();
   }
@@ -151,7 +151,7 @@ class ProductsProvider with ChangeNotifier {
     if (method == 'more') {
       _page++;
     } else {
-      setProducts([]);
+      setProducts([], method);
       if (query.isNotEmpty) setInput(query);
       if (selected.isNotEmpty) setFilter(selected);
       setPage(1);
@@ -173,7 +173,7 @@ class ProductsProvider with ChangeNotifier {
       final products =
           (data['products'] as List).map((p) => Product.fromJson(p)).toList();
 
-      setProducts(products);
+      setProducts(products, method);
     } catch (e) {
       setError('search product error: $e');
     } finally {
