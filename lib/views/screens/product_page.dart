@@ -148,11 +148,8 @@ class ProductPageState extends State<ProductPage> {
         ),
         const SizedBox(height: 8),
         Text(formattedDate),
-        const SizedBox(height: 16),
         productScores(product.nutriscore, product.nova),
-        const SizedBox(height: 32),
         productNutrients(product.nutrientLevels),
-        const SizedBox(height: 32),
         productMoreDetails(context, product),
       ],
     );
@@ -160,21 +157,24 @@ class ProductPageState extends State<ProductPage> {
 
   // Affichage des logos
   Widget productScores(String nutriscore, String nova) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        productScore(
-          "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-$nutriscore-new-fr.svg",
-          100,
-          nutriscore,
-        ),
-        const SizedBox(height: 8),
-        productScore(
-          "https://static.openfoodfacts.org/images/attributes/dist/nova-group-$nova.svg",
-          30,
-          nova,
-        ),
-      ],
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          productScore(
+            "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-$nutriscore-new-fr.svg",
+            100,
+            nutriscore,
+          ),
+          const SizedBox(height: 8),
+          productScore(
+            "https://static.openfoodfacts.org/images/attributes/dist/nova-group-$nova.svg",
+            30,
+            nova,
+          ),
+        ],
+      ),
     );
   }
 
@@ -196,61 +196,69 @@ class ProductPageState extends State<ProductPage> {
 
   // Affichage des niveaux de nutriments
   Widget productNutrients(Map<String, dynamic> nutrientLevels) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children:
-          nutrientLevels.entries.map((entry) {
-            String label;
-            Color bgColor;
+    return nutrientLevels.isEmpty
+        ? SizedBox.shrink()
+        : Container(
+          margin: const EdgeInsets.symmetric(vertical: 32),
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children:
+                nutrientLevels.entries.map((entry) {
+                  String label;
+                  Color bgColor;
 
-            switch (entry.key) {
-              case 'fat':
-                label = 'matières grasses';
-                break;
-              case 'salt':
-                label = 'sel';
-                break;
-              case 'sugars':
-                label = 'sucres';
-                break;
-              case 'saturated-fat':
-                label = 'graisses saturées';
-                break;
-              default:
-                label = entry.key;
-            }
+                  switch (entry.key) {
+                    case 'fat':
+                      label = 'matières grasses';
+                      break;
+                    case 'salt':
+                      label = 'sel';
+                      break;
+                    case 'sugars':
+                      label = 'sucres';
+                      break;
+                    case 'saturated-fat':
+                      label = 'graisses saturées';
+                      break;
+                    default:
+                      label = entry.key;
+                  }
 
-            switch (entry.value) {
-              case 'high':
-                bgColor = Colors.redAccent;
-                break;
-              case 'moderate':
-                bgColor = Colors.orangeAccent;
-                break;
-              case 'low':
-                bgColor = Colors.green;
-                break;
-              default:
-                bgColor = Colors.grey;
-            }
+                  switch (entry.value) {
+                    case 'high':
+                      bgColor = Colors.redAccent;
+                      break;
+                    case 'moderate':
+                      bgColor = Colors.orangeAccent;
+                      break;
+                    case 'low':
+                      bgColor = Colors.green;
+                      break;
+                    default:
+                      bgColor = Colors.grey;
+                  }
 
-            return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: bgColor,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                label,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            );
-          }).toList(),
-    );
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: bgColor,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      label,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  );
+                }).toList(),
+          ),
+        );
   }
 
   // Détails supplémentaires du produit
