@@ -46,26 +46,13 @@ class ProductCard extends StatelessWidget {
         elevation: 0,
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
-          onTap: () async {
-            final result = await Navigator.push(
+          onTap: () {
+            Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => ProductPage(product: product),
               ),
             );
-
-            if (context.mounted && result != null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    result.toString(),
-                    style: const TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                  backgroundColor: Colors.redAccent,
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            }
           },
           child: Padding(
             padding: const EdgeInsets.all(8),
