@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:app_nutriverif/core/services/api_products.dart';
+import 'package:app_nutriverif/core/services/products_service.dart';
 import 'package:app_nutriverif/providers/products_provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:visibility_detector/visibility_detector.dart';
