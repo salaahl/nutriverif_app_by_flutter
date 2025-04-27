@@ -1,3 +1,6 @@
+![Flutter Tests](https://github.com/salaahl/nutriverif_app_by_flutter/actions/workflows/flutter_tests.yml/badge.svg)
+
+
 # NutriVerif
 
 **Application mobile de food checking** basée sur l'API [OpenFoodFacts](https://world.openfoodfacts.org/), permettant de rechercher et évaluer la qualité nutritionnelle des produits alimentaires.
