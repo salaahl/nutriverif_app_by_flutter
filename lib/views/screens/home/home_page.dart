@@ -25,6 +25,10 @@ class _HomePageState extends State<HomePage> {
   late List<Product> suggestedProducts = [];
   late List<Product> lastProducts = [];
 
+  bool _productIsLoading = false;
+  bool _suggestedProductsIsLoading = false;
+  bool _lastProductsIsLoading = false;
+
   final Set<String> _animatedProductIds = {};
   Product product = Product.fromJson({});
 
@@ -36,9 +40,12 @@ class _HomePageState extends State<HomePage> {
       final service = ProductsService();
 
       // Attente des appels asynchrones
+      setState(() => _productIsLoading = true);
       product = await service.fetchProductById('3608580758686');
+      setState(() => _productIsLoading = false);
 
       if (product.id.isNotEmpty) {
+        setState(() => _suggestedProductsIsLoading = true);
         final fetched = await service.fetchSuggestedProducts(
           id: product.id,
           categories: product.categories,
@@ -48,12 +55,22 @@ class _HomePageState extends State<HomePage> {
 
         if (mounted) {
           setState(() {
-            suggestedProducts = fetched;
+            suggestedProducts.addAll(fetched);
           });
         }
+
+        setState(() => _suggestedProductsIsLoading = false);
       }
 
-      lastProducts.addAll(await service.fetchLastProducts());
+      setState(() => _lastProductsIsLoading = true);
+      final fetchLastProducts = await service.fetchLastProducts();
+      if (mounted) {
+        setState(() {
+          lastProducts.addAll(fetchLastProducts);
+        });
+      }
+
+      setState(() => _lastProductsIsLoading = false);
     });
   }
 
@@ -495,7 +512,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   // Présentation partielle d'un produit
-                  if (provider.productIsLoading)
+                  if (_productIsLoading)
                     Loader()
                   else ...[
                     Container(
@@ -667,7 +684,7 @@ class _HomePageState extends State<HomePage> {
                               : const SizedBox(height: 50, width: 50),
                     ),
                     const SizedBox(height: 16),
-                    provider.suggestedProductsIsLoading
+                    _suggestedProductsIsLoading
                         ? Padding(
                           padding: const EdgeInsets.only(top: 48, bottom: 62),
                           child: Loader(),
@@ -759,13 +776,17 @@ class _HomePageState extends State<HomePage> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child:
-                        provider.lastProductsIsLoading
+                        _lastProductsIsLoading
                             ? const Loader()
                             : AnimatedSize(
                               duration: Duration(milliseconds: 350),
                               curve: Curves.easeInOut,
                               child: SizedBox(
-                                height: lastProducts.isNotEmpty ? null : 0,
+                                height:
+                                    lastProducts.isNotEmpty ||
+                                            _lastProductsIsLoading
+                                        ? null
+                                        : 0,
                                 width: double.infinity,
                                 child: Wrap(
                                   alignment: WrapAlignment.spaceBetween,
