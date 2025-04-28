@@ -11,7 +11,7 @@ import '../../widgets/search_bar.dart';
 import 'widgets/youtube_player.dart';
 import '../../widgets/product_card.dart';
 
-import 'package:app_nutriverif/views/screens/product_page.dart';
+import 'package:app_nutriverif/views/screens/product/widgets/product_alternatives.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -681,7 +681,7 @@ class _HomePageState extends State<HomePage> {
                           padding: const EdgeInsets.only(top: 48, bottom: 62),
                           child: Loader(),
                         )
-                        : ProductPageState().alternativeProducts(
+                        : alternativeProducts(
                           context,
                           _provider.suggestedProductsDemo,
                         ),
