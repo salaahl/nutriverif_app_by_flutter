@@ -11,6 +11,10 @@ import '../../widgets/search_bar.dart';
 import '../../widgets/product_card.dart';
 import './widgets/youtube_player.dart';
 
+import 'package:app_nutriverif/views/screens/product/widgets/product_image.dart';
+import 'package:app_nutriverif/views/screens/product/widgets/product_name.dart';
+import 'package:app_nutriverif/views/screens/product/widgets/product_scores.dart';
+import 'package:app_nutriverif/views/screens/product/widgets/product_nutrients.dart';
 import 'package:app_nutriverif/views/screens/product/widgets/product_alternatives.dart';
 
 class HomePage extends StatefulWidget {
@@ -502,10 +506,22 @@ class _HomePageState extends State<HomePage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ProductImage(image: _provider.productDemo.image),
-                          ProductName(brand: _provider.productDemo.brand, name: _provider.productDemo.name, lastUpdate: _provider.productDemo.lastUpdate),
-                          ProductScores(nutriscore: product.nutriscore, nova: product.nova),
-                          ProductNutrients(nutrients: product.nutrientLevels),
+                          ProductImage(
+                            id: _provider.productDemo.id,
+                            image: _provider.productDemo.image,
+                          ),
+                          ProductName(
+                            lastUpdate: _provider.productDemo.lastUpdate,
+                            brand: _provider.productDemo.brand,
+                            name: _provider.productDemo.name,
+                          ),
+                          ProductScores(
+                            nutriscore: _provider.productDemo.nutriscore,
+                            nova: _provider.productDemo.nova,
+                          ),
+                          ProductNutrients(
+                            nutrients: _provider.productDemo.nutrientLevels,
+                          ),
                         ],
                       ),
                     ),

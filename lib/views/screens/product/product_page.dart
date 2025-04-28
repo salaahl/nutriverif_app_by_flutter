@@ -2,20 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app_nutriverif/providers/products_provider.dart';
-import '../../widgets/app_bar.dart';
+
+import 'package:app_nutriverif/views/widgets/app_bar.dart';
+import 'package:app_nutriverif/views/widgets/loader.dart';
 
 import './widgets/product_image.dart';
 import './widgets/product_name.dart';
 import './widgets/product_details.dart';
 import './widgets/product_nutrients.dart';
-import './widgets/product_nutriments.dart';
 import './widgets/product_scores.dart';
 import './widgets/product_alternatives.dart';
 
 class ProductPage extends StatefulWidget {
-  final Product product;
+  final String id;
+  final String image;
 
-  const ProductPage({super.key, required this.product});
+  const ProductPage({super.key, required this.id, required this.image});
 
   @override
   State<ProductPage> createState() => ProductPageState();
@@ -29,17 +31,18 @@ class ProductPageState extends State<ProductPage> {
     super.initState();
 
     _provider = context.read<ProductsProvider>();
-    final Product product = widget.product;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _provider.loadProductById(widget.id);
       _provider.setSuggestedProducts([]);
 
-      if (product.nutriscore != 'a' || int.tryParse(product.nova) != 1) {
+      if (_provider.product.nutriscore != 'a' ||
+          int.tryParse(_provider.product.nova) != 1) {
         _provider.loadSuggestedProducts(
-          id: product.id,
-          categories: product.categories,
-          nutriscore: product.nutriscore,
-          nova: product.nova,
+          id: _provider.product.id,
+          categories: _provider.product.categories,
+          nutriscore: _provider.product.nutriscore,
+          nova: _provider.product.nova,
         );
       }
     });
@@ -48,9 +51,8 @@ class ProductPageState extends State<ProductPage> {
   @override
   Widget build(BuildContext context) {
     _provider = context.watch<ProductsProvider>();
-    final Product product = widget.product;
 
-    if (product.id.isEmpty) {
+    if (_provider.productIsLoading) {
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.all(32),
@@ -66,13 +68,28 @@ class ProductPageState extends State<ProductPage> {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
-          // Optimiser en n'envoyant que les données nécessaires et pas tout le produit
           myAppBar(context),
-          ProductImage(product: product),
-          ProductName(product: product),
-          ProductScores(nutriscore: product.nutriscore, nova: product.nova),
-          ProductNutrients(nutrientLevels: product.nutrientLevels),
-          ProductDetails(product: product),
+          ProductImage(id: widget.id, image: widget.image),
+          ProductName(
+            lastUpdate: _provider.product.lastUpdate,
+            brand: _provider.product.brand,
+            name: _provider.product.name,
+          ),
+          ProductScores(
+            nutriscore: _provider.product.nutriscore,
+            nova: _provider.product.nova,
+          ),
+          ProductNutrients(nutrients: _provider.product.nutrientLevels),
+          ProductDetails(
+            id: _provider.product.id,
+            categories: _provider.product.categories,
+            quantity: _provider.product.quantity,
+            servingSize: _provider.product.servingSize,
+            nutriments: _provider.product.nutriments,
+            ingredients: _provider.product.ingredients,
+            manufacturingPlace: _provider.product.manufacturingPlace,
+            link: _provider.product.link,
+          ),
           alternativeProducts(context, _provider.suggestedProducts),
         ],
       ),

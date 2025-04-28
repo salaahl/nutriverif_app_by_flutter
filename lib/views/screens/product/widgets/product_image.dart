@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class ProductImage extends StatelessWidget {
   final String id;
-  final Image image;
+  final String image;
 
   const ProductImage({super.key, required this.id, required this.image});
 
@@ -21,20 +21,20 @@ class ProductImage extends StatelessWidget {
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: image.isEmpty
-              ? Image.asset(
-                  image,
-                  width: 160,
-                  semanticLabel: 'Image du produit',
-                )
-              : Image.network(
-                  image,
-                  width: 160,
-                  semanticLabel: 'Image du produit',
-                ),
+          child:
+              image.isEmpty
+                  ? Image.asset(
+                    image,
+                    width: 160,
+                    semanticLabel: 'Image du produit',
+                  )
+                  : Image.network(
+                    image,
+                    width: 160,
+                    semanticLabel: 'Image du produit',
+                  ),
         ),
       ),
     );
   }
 }
-

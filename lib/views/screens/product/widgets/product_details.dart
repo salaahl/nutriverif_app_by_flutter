@@ -1,72 +1,125 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
-class ProductMoreDetails extends StatelessWidget {
-  final Product product;
+import 'package:app_nutriverif/providers/products_provider.dart';
 
-  const ProductMoreDetails({super.key, required this.product});
+import 'package:app_nutriverif/views/screens/products_page.dart';
+
+import './product_nutriments.dart';
+
+class ProductDetails extends StatelessWidget {
+  final String id;
+  final List<String> categories;
+  final String quantity;
+  final String servingSize;
+  final String ingredients;
+  final Map<String, dynamic> nutriments;
+  final String manufacturingPlace;
+  final String link;
+
+  const ProductDetails({
+    super.key,
+    this.id = '',
+    this.categories = const [],
+    this.quantity = '',
+    this.servingSize = '',
+    this.ingredients = '',
+    this.nutriments = const {},
+    this.manufacturingPlace = '',
+    this.link = '',
+  });
 
   @override
   Widget build(BuildContext context) {
-    final _provider = context.read<ProductsProvider>();
-    final categories = product.categories
+    final provider = context.read<ProductsProvider>();
+    final categoriesFiltered = categories
         .where((e) => e.contains(':'))
         .map((e) => e.split(':')[1].replaceAll('-', ' '))
         .toList()
-        .sublist(0, min(5, product.categories.length));
+        .sublist(0, min(5, categories.length));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (product.quantity.isNotEmpty) ...[
-          Text("Quantité :", style: TextStyle(fontWeight: FontWeight.bold, height: 1.5)),
-          Text(product.quantity),
+        if (quantity.isNotEmpty) ...[
+          Text(
+            "Quantité :",
+            style: TextStyle(fontWeight: FontWeight.bold, height: 1.5),
+          ),
+          Text(quantity),
           const SizedBox(height: 16),
         ],
-        if (product.nutriments.keys.any((key) => _provider.ajrValues.containsKey(key))) ...[
-          NutritionalTable(product: product),
+        if (nutriments.keys.any(
+          (key) => provider.ajrValues.containsKey(key),
+        )) ...[
+          NutritionalTable(nutriments: nutriments, servingSize: servingSize),
           const SizedBox(height: 32),
         ],
-        if (product.ingredients.isNotEmpty) ...[
-          Text("Ingrédients :", style: TextStyle(fontWeight: FontWeight.bold, height: 1.5)),
-          Text(product.ingredients),
+        if (ingredients.isNotEmpty) ...[
+          Text(
+            "Ingrédients :",
+            style: TextStyle(fontWeight: FontWeight.bold, height: 1.5),
+          ),
+          Text(ingredients),
           const SizedBox(height: 24),
         ],
-        if (product.id.isNotEmpty) ...[
-          const Text("Code-barres :", style: TextStyle(fontWeight: FontWeight.bold, height: 1.5)),
-          Text(product.id),
+        if (id.isNotEmpty) ...[
+          const Text(
+            "Code-barres :",
+            style: TextStyle(fontWeight: FontWeight.bold, height: 1.5),
+          ),
+          Text(id),
           const SizedBox(height: 24),
         ],
-        if (product.link.isNotEmpty) ...[
-          const Text("Plus d'informations :", style: TextStyle(fontWeight: FontWeight.bold, height: 1.5)),
+        if (link.isNotEmpty) ...[
+          const Text(
+            "Plus d'informations :",
+            style: TextStyle(fontWeight: FontWeight.bold, height: 1.5),
+          ),
           InkWell(
             child: Text(
-              product.link,
+              link,
               style: const TextStyle(
                 decoration: TextDecoration.underline,
                 decorationThickness: 4,
                 decorationColor: Colors.redAccent,
               ),
             ),
-            onTap: () => launchUrlString(product.link),
+            onTap: () => launchUrlString(link),
           ),
           const SizedBox(height: 24),
         ],
         Wrap(
           spacing: 8,
-          children: categories.map((category) => ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.white,
-              backgroundColor: Colors.grey[400],
-            ),
-            onPressed: () async {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ProductSearchPage()),
-              );
-              await _provider.searchProducts(query: category, method: 'complete');
-            },
-            child: Text("#$category", style: const TextStyle(fontWeight: FontWeight.bold)),
-          )).toList(),
+          children:
+              categoriesFiltered
+                  .map(
+                    (category) => ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.grey[400],
+                      ),
+                      onPressed: () async {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ProductSearchPage(),
+                          ),
+                        );
+                        await provider.searchProducts(
+                          query: category,
+                          method: 'complete',
+                        );
+                      },
+                      child: Text(
+                        "#$category",
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  )
+                  .toList(),
         ),
       ],
     );

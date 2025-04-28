@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app_nutriverif/providers/products_provider.dart';
-import '../../../../models/model_products.dart';
 
 class NutritionalTable extends StatefulWidget {
-  final Product product;
+  final Map<String, dynamic> nutriments;
+  final String servingSize;
 
-  const NutritionalTable({super.key, required this.product});
+  const NutritionalTable({
+    super.key,
+    required this.nutriments,
+    required this.servingSize,
+  });
 
   @override
   NutritionalTableState createState() => NutritionalTableState();
@@ -19,7 +23,7 @@ class NutritionalTableState extends State<NutritionalTable> {
     final provider = context.read<ProductsProvider>();
 
     // Convertir l'objet en une liste de paires (nom, valeur)
-    final entries = widget.product.nutriments.entries.toList();
+    final entries = widget.nutriments.entries.toList();
 
     final double rowHeight = 85;
 
@@ -116,8 +120,8 @@ class NutritionalTableState extends State<NutritionalTable> {
                       child: Padding(
                         padding: const EdgeInsets.all(12),
                         child: Text(
-                          widget.product.servingSize.isNotEmpty
-                              ? 'Par portion (${widget.product.servingSize})'
+                          widget.servingSize.isNotEmpty
+                              ? 'Par portion (${widget.servingSize})'
                                   .toUpperCase()
                               : 'Par portion (N/A)',
                           style: const TextStyle(
@@ -177,7 +181,7 @@ class NutritionalTableState extends State<NutritionalTable> {
                           child: Padding(
                             padding: EdgeInsets.all(12),
                             child: Text(
-                              "${entry.value.toStringAsFixed(0)} ${widget.product.nutriments[entry.key.replaceAll('_serving', '_unit')]}",
+                              "${entry.value.toStringAsFixed(0)} ${widget.nutriments[entry.key.replaceAll('_serving', '_unit')]}",
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey,

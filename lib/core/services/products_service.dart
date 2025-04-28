@@ -7,11 +7,13 @@ class ProductsService {
   static const String _api2BaseUrl =
       'https://world.openfoodfacts.org/api/v2/search';
 
-  static const String _api3BaseUrl =
-      'https://world.openfoodfacts.org/api/v3';
+  static const String _api3BaseUrl = 'https://world.openfoodfacts.org/api/v3';
 
-  static const String _fields =
+  static const String _productFields =
       'id,image_url,brands,generic_name_fr,main_category_fr,categories_tags,created_t,last_modified_t,nutriscore_grade,nova_group,quantity,serving_size,ingredients_text_fr,nutriments,nutrient_levels,manufacturing_places,url,completeness,popularity_key';
+
+  static const String _productsFields =
+      'id,image_url,brands,generic_name_fr,categories_tags,created_t,nutriscore_grade,nova_group,completeness,popularity_key';
 
   Future<Map<String, dynamic>> _getJson(String url) async {
     final response = await http
@@ -22,7 +24,7 @@ class ProductsService {
   }
 
   Future<Product> fetchProductById(String id) async {
-    final url = '$_api3BaseUrl/product/$id?fields=$_fields';
+    final url = '$_api3BaseUrl/product/$id?fields=$_productFields';
 
     final data = await _getJson(url);
     return Product.fromJson(data['product']);
@@ -34,7 +36,7 @@ class ProductsService {
     required int page,
   }) async {
     final url =
-        'https://world.openfoodfacts.org/cgi/search.pl?search_terms=${Uri.encodeComponent(query)}&fields=${Uri.encodeComponent(_fields)}&purchase_places_tags=france&sort_by=${Uri.encodeComponent(sortBy)}&page_size=20&page=$page&search_simple=1&action=process&json=1';
+        'https://world.openfoodfacts.org/cgi/search.pl?search_terms=${Uri.encodeComponent(query)}&fields=${Uri.encodeComponent(_productsFields)}&purchase_places_tags=france&sort_by=${Uri.encodeComponent(sortBy)}&page_size=20&page=$page&search_simple=1&action=process&json=1';
 
     final data = await _getJson(url);
     return data;
@@ -47,7 +49,7 @@ class ProductsService {
     required String nova,
   }) async {
     final url =
-        '$_api2BaseUrl?categories_tags=${Uri.encodeComponent(categories.last)}&fields=${Uri.encodeComponent(_fields)}&purchase_places_tags=france&sort_by=nutriscore_score,nova_group,popularity_key&page_size=300&action=process&json=1';
+        '$_api2BaseUrl?categories_tags=${Uri.encodeComponent(categories.last)}&fields=${Uri.encodeComponent(_productsFields)}&purchase_places_tags=france&sort_by=nutriscore_score,nova_group,popularity_key&page_size=300&action=process&json=1';
 
     final data = await _getJson(url);
 
@@ -114,7 +116,7 @@ class ProductsService {
 
   Future<List<Product>> fetchLastProducts() async {
     final url =
-        '$_api2BaseUrl?&fields=${Uri.encodeComponent(_fields)}&purchase_places_tags=france&sort_by=created_t&page_size=300&action=process&json=1';
+        '$_api2BaseUrl?&fields=${Uri.encodeComponent(_productsFields)}&purchase_places_tags=france&sort_by=created_t&page_size=300&action=process&json=1';
 
     final data = await _getJson(url);
 

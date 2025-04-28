@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:app_nutriverif/models/model_products.dart';
 import 'package:app_nutriverif/providers/products_provider.dart';
 
-import 'package:app_nutriverif/widgets/product_card.dart';
-import 'package:app_nutriverif/widgets/loader.dart';
+import 'package:app_nutriverif/views/widgets/loader.dart';
+import 'package:app_nutriverif/views/widgets/product_card.dart';
 
 Widget alternativeProducts(
   BuildContext context,

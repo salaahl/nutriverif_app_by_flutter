@@ -24,7 +24,7 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case '/product':
       final args = settings.arguments;
       if (args is Product) {
-        page = ProductPage(product: args);
+        page = ProductPage(id: args.id, image: args.image);
       } else {
         page = const HomePage();
       }
