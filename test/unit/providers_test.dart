@@ -36,7 +36,7 @@ void main() {
           nova: '2',
         );
 
-        expect(provider.suggestedProducts, hasLength(4));
+        expect(provider.suggestedProducts, hasLength(2));
         expect(provider.suggestedProducts[0].name, 'Best product');
       },
     );

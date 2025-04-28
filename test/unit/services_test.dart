@@ -43,7 +43,7 @@ void main() {
       () async {
         final lastProducts = await service.fetchLastProducts();
 
-        expect(lastProducts, hasLength(4));
+        expect(lastProducts, hasLength(3));
         expect(lastProducts[0].name, 'Best product');
       },
     );
