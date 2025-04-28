@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:app_nutriverif/models/model_products.dart';
 import 'package:app_nutriverif/providers/products_provider.dart';
-import '../../../widgets/product_card.dart';
-import '../../../widgets/loader.dart';
-import '../../../../models/model_products.dart';
+
+import 'package:app_nutriverif/widgets/product_card.dart';
+import 'package:app_nutriverif/widgets/loader.dart';
 
 Widget alternativeProducts(
   BuildContext context,

@@ -3,10 +3,13 @@ import 'package:provider/provider.dart';
 
 import 'package:app_nutriverif/providers/products_provider.dart';
 import '../../widgets/app_bar.dart';
-import '../../widgets/loader.dart';
-import '../../../models/model_products.dart';
 
+import './widgets/product_image.dart';
+import './widgets/product_name.dart';
 import './widgets/product_details.dart';
+import './widgets/product_nutrients.dart';
+import './widgets/product_nutriments.dart';
+import './widgets/product_scores.dart';
 import './widgets/product_alternatives.dart';
 
 class ProductPage extends StatefulWidget {
@@ -63,8 +66,13 @@ class ProductPageState extends State<ProductPage> {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
+          // Optimiser en n'envoyant que les données nécessaires et pas tout le produit
           myAppBar(context),
-          productDetails(context, product),
+          ProductImage(product: product),
+          ProductName(product: product),
+          ProductScores(nutriscore: product.nutriscore, nova: product.nova),
+          ProductNutrients(nutrientLevels: product.nutrientLevels),
+          ProductDetails(product: product),
           alternativeProducts(context, _provider.suggestedProducts),
         ],
       ),

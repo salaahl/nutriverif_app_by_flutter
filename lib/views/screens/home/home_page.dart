@@ -8,8 +8,8 @@ import 'package:visibility_detector/visibility_detector.dart';
 import '../../widgets/app_bar.dart';
 import '../../widgets/loader.dart';
 import '../../widgets/search_bar.dart';
-import 'widgets/youtube_player.dart';
 import '../../widgets/product_card.dart';
+import './widgets/youtube_player.dart';
 
 import 'package:app_nutriverif/views/screens/product/widgets/product_alternatives.dart';
 
@@ -69,15 +69,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     _provider = context.watch<ProductsProvider>();
-    String formattedDate = '';
-
-    if (_provider.productDemo.lastUpdate.isNotEmpty) {
-      final date = DateTime.fromMillisecondsSinceEpoch(
-        int.parse(_provider.productDemo.lastUpdate) * 1000,
-      );
-      formattedDate =
-          'Dernière mise à jour : ${date.day}-${date.month}-${date.year}';
-    }
 
     return Scaffold(
       body: Center(
@@ -511,105 +502,10 @@ class _HomePageState extends State<HomePage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          AspectRatio(
-                            aspectRatio: 1,
-                            child: Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(32),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child:
-                                  _provider.productDemo.image.isEmpty
-                                      ? Loader()
-                                      : Image.network(
-                                        _provider.productDemo.image,
-                                        width: 160,
-                                        semanticLabel: 'Image du produit',
-                                      ),
-                            ),
-                          ),
-                          const SizedBox(height: 32),
-                          Text.rich(
-                            TextSpan(
-                              text: "${_provider.productDemo.brand} - ",
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFF00BD7E),
-                              ),
-                              children: [
-                                TextSpan(
-                                  text: _provider.productDemo.name,
-                                  style: const TextStyle(color: Colors.black),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(formattedDate),
-                          const SizedBox(height: 16),
-                          SvgPicture.network(
-                            "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-${_provider.productDemo.nutriscore}-new-fr.svg",
-                            width: 100,
-                            fit: BoxFit.cover,
-                            semanticsLabel:
-                                'Nutriscore ${_provider.productDemo.nutriscore}',
-                          ),
-                          const SizedBox(height: 8),
-                          SvgPicture.network(
-                            "https://static.openfoodfacts.org/images/attributes/dist/nova-group-${_provider.productDemo.nova}.svg",
-                            width: 30,
-                            fit: BoxFit.cover,
-                            semanticsLabel:
-                                'NOVA ${_provider.productDemo.nova}',
-                          ),
-                          const SizedBox(height: 32),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children:
-                                _provider.productDemo.nutrientLevels.entries
-                                    .map((entry) {
-                                      Color bgColor;
-
-                                      switch (entry.value) {
-                                        case 'high':
-                                          bgColor = Colors.red;
-                                          break;
-                                        case 'moderate':
-                                          bgColor = Colors.orange;
-                                          break;
-                                        case 'low':
-                                          bgColor = Colors.green;
-                                          break;
-                                        default:
-                                          bgColor = Colors.grey;
-                                      }
-
-                                      return Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 6,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: bgColor,
-                                          borderRadius: BorderRadius.circular(
-                                            20,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          entry.key,
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      );
-                                    })
-                                    .toList(),
-                          ),
+                          ProductImage(image: _provider.productDemo.image),
+                          ProductName(brand: _provider.productDemo.brand, name: _provider.productDemo.name, lastUpdate: _provider.productDemo.lastUpdate),
+                          ProductScores(nutriscore: product.nutriscore, nova: product.nova),
+                          ProductNutrients(nutrients: product.nutrientLevels),
                         ],
                       ),
                     ),
