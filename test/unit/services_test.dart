@@ -24,16 +24,16 @@ void main() {
     );
 
     test(
-      's\'assurer que l\'appel de fetchSuggestedProducts initialise bien la variable suggestedProducts',
+      's\'assurer que l\'appel de fetchSuggestedProducts filtre bien les produits',
       () async {
         final suggestedProducts = await service.fetchSuggestedProducts(
           id: '3608580758686',
           categories: ['Snacks', 'Desserts', 'Chocolate products'],
-          nutriscore: 'b',
+          nutriscore: 'a',
           nova: '2',
         );
 
-        expect(suggestedProducts, hasLength(4));
+        expect(suggestedProducts, hasLength(1));
         expect(suggestedProducts[0].name, 'Best product');
       },
     );
@@ -43,7 +43,7 @@ void main() {
       () async {
         final lastProducts = await service.fetchLastProducts();
 
-        expect(lastProducts, hasLength(3));
+        expect(lastProducts, hasLength(4));
         expect(lastProducts[0].name, 'Best product');
       },
     );

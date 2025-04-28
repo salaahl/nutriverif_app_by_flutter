@@ -55,6 +55,10 @@ class ProductsService {
 
     const score = ['a', 'b', 'c', 'd', 'e'];
 
+    /* Critères :
+      * - de sélection : nutriscore > nova > popularité
+      * - éliminatoires : pas de nutriscore et/ou completeness < 0.35
+    */
     final selected =
         (data['products'] as List).where((e) {
             final eNutriscore = e['nutriscore_grade'];
@@ -62,39 +66,54 @@ class ProductsService {
             final completeness = e['completeness'];
             final eId = e['id'] ?? e['code'];
 
+            // 🔵 Application des filtres
+
+            // 1.  Critères éliminatoires : éliminer s'il s'agit du produit actuellement affiché
             if (eId == null || eId == id) return false;
 
-            if (eNutriscore == 'not-applicable' || eNutriscore == 'unknown') {
-              return false;
-            }
-
+            // 2. Critères éliminatoires : nutriscore absent ou inconnu
             if (!score.contains(eNutriscore) || !score.contains(nutriscore)) {
               return false;
             }
 
+            // 3. Critères éliminatoires : completeness inférieur à 0.35
+            if (completeness is! double || completeness < 0.35) {
+              return false;
+            }
+
+            // 4. Comparaison entre le nutriscore du produit et celui du produit de base
             final eScoreIndex = score.indexOf(eNutriscore);
             final pScoreIndex = score.indexOf(nutriscore);
             final scoreDiff = eScoreIndex.compareTo(pScoreIndex);
 
             final eNovaParsed = num.tryParse(eNova.toString());
             final pNovaParsed = num.tryParse(nova);
-            final bothNovaOk = eNovaParsed != null && pNovaParsed != null;
+            final bothNovaOk =
+                eNovaParsed != null &&
+                pNovaParsed != null; // doit renvoyer true
 
+            // 5. Sélection par priorité :
+            // - Un meilleur nutriscore passe
             if (scoreDiff < 0) return true;
+
+            // - Si nutriscore égal, vérifier la nova : une meilleure nova passe
             if (scoreDiff == 0 && bothNovaOk && eNovaParsed < pNovaParsed) {
               return true;
             }
 
-            if (completeness is double && completeness >= 0.35) return true;
-
+            // 🔵 7. Sinon, le produit n'est pas sélectionné
             return false;
           }).toList()
           ..sort((a, b) {
+            // 🟢 Tri final des produits sélectionnés
+
+            // 1. Priorité sur le nutriscore (meilleur d'abord)
             final aScore = score.indexOf(a['nutriscore_grade']);
             final bScore = score.indexOf(b['nutriscore_grade']);
             final scoreComp = aScore.compareTo(bScore);
             if (scoreComp != 0) return scoreComp;
 
+            // 2. Si nutriscore égal, priorité sur le nova
             final aNova = num.tryParse(a['nova_group'].toString());
             final bNova = num.tryParse(b['nova_group'].toString());
             if (aNova != null && bNova != null) {
@@ -102,12 +121,14 @@ class ProductsService {
               if (novaComp != 0) return novaComp;
             }
 
+            // 3. Si nutriscore et nova égaux, priorité sur la popularité
             final aPop = a['popularity_key'];
             final bPop = b['popularity_key'];
             if (aPop is int && bPop is int) {
               return bPop - aPop;
             }
 
+            // 4. Sinon, égalité
             return 0;
           });
 
