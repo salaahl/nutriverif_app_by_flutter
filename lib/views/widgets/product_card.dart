@@ -8,13 +8,11 @@ import 'package:app_nutriverif/views/screens/product/product_page.dart';
 class ProductCard extends StatelessWidget {
   final Product product;
   final double widthAjustment;
-  final bool heroTransition;
 
   const ProductCard({
     super.key,
     required this.product,
     required this.widthAjustment,
-    this.heroTransition = false,
   });
 
   @override
@@ -65,79 +63,41 @@ class ProductCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Center(
-                  child:
-                      heroTransition ||
-                              ModalRoute.of(context)!.settings.name == '/'
-                          ? Hero(
-                            key: Key(product.id),
-                            tag: product.id,
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              constraints: const BoxConstraints(
-                                maxHeight: 100,
-                                maxWidth: 100,
+                  child: Hero(
+                    key: Key(product.id),
+                    tag: product.id,
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      constraints: const BoxConstraints(
+                        maxHeight: 100,
+                        maxWidth: 100,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      height:
+                          (MediaQuery.of(context).size.width / 100 * 48) -
+                          widthAjustment * 2,
+                      width:
+                          (MediaQuery.of(context).size.width / 100 * 48) -
+                          widthAjustment * 2,
+                      child:
+                          product.image.isEmpty
+                              ? Image.asset(
+                                'assets/images/logo.png',
+                                height: 80,
+                                fit: BoxFit.contain,
+                                semanticLabel: 'Image du produit',
+                              )
+                              : Image.network(
+                                product.image,
+                                height: 80,
+                                fit: BoxFit.contain,
+                                semanticLabel: 'Image du produit',
                               ),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              height:
-                                  (MediaQuery.of(context).size.width /
-                                      100 *
-                                      48) -
-                                  widthAjustment * 2,
-                              width:
-                                  (MediaQuery.of(context).size.width /
-                                      100 *
-                                      48) -
-                                  widthAjustment * 2,
-                              child:
-                                  product.image.isEmpty
-                                      ? Image.asset(
-                                        'assets/images/logo.png',
-                                        height: 80,
-                                        fit: BoxFit.contain,
-                                        semanticLabel: 'Image du produit',
-                                      )
-                                      : Image.network(
-                                        product.image,
-                                        height: 80,
-                                        fit: BoxFit.contain,
-                                        semanticLabel: 'Image du produit',
-                                      ),
-                            ),
-                          )
-                          : Container(
-                            padding: const EdgeInsets.all(8),
-                            constraints: const BoxConstraints(
-                              maxHeight: 100,
-                              maxWidth: 100,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            height:
-                                (MediaQuery.of(context).size.width / 100 * 48) -
-                                widthAjustment * 2,
-                            width:
-                                (MediaQuery.of(context).size.width / 100 * 48) -
-                                widthAjustment * 2,
-                            child:
-                                product.image.isEmpty
-                                    ? Image.asset(
-                                      'assets/images/logo.png',
-                                      height: 80,
-                                      fit: BoxFit.contain,
-                                      semanticLabel: 'Image du produit',
-                                    )
-                                    : Image.network(
-                                      product.image,
-                                      height: 80,
-                                      fit: BoxFit.contain,
-                                      semanticLabel: 'Image du produit',
-                                    ),
-                          ),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(

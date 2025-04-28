@@ -147,7 +147,6 @@ class _HomePageState extends State<HomePage> {
                                           return ProductCard(
                                             product: product,
                                             widthAjustment: 32,
-                                            heroTransition: true,
                                           );
                                         }).toList(),
                                   ),
@@ -702,7 +701,6 @@ class _HomePageState extends State<HomePage> {
                                         return ProductCard(
                                           product: product,
                                           widthAjustment: 32,
-                                          heroTransition: true,
                                         );
                                       }).toList(),
                                 ),

@@ -52,18 +52,6 @@ class ProductPageState extends State<ProductPage> {
   Widget build(BuildContext context) {
     _provider = context.watch<ProductsProvider>();
 
-    if (_provider.productIsLoading) {
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(32),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: const Loader(),
-      );
-    }
-
     return Scaffold(
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16),

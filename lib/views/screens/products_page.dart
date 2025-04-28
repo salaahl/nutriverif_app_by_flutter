@@ -87,7 +87,6 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                     final productCard = ProductCard(
                       product: product,
                       widthAjustment: 16,
-                      heroTransition: true,
                     );
 
                     final alreadyAnimated = _animatedProductIds.contains(
