@@ -9,10 +9,12 @@ class ProductsProvider with ChangeNotifier {
   final List<Product> _products = [];
   bool _productsIsLoading = false;
   Product _product = Product.fromJson({});
+  Product _productDemo = Product.fromJson({});
   bool _productIsLoading = false;
   final List<Product> _lastProducts = [];
   bool _lastProductsIsLoading = false;
   final List<Product> _suggestedProducts = [];
+  final List<Product> _suggestedProductsDemo = [];
   bool _suggestedProductsIsLoading = false;
   String _ajrSelected = 'women';
   String _input = '';
@@ -24,10 +26,12 @@ class ProductsProvider with ChangeNotifier {
   List<Product> get products => _products;
   bool get productsIsLoading => _productsIsLoading;
   Product get product => _product;
+  Product get productDemo => _productDemo;
   bool get productIsLoading => _productIsLoading;
   List<Product> get lastProducts => _lastProducts;
   bool get lastProductsIsLoading => _lastProductsIsLoading;
   List<Product> get suggestedProducts => _suggestedProducts;
+  List<Product> get suggestedProductsDemo => _suggestedProductsDemo;
   bool get suggestedProductsIsLoading => _suggestedProductsIsLoading;
   String get ajrSelected => _ajrSelected;
   String get input => _input;
@@ -84,6 +88,11 @@ class ProductsProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void setProductDemo(Product product) {
+    _productDemo = product;
+    notifyListeners();
+  }
+
   void setProductIsLoading(bool isLoading) {
     _productIsLoading = isLoading;
     notifyListeners();
@@ -103,6 +112,12 @@ class ProductsProvider with ChangeNotifier {
   void setSuggestedProducts(List<Product> products) {
     _suggestedProducts.clear();
     _suggestedProducts.addAll(products);
+    notifyListeners();
+  }
+
+  void setSuggestedProductsDemo(List<Product> products) {
+    _suggestedProductsDemo.clear();
+    _suggestedProductsDemo.addAll(products);
     notifyListeners();
   }
 

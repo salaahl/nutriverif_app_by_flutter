@@ -40,7 +40,7 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<ProductsProvider>(context);
+    final _provider = context.watch<ProductsProvider>();
     final MobileScannerController controller = MobileScannerController(
       useNewCameraSelector: true,
       detectionSpeed: DetectionSpeed.normal,
@@ -90,14 +90,14 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
 
                           // Validation
                           if (rawValue != null && _isValidEAN13(rawValue)) {
-                            await provider.loadProductById(rawValue);
+                            await _provider.loadProductById(rawValue);
 
                             if (context.mounted) {
-                              if (provider.product.id.isNotEmpty) {
+                              if (_provider.product.id.isNotEmpty) {
                                 Navigator.pushNamed(
                                   context,
                                   '/product',
-                                  arguments: provider.product,
+                                  arguments: _provider.product,
                                 );
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(

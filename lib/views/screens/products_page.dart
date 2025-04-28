@@ -25,6 +25,7 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
   void initState() {
     super.initState();
 
+    _provider = context.read<ProductsProvider>();
     _scrollController.addListener(_onScroll);
   }
 
@@ -51,7 +52,7 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    _provider = Provider.of<ProductsProvider>(context);
+    _provider = context.watch<ProductsProvider>();
 
     return Scaffold(
       body: Stack(
@@ -67,9 +68,7 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                   margin: const EdgeInsets.only(top: 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AppSearchBar(provider: _provider, showFilters: true),
-                    ],
+                    children: [AppSearchBar(showFilters: true)],
                   ),
                 ),
                 const SizedBox(height: 12),

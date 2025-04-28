@@ -16,7 +16,7 @@ class ProductsService {
   Future<Map<String, dynamic>> _getJson(String url) async {
     final response = await http
         .get(Uri.parse(url))
-        .timeout(Duration(seconds: 30));
+        .timeout(Duration(seconds: 45));
     if (response.statusCode != 200) throw Exception('API error');
     return jsonDecode(response.body);
   }

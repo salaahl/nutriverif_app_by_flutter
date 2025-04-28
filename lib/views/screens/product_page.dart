@@ -22,21 +22,20 @@ class ProductPage extends StatefulWidget {
 }
 
 class ProductPageState extends State<ProductPage> {
+  late ProductsProvider _provider;
+
   @override
   void initState() {
     super.initState();
 
-    final ProductsProvider provider = Provider.of<ProductsProvider>(
-      context,
-      listen: false,
-    );
+    _provider = context.read<ProductsProvider>();
     final Product product = widget.product;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      provider.setSuggestedProducts([]);
+      _provider.setSuggestedProducts([]);
 
       if (product.nutriscore != 'a' || int.tryParse(product.nova) != 1) {
-        provider.loadSuggestedProducts(
+        _provider.loadSuggestedProducts(
           id: product.id,
           categories: product.categories,
           nutriscore: product.nutriscore,
@@ -48,7 +47,7 @@ class ProductPageState extends State<ProductPage> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<ProductsProvider>(context);
+    _provider = context.watch<ProductsProvider>();
     final Product product = widget.product;
 
     if (product.id.isEmpty) {
@@ -69,7 +68,7 @@ class ProductPageState extends State<ProductPage> {
         children: [
           myAppBar(context),
           productDetails(context, product),
-          alternativeProducts(context, provider, provider.suggestedProducts),
+          alternativeProducts(context, _provider.suggestedProducts),
         ],
       ),
     );
@@ -263,7 +262,8 @@ class ProductPageState extends State<ProductPage> {
 
   // Détails supplémentaires du produit
   Widget productMoreDetails(BuildContext context, Product product) {
-    final provider = Provider.of<ProductsProvider>(context);
+    _provider = context.read<ProductsProvider>();
+
     // Categories "nettoyées"
     final categories = product.categories
         .where((e) => e.contains(':'))
@@ -283,7 +283,7 @@ class ProductPageState extends State<ProductPage> {
           const SizedBox(height: 16),
         ],
         if (product.nutriments.keys.any(
-          (key) => provider.ajrValues.containsKey(key),
+          (key) => _provider.ajrValues.containsKey(key),
         )) ...[
           NutritionalTable(product: product),
           SizedBox(height: 32),
@@ -342,7 +342,7 @@ class ProductPageState extends State<ProductPage> {
                           ),
                         );
 
-                        await provider.searchProducts(
+                        await _provider.searchProducts(
                           query: category,
                           method: 'complete',
                         );
@@ -365,15 +365,16 @@ class ProductPageState extends State<ProductPage> {
   // Section des produits alternatifs
   Widget alternativeProducts(
     BuildContext context,
-    ProductsProvider provider,
     List<Product> suggestedProducts,
   ) {
+    _provider = context.watch<ProductsProvider>();
+
     return AnimatedSize(
       duration: const Duration(milliseconds: 350),
       curve: Curves.easeInOut,
       child: Container(
         height:
-            provider.suggestedProductsIsLoading || suggestedProducts.isNotEmpty
+            _provider.suggestedProductsIsLoading || suggestedProducts.isNotEmpty
                 ? null
                 : 0,
         width: double.infinity,
@@ -425,7 +426,7 @@ class ProductPageState extends State<ProductPage> {
               ),
             ),
             const SizedBox(height: 16),
-            provider.suggestedProductsIsLoading
+            _provider.suggestedProductsIsLoading
                 ? const Loader()
                 : Wrap(
                   alignment: WrapAlignment.spaceBetween,
@@ -457,7 +458,7 @@ class NutritionalTable extends StatefulWidget {
 class NutritionalTableState extends State<NutritionalTable> {
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<ProductsProvider>(context);
+    final provider = context.read<ProductsProvider>();
 
     // Convertir l'objet en une liste de paires (nom, valeur)
     final entries = widget.product.nutriments.entries.toList();

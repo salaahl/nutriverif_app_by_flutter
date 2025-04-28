@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:app_nutriverif/providers/products_provider.dart';
 
 class AppSearchBar extends StatefulWidget {
-  final ProductsProvider provider;
   final bool showFilters;
 
-  const AppSearchBar({
-    super.key,
-    required this.provider,
-    this.showFilters = false,
-  });
+  const AppSearchBar({super.key, this.showFilters = false});
 
   @override
   State<AppSearchBar> createState() => _AppSearchBarState();
 }
 
 class _AppSearchBarState extends State<AppSearchBar> {
+  late ProductsProvider _provider;
   late TextEditingController _searchController;
 
   final Map<String, String> _filters = {
@@ -29,7 +26,9 @@ class _AppSearchBarState extends State<AppSearchBar> {
   @override
   void initState() {
     super.initState();
-    _searchController = TextEditingController(text: widget.provider.input);
+
+    _provider = context.read<ProductsProvider>();
+    _searchController = TextEditingController(text: _provider.input);
   }
 
   @override
@@ -40,6 +39,8 @@ class _AppSearchBarState extends State<AppSearchBar> {
 
   @override
   Widget build(BuildContext context) {
+    _provider = context.watch<ProductsProvider>();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -124,18 +125,18 @@ class _AppSearchBarState extends State<AppSearchBar> {
                     ),
                   );
                 } else {
-                  await widget.provider.searchProducts(
+                  await _provider.searchProducts(
                     query: input,
-                    selected: widget.provider.filter,
+                    selected: _provider.filter,
                     method: 'complete',
                   );
 
-                  if (widget.provider.products.isEmpty && context.mounted) {
+                  if (_provider.products.isEmpty && context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Center(
                           child: Text(
-                            widget.provider.error != null
+                            _provider.error != null
                                 ? 'Une erreur est survenue'
                                 : 'Aucun produit trouvé',
                             style: TextStyle(fontWeight: FontWeight.w500),
@@ -160,10 +161,10 @@ class _AppSearchBarState extends State<AppSearchBar> {
                     return Material(
                       child: FilterChip(
                         label: Text(filter.key),
-                        selected: filter.value == widget.provider.filter,
+                        selected: filter.value == _provider.filter,
                         onSelected: (s) {
                           setState(() {
-                            widget.provider.setFilter(filter.value);
+                            _provider.setFilter(filter.value);
                           });
                         },
                         backgroundColor: Colors.grey,
