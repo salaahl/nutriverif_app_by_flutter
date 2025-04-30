@@ -110,8 +110,11 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                       child:
                           alreadyAnimated
                               ? TweenAnimationBuilder<double>(
-                                tween: Tween(begin: 0.0, end: 1.0),
-                                duration: const Duration(milliseconds: 250),
+                                tween: Tween(
+                                  begin: alreadyAnimated ? 1.0 : 0.0,
+                                  end: 1.0,
+                                ),
+                                duration: animationTime,
                                 builder: (context, value, child) {
                                   return Opacity(
                                     opacity: value,

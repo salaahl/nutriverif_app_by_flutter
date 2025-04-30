@@ -64,7 +64,7 @@ class ProductPageState extends State<ProductPage> {
           TweenAnimationBuilder<double>(
             tween: Tween(begin: 0.0, end: _refresh ? 1.0 : 0.0),
             curve: animationCurve,
-            duration: Duration(milliseconds: 250),
+            duration: animationTime,
             builder: (context, value, child) {
               return Opacity(
                 opacity: value,
