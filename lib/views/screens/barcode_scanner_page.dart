@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 
+import 'package:app_nutriverif/core/constants/custom_values.dart';
+
 import 'package:app_nutriverif/providers/products_provider.dart';
 
 import '../widgets/app_bar.dart';
@@ -50,7 +52,7 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
 
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.only(left: 16, right: 16),
+        padding: screenPadding,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [

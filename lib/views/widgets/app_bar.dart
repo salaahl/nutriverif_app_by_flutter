@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
+import 'package:app_nutriverif/core/constants/custom_values.dart';
+
 Widget myAppBar(
   BuildContext context, {
   String? route = '',
   Map<String, dynamic>? customStyles = const {
-    'textColor': Color(0xFF00BD7E),
+    'textColor': customGreen,
     'arrowColor': Colors.white,
   },
 }) {
@@ -21,7 +23,7 @@ Widget myAppBar(
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset('assets/images/logo.png', height: 80, width: 80),
+                  Image.asset(appIcon, height: 80, width: 80),
                   const SizedBox(height: 4),
                   if (route != '/')
                     Text.rich(

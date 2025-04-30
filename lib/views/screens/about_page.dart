@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:app_nutriverif/core/constants/custom_values.dart';
+
 import '../widgets/app_bar.dart';
 
 class AboutPage extends StatelessWidget {
@@ -14,7 +16,7 @@ class AboutPage extends StatelessWidget {
 
     return Scaffold(
       body: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: screenPadding,
         decoration: const BoxDecoration(color: Color.fromRGBO(0, 189, 126, 1)),
         child: ListView(
           children: [
@@ -36,7 +38,7 @@ class AboutPage extends StatelessWidget {
                   SizedBox(height: 8),
                   TweenAnimationBuilder<double>(
                     tween: Tween(begin: 0.0, end: 1.0),
-                    curve: Curves.easeInOutCubicEmphasized,
+                    curve: animationCurve,
                     duration: Duration(milliseconds: 2500),
                     builder: (context, value, child) {
                       return Stack(

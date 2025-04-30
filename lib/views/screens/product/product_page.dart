@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:app_nutriverif/core/constants/custom_values.dart';
+
 import 'package:app_nutriverif/providers/products_provider.dart';
 
 import 'package:app_nutriverif/views/widgets/app_bar.dart';
-
 import './widgets/product_image.dart';
 import './widgets/product_name.dart';
 import './widgets/product_details.dart';
@@ -56,13 +57,13 @@ class ProductPageState extends State<ProductPage> {
 
     return Scaffold(
       body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: screenPadding,
         children: [
           myAppBar(context),
           ProductImage(id: widget.id, image: widget.image),
           TweenAnimationBuilder<double>(
             tween: Tween(begin: 0.0, end: _refresh ? 1.0 : 0.0),
-            curve: Curves.easeInOut,
+            curve: animationCurve,
             duration: Duration(milliseconds: 250),
             builder: (context, value, child) {
               return Opacity(

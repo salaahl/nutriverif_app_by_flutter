@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:app_nutriverif/core/constants/custom_values.dart';
+
 class ProductName extends StatelessWidget {
   final String lastUpdate;
   final String brand;
@@ -32,7 +34,7 @@ class ProductName extends StatelessWidget {
             style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF00BD7E),
+              color: customGreen,
             ),
             children: [
               TextSpan(

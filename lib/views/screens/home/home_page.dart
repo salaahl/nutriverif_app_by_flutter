@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:app_nutriverif/core/services/products_service.dart';
-import 'package:app_nutriverif/providers/products_provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+
+import 'package:app_nutriverif/core/constants/custom_values.dart';
+
+import 'package:app_nutriverif/core/services/products_service.dart';
+import 'package:app_nutriverif/providers/products_provider.dart';
 
 import '../../widgets/app_bar.dart';
 import '../../widgets/loader.dart';
@@ -68,8 +71,6 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     // Libérer les ressources
     super.dispose();
-
-    
   }
 
   @override
@@ -81,7 +82,7 @@ class _HomePageState extends State<HomePage> {
         child: ListView(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: screenPadding,
               child: Column(
                 children: [
                   myAppBar(context, route: '/'),
@@ -118,7 +119,7 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 16),
                   AnimatedSize(
                     duration: Duration(milliseconds: 350),
-                    curve: Curves.easeInOut,
+                    curve: animationCurve,
                     child: Column(
                       children: [
                         Container(
@@ -282,7 +283,7 @@ class _HomePageState extends State<HomePage> {
                         _animatedProductIds.contains('nutriscore_card')
                             ? TweenAnimationBuilder<double>(
                               tween: Tween(begin: 0.0, end: 1.0),
-                              curve: Curves.easeInOut,
+                              curve: animationCurve,
                               duration: Duration(milliseconds: 250),
                               builder: (context, value, child) {
                                 return Opacity(
@@ -373,7 +374,7 @@ class _HomePageState extends State<HomePage> {
                         _animatedProductIds.contains('nova_card')
                             ? TweenAnimationBuilder<double>(
                               tween: Tween(begin: 0.0, end: 1.0),
-                              curve: Curves.easeInOut,
+                              curve: animationCurve,
                               duration: Duration(milliseconds: 250),
                               builder: (context, value, child) {
                                 return Opacity(
@@ -426,10 +427,7 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 80),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: Colors.grey[300],
-              ),
+              decoration: BoxDecoration(color: Colors.grey[300]),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -448,7 +446,7 @@ class _HomePageState extends State<HomePage> {
                         _animatedProductIds.contains('product_demo_title')
                             ? TweenAnimationBuilder<double>(
                               tween: Tween(begin: 0.0, end: 1.0),
-                              curve: Curves.easeInOut,
+                              curve: animationCurve,
                               duration: Duration(milliseconds: 250),
                               builder: (context, value, child) {
                                 return Opacity(
@@ -465,9 +463,7 @@ class _HomePageState extends State<HomePage> {
                                   children: [
                                     TextSpan(
                                       text: "alternatives",
-                                      style: TextStyle(
-                                        color: Color(0xFF00BD7E),
-                                      ),
+                                      style: TextStyle(color: customGreen),
                                     ),
                                     TextSpan(text: " plus saines"),
                                   ],
@@ -556,7 +552,7 @@ class _HomePageState extends State<HomePage> {
                           _animatedProductIds.contains('products_demo_arrow')
                               ? TweenAnimationBuilder<double>(
                                 tween: Tween(begin: 0.0, end: 1.0),
-                                curve: Curves.easeInOut,
+                                curve: animationCurve,
                                 duration: Duration(milliseconds: 250),
                                 builder: (context, value, child) {
                                   return Opacity(
@@ -580,7 +576,7 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                       child: Icon(
                                         Icons.arrow_downward_rounded,
-                                        color: const Color(0xFF00BD7E),
+                                        color: customGreen,
                                       ),
                                     ),
                                   ],
@@ -641,7 +637,7 @@ class _HomePageState extends State<HomePage> {
                         _animatedProductIds.contains('last_products_title')
                             ? TweenAnimationBuilder<double>(
                               tween: Tween(begin: 0.0, end: 1.0),
-                              curve: Curves.easeInOut,
+                              curve: animationCurve,
                               duration: Duration(milliseconds: 250),
                               builder: (context, value, child) {
                                 return Opacity(
@@ -658,9 +654,7 @@ class _HomePageState extends State<HomePage> {
                                   children: [
                                     TextSpan(
                                       text: " recemment ",
-                                      style: TextStyle(
-                                        color: Color(0xFF00BD7E),
-                                      ),
+                                      style: TextStyle(color: customGreen),
                                     ),
                                     TextSpan(text: "ajoutés"),
                                   ],
@@ -684,7 +678,7 @@ class _HomePageState extends State<HomePage> {
                             ? const Loader()
                             : AnimatedSize(
                               duration: Duration(milliseconds: 350),
-                              curve: Curves.easeInOut,
+                              curve: animationCurve,
                               child: SizedBox(
                                 height:
                                     _provider.lastProducts.isNotEmpty ||
@@ -712,7 +706,7 @@ class _HomePageState extends State<HomePage> {
                   Center(
                     heightFactor: 1.5,
                     child: Image.asset(
-                      'assets/images/logo.png',
+                      appIcon,
                       height: 160,
                       color: Colors.grey[600],
                     ),

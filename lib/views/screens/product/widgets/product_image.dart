@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:app_nutriverif/core/constants/custom_values.dart';
+
 class ProductImage extends StatelessWidget {
   final String id;
   final String image;
@@ -24,7 +26,7 @@ class ProductImage extends StatelessWidget {
           child:
               image.isEmpty
                   ? Image.asset(
-                    image,
+                    appIcon,
                     width: 160,
                     semanticLabel: 'Image du produit',
                   )

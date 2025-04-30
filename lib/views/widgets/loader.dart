@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 
+import 'package:app_nutriverif/core/constants/custom_values.dart';
+
 class Loader extends StatefulWidget {
   const Loader({super.key});
 
@@ -20,10 +22,7 @@ class _LoaderState extends State<Loader> with SingleTickerProviderStateMixin {
       duration: const Duration(milliseconds: 2800),
     )..repeat();
 
-    _animation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOutCubicEmphasized,
-    );
+    _animation = CurvedAnimation(parent: _controller, curve: animationCurve);
   }
 
   @override
@@ -58,7 +57,7 @@ class _LoaderState extends State<Loader> with SingleTickerProviderStateMixin {
                       border: Border(
                         left: BorderSide(width: 48, color: Colors.transparent),
                         right: BorderSide(width: 48, color: Colors.transparent),
-                        bottom: BorderSide(width: 64, color: Color(0xFF00BD7E)),
+                        bottom: BorderSide(width: 64, color: customGreen),
                       ),
                     ),
                   ),

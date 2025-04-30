@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:provider/provider.dart';
+import 'package:visibility_detector/visibility_detector.dart';
+
+import 'package:app_nutriverif/core/constants/custom_values.dart';
+
+import 'package:app_nutriverif/providers/products_provider.dart';
+
 import '../widgets/app_bar.dart';
 import '../widgets/loader.dart';
 import '../widgets/search_bar.dart';
 import '../widgets/product_card.dart';
-import 'package:provider/provider.dart';
-import 'package:app_nutriverif/providers/products_provider.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 
 class ProductSearchPage extends StatefulWidget {
   const ProductSearchPage({super.key});
@@ -59,7 +63,7 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
         children: [
           SingleChildScrollView(
             controller: _scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: screenPadding,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

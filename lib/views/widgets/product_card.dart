@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import 'package:app_nutriverif/core/constants/custom_values.dart';
+
 import '../../models/model_products.dart';
 
 import 'package:app_nutriverif/views/screens/product/product_page.dart';
@@ -85,7 +87,7 @@ class ProductCard extends StatelessWidget {
                       child:
                           product.image.isEmpty
                               ? Image.asset(
-                                'assets/images/logo.png',
+                                appIcon,
                                 height: 80,
                                 fit: BoxFit.contain,
                                 semanticLabel: 'Image du produit',

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:app_nutriverif/core/constants/custom_values.dart';
+
 import 'package:app_nutriverif/models/model_products.dart';
 import 'package:app_nutriverif/providers/products_provider.dart';
 
@@ -15,7 +17,7 @@ Widget alternativeProducts(
 
   return AnimatedSize(
     duration: const Duration(milliseconds: 350),
-    curve: Curves.easeInOut,
+    curve: animationCurve,
     child: Container(
       height:
           provider.suggestedProductsIsLoading || suggestedProducts.isNotEmpty

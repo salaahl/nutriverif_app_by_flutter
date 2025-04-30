@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:app_nutriverif/core/constants/custom_values.dart';
+
 import '../models/model_products.dart';
 
 import 'package:app_nutriverif/views/screens/home/home_page.dart';
@@ -39,7 +41,7 @@ Route<dynamic> generateRoute(RouteSettings settings) {
   return PageRouteBuilder(
     pageBuilder: (context, animation, secondaryAnimation) => page,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      const curve = Curves.easeInOut;
+      const curve = animationCurve;
       final slideInTween = Tween<Offset>(
         begin: const Offset(1.0, 0.0),
         end: Offset.zero,
