@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:app_nutriverif/core/constants/custom_values.dart';
+
 import 'package:app_nutriverif/providers/products_provider.dart';
 
 class NutritionalTable extends StatefulWidget {
@@ -40,7 +42,7 @@ class NutritionalTableState extends State<NutritionalTable> {
                   provider.setAjrSelected('women');
                 },
                 backgroundColor: Colors.grey,
-                selectedColor: Color.fromRGBO(0, 189, 126, 1),
+                selectedColor: customGreen,
                 labelStyle: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -60,7 +62,7 @@ class NutritionalTableState extends State<NutritionalTable> {
                   provider.setAjrSelected('men');
                 },
                 backgroundColor: Colors.grey,
-                selectedColor: const Color.fromRGBO(0, 189, 126, 1),
+                selectedColor: customGreen,
                 labelStyle: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,

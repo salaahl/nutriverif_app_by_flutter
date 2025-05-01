@@ -17,7 +17,7 @@ class AboutPage extends StatelessWidget {
     return Scaffold(
       body: Container(
         padding: screenPadding,
-        decoration: const BoxDecoration(color: Color.fromRGBO(0, 189, 126, 1)),
+        decoration: const BoxDecoration(color: customGreen),
         child: ListView(
           children: [
             myAppBar(context, customStyles: customStyles),

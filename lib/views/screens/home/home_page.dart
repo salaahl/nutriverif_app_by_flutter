@@ -103,7 +103,7 @@ class _HomePageState extends State<HomePage> {
                             fontFamily: 'Grand Hotel',
                             fontSize: 60,
                             fontWeight: FontWeight.w300,
-                            color: Color.fromRGBO(0, 189, 126, 1),
+                            color: customGreen,
                           ),
                         ),
                       ],

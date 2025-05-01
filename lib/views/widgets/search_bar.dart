@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import 'package:app_nutriverif/core/constants/custom_values.dart';
+
 import 'package:app_nutriverif/providers/products_provider.dart';
 
 class AppSearchBar extends StatefulWidget {
@@ -153,31 +156,40 @@ class _AppSearchBarState extends State<AppSearchBar> {
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         widget.showFilters
             ? Wrap(
               spacing: 12,
+              runSpacing: 12,
               children:
                   _filters.entries.map((filter) {
-                    return Material(
-                      child: FilterChip(
-                        label: Text(filter.key),
-                        selected: filter.value == _provider.filter,
-                        onSelected: (s) {
-                          setState(() {
-                            _provider.setFilter(filter.value);
-                          });
-                        },
-                        backgroundColor: Colors.grey,
-                        selectedColor: const Color.fromRGBO(0, 189, 126, 1),
-                        labelStyle: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _provider.setFilter(filter.value);
+                        });
+                      },
+                      child: AnimatedContainer(
+                        duration: Duration(milliseconds: 350),
+                        curve: Curves.easeInOut,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
                         ),
-                        shape: RoundedRectangleBorder(
+                        decoration: BoxDecoration(
+                          color:
+                              _provider.filter == filter.value
+                                  ? customGreen
+                                  : Colors.grey,
                           borderRadius: BorderRadius.circular(999),
                         ),
-                        showCheckmark: false,
+                        child: Text(
+                          filter.key,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     );
                   }).toList(),
