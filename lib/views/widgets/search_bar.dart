@@ -95,6 +95,7 @@ class _AppSearchBarState extends State<AppSearchBar> {
               ),
             ),
             IconButton(
+              padding: const EdgeInsets.only(left: 8),
               icon: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(

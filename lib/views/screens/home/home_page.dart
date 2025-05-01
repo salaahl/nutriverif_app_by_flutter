@@ -196,7 +196,7 @@ class _HomePageState extends State<HomePage> {
                       ).createShader(bounds);
                     },
                     child: const Text(
-                      '+ de 1 082 462 produits référencés',
+                      '+ de 3 819 363 produits référencés',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: 'Grand Hotel',

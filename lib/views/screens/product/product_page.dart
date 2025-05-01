@@ -69,7 +69,7 @@ class ProductPageState extends State<ProductPage> {
               return Opacity(
                 opacity: value,
                 child: Transform.translate(
-                  offset: Offset(0, 30 * (1 - value)),
+                  offset: Offset(0, 60 * (1 - value)),
                   child: child,
                 ),
               );
