@@ -41,14 +41,10 @@ class ProductScores extends StatelessWidget {
             score: nova,
           ),
           if (novaDescription.containsKey(nova)) ...[
-            const SizedBox(height: 4),
+            const SizedBox(height: 2),
             Text(
               '(${novaDescription[nova] as String})',
-              style: const TextStyle(
-                fontStyle: FontStyle.italic,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 12, color: Colors.black),
             ),
           ],
         ],
