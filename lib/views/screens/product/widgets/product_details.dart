@@ -49,7 +49,7 @@ class ProductDetails extends StatelessWidget {
             style: TextStyle(fontWeight: FontWeight.bold, height: 1.5),
           ),
           Text(quantity),
-          const SizedBox(height: 16),
+          const SizedBox(height: 32),
         ],
         if (nutriments.keys.any(
           (key) => provider.ajrValues.containsKey(key),

@@ -13,10 +13,17 @@ class ProductScores extends StatelessWidget {
     required this.nova,
   });
 
+  static const novaDescription = {
+    '1': 'Aliments non transformés / minimalement',
+    '2': 'Ingrédients culinaires transformés',
+    '3': 'Aliments transformés',
+    '4': 'Produits ultra-transformés',
+  };
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 16),
+      margin: const EdgeInsets.symmetric(vertical: 32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -33,6 +40,17 @@ class ProductScores extends StatelessWidget {
             width: 30,
             score: nova,
           ),
+          if (novaDescription.containsKey(nova)) ...[
+            const SizedBox(height: 4),
+            Text(
+              '(${novaDescription[nova] as String})',
+              style: const TextStyle(
+                fontStyle: FontStyle.italic,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ],
       ),
     );

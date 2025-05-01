@@ -10,7 +10,7 @@ class ProductNutrients extends StatelessWidget {
     if (nutrients.isEmpty) return const SizedBox.shrink();
 
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 16),
+      margin: const EdgeInsets.only(bottom: 32),
       child: Wrap(
         spacing: 8,
         runSpacing: 8,
