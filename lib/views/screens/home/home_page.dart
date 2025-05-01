@@ -118,8 +118,8 @@ class _HomePageState extends State<HomePage> {
                   AppSearchBar(),
                   const SizedBox(height: 16),
                   AnimatedSize(
-                    duration: Duration(milliseconds: 350),
-                    curve: animationCurve,
+                    duration: defaultAnimationTime,
+                    curve: defaultAnimationCurve,
                     child: Column(
                       children: [
                         Container(
@@ -290,8 +290,8 @@ class _HomePageState extends State<HomePage> {
                                 ? 1.0
                                 : 0.0,
                       ),
-                      curve: animationCurve,
-                      duration: animationTime,
+                      curve: defaultAnimationCurve,
+                      duration: defaultAnimationTime,
                       builder: (context, value, child) {
                         return Opacity(
                           opacity: value,
@@ -378,8 +378,8 @@ class _HomePageState extends State<HomePage> {
                                 ? 1.0
                                 : 0.0,
                       ),
-                      curve: animationCurve,
-                      duration: animationTime,
+                      curve: defaultAnimationCurve,
+                      duration: defaultAnimationTime,
                       builder: (context, value, child) {
                         return Opacity(
                           opacity: value,
@@ -442,8 +442,8 @@ class _HomePageState extends State<HomePage> {
                       _animatedProductIds.contains('product_demo') ? 1.0 : 0.0,
                   end: _animatedProductIds.contains('product_demo') ? 1.0 : 0.0,
                 ),
-                curve: animationCurve,
-                duration: animationTime,
+                curve: defaultAnimationCurve,
+                duration: defaultAnimationTime,
                 builder: (context, value, child) {
                   return Opacity(
                     opacity: value,
@@ -567,8 +567,8 @@ class _HomePageState extends State<HomePage> {
                                       ? 1.0
                                       : 0.0,
                             ),
-                            curve: animationCurve,
-                            duration: animationTime,
+                            curve: defaultAnimationCurve,
+                            duration: defaultAnimationTime,
                             builder: (context, value, child) {
                               return Opacity(
                                 opacity: value,
@@ -656,8 +656,8 @@ class _HomePageState extends State<HomePage> {
                   end:
                       _animatedProductIds.contains('last_products') ? 1.0 : 0.0,
                 ),
-                curve: animationCurve,
-                duration: animationTime,
+                curve: defaultAnimationCurve,
+                duration: defaultAnimationTime,
                 builder: (context, value, child) {
                   return Opacity(
                     opacity: value,
@@ -696,8 +696,8 @@ class _HomePageState extends State<HomePage> {
                             _provider.lastProductsIsLoading
                                 ? const Loader()
                                 : AnimatedSize(
-                                  duration: Duration(milliseconds: 350),
-                                  curve: animationCurve,
+                                  duration: defaultAnimationTime,
+                                  curve: defaultAnimationCurve,
                                   child: SizedBox(
                                     height:
                                         _provider.lastProducts.isNotEmpty ||

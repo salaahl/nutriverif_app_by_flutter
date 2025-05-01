@@ -41,7 +41,7 @@ Route<dynamic> generateRoute(RouteSettings settings) {
   return PageRouteBuilder(
     pageBuilder: (context, animation, secondaryAnimation) => page,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      const curve = animationCurve;
+      const curve = defaultAnimationCurve;
       final slideInTween = Tween<Offset>(
         begin: const Offset(1.0, 0.0),
         end: Offset.zero,

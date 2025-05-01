@@ -22,7 +22,10 @@ class _LoaderState extends State<Loader> with SingleTickerProviderStateMixin {
       duration: const Duration(milliseconds: 2800),
     )..repeat();
 
-    _animation = CurvedAnimation(parent: _controller, curve: animationCurve);
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: defaultAnimationCurve,
+    );
   }
 
   @override

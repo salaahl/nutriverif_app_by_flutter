@@ -5,8 +5,8 @@ const screenPadding = EdgeInsets.symmetric(horizontal: 16);
 const customGreen = Color.fromRGBO(0, 189, 126, 1);
 
 // Animations
-const animationTime = Duration(milliseconds: 350);
-const animationCurve = Curves.easeInOutCubicEmphasized;
+const defaultAnimationTime = Duration(milliseconds: 500);
+const defaultAnimationCurve = Curves.easeInOutCubicEmphasized;
 
 // Others
 const appIcon = 'assets/images/logo.png';

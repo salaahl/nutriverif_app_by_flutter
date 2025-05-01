@@ -16,8 +16,8 @@ Widget alternativeProducts(
   final provider = context.watch<ProductsProvider>();
 
   return AnimatedSize(
-    duration: const Duration(milliseconds: 350),
-    curve: animationCurve,
+    duration: defaultAnimationTime,
+    curve: defaultAnimationCurve,
     child: Container(
       height:
           provider.suggestedProductsIsLoading || suggestedProducts.isNotEmpty

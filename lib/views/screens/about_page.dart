@@ -38,7 +38,7 @@ class AboutPage extends StatelessWidget {
                   SizedBox(height: 8),
                   TweenAnimationBuilder<double>(
                     tween: Tween(begin: 0.0, end: 1.0),
-                    curve: animationCurve,
+                    curve: defaultAnimationCurve,
                     duration: Duration(milliseconds: 2500),
                     builder: (context, value, child) {
                       return Stack(

@@ -63,8 +63,8 @@ class ProductPageState extends State<ProductPage> {
           ProductImage(id: widget.id, image: widget.image),
           TweenAnimationBuilder<double>(
             tween: Tween(begin: 0.0, end: _refresh ? 1.0 : 0.0),
-            curve: animationCurve,
-            duration: animationTime,
+            curve: defaultAnimationCurve,
+            duration: defaultAnimationTime,
             builder: (context, value, child) {
               return Opacity(
                 opacity: value,
