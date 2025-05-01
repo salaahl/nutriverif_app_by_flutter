@@ -21,7 +21,7 @@ class ProductImage extends StatelessWidget {
           padding: const EdgeInsets.all(32),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(48),
           ),
           child:
               image.isEmpty
