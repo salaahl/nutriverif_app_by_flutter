@@ -49,14 +49,27 @@ class ProductCard extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder:
-                    (context) =>
-                        ProductPage(id: product.id, image: product.image),
-              ),
-            );
+            if (ModalRoute.of(context)?.settings.name != '/product') {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (context) =>
+                          ProductPage(id: product.id, image: product.image),
+                  settings: RouteSettings(name: '/product'),
+                ),
+              );
+            } else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (context) =>
+                          ProductPage(id: product.id, image: product.image),
+                  settings: RouteSettings(name: '/product'),
+                ),
+              );
+            }
           },
           child: Padding(
             padding: const EdgeInsets.all(8),
