@@ -40,7 +40,7 @@ class ProductName extends StatelessWidget {
               TextSpan(
                 text: name,
                 style: const TextStyle(
-                  fontWeight: FontWeight.normal,
+                  fontWeight: FontWeight.w500,
                   color: Colors.black,
                 ),
               ),

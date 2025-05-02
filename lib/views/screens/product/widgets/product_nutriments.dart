@@ -34,43 +34,55 @@ class NutritionalTableState extends State<NutritionalTable> {
       children: [
         Row(
           children: [
-            Material(
-              child: FilterChip(
-                label: const Text('Femme'),
-                selected: provider.ajrSelected == 'women',
-                onSelected: (selected) {
+            GestureDetector(
+              onTap: () {
+                setState(() {
                   provider.setAjrSelected('women');
-                },
-                backgroundColor: Colors.grey,
-                selectedColor: customGreen,
-                labelStyle: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-                shape: RoundedRectangleBorder(
+                });
+              },
+              child: AnimatedContainer(
+                duration: Duration(milliseconds: 350),
+                curve: Curves.easeInOut,
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color:
+                      provider.ajrSelected == 'women'
+                          ? customGreen
+                          : Colors.grey,
                   borderRadius: BorderRadius.circular(999),
                 ),
-                showCheckmark: false,
+                child: Text(
+                  'femme',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
             const SizedBox(width: 16),
-            Material(
-              child: FilterChip(
-                label: const Text('Homme'),
-                selected: provider.ajrSelected == 'men',
-                onSelected: (selected) {
+            GestureDetector(
+              onTap: () {
+                setState(() {
                   provider.setAjrSelected('men');
-                },
-                backgroundColor: Colors.grey,
-                selectedColor: customGreen,
-                labelStyle: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-                shape: RoundedRectangleBorder(
+                });
+              },
+              child: AnimatedContainer(
+                duration: Duration(milliseconds: 350),
+                curve: Curves.easeInOut,
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color:
+                      provider.ajrSelected == 'men' ? customGreen : Colors.grey,
                   borderRadius: BorderRadius.circular(999),
                 ),
-                showCheckmark: false,
+                child: Text(
+                  'homme',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
           ],
