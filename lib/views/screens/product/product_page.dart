@@ -33,11 +33,11 @@ class ProductPageState extends State<ProductPage> {
     super.initState();
 
     _provider = context.read<ProductsProvider>();
+    _provider.suggestedProducts.clear();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _provider.loadProductById(widget.id);
       _refresh = true;
-      _provider.setSuggestedProducts([]);
 
       if (_provider.product.nutriscore != 'a' ||
           int.tryParse(_provider.product.nova) != 1) {
