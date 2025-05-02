@@ -31,46 +31,32 @@ class _HomePageState extends State<HomePage> {
   late ProductsProvider _provider;
 
   final _service = ProductsService();
-  bool _productIsLoading = false;
-  bool _suggestedProductsIsLoading = false;
 
   final Set<String> _animatedProductIds = {};
+
+  Future<void> initProducts() async {
+    _provider = context.read<ProductsProvider>();
+    if (_provider.productDemo.id.isNotEmpty) return;
+
+    _provider.setProductDemo(await _service.fetchProductById('3608580758686'));
+
+    _provider.setSuggestedProductsDemo(
+      await _service.fetchSuggestedProducts(
+        id: _provider.productDemo.id,
+        categories: _provider.productDemo.categories,
+        nutriscore: _provider.productDemo.nutriscore,
+        nova: _provider.productDemo.nova,
+      ),
+    );
+
+    await _provider.loadLastProducts();
+  }
 
   @override
   void initState() {
     super.initState();
 
-    _provider = context.read<ProductsProvider>();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Attente des appels asynchrones
-      setState(() => _productIsLoading = true);
-      _provider.setProductDemo(
-        await _service.fetchProductById('3608580758686'),
-      );
-      setState(() => _productIsLoading = false);
-
-      if (_provider.productDemo.id.isNotEmpty) {
-        setState(() => _suggestedProductsIsLoading = true);
-        _provider.setSuggestedProductsDemo(
-          await _service.fetchSuggestedProducts(
-            id: _provider.productDemo.id,
-            categories: _provider.productDemo.categories,
-            nutriscore: _provider.productDemo.nutriscore,
-            nova: _provider.productDemo.nova,
-          ),
-        );
-        setState(() => _suggestedProductsIsLoading = false);
-      }
-
-      await _provider.loadLastProducts();
-    });
-  }
-
-  @override
-  void dispose() {
-    // Libérer les ressources
-    super.dispose();
+    initProducts();
   }
 
   @override
@@ -492,7 +478,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       // Présentation partielle d'un produit
-                      if (_productIsLoading)
+                      if (_provider.productDemo.id.isEmpty)
                         Loader()
                       else ...[
                         Container(
@@ -597,7 +583,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        _suggestedProductsIsLoading
+                        _provider.suggestedProductsDemo.isEmpty
                             ? Padding(
                               padding: const EdgeInsets.only(
                                 top: 48,
@@ -605,9 +591,8 @@ class _HomePageState extends State<HomePage> {
                               ),
                               child: Loader(),
                             )
-                            : alternativeProducts(
-                              context,
-                              _provider.suggestedProductsDemo,
+                            : AlternativeProducts(
+                              products: _provider.suggestedProductsDemo,
                             ),
                       ],
                       const Text.rich(

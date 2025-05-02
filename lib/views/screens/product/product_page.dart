@@ -98,7 +98,7 @@ class ProductPageState extends State<ProductPage> {
                   manufacturingPlace: _provider.product.manufacturingPlace,
                   link: _provider.product.link,
                 ),
-                alternativeProducts(context, _provider.suggestedProducts),
+                AlternativeProducts(products: _provider.suggestedProducts),
               ],
             ),
           ),
