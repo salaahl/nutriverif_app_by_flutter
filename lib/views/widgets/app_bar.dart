@@ -52,17 +52,22 @@ Widget myAppBar(
               top: 0,
               bottom: 0,
               left: 0,
-              child: IconButton(
-                padding: const EdgeInsets.all(0),
-                icon: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: customStyles?['arrowColor'],
-                    borderRadius: BorderRadius.all(Radius.circular(999)),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    padding: const EdgeInsets.all(0),
+                    icon: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: customStyles?['arrowColor'],
+                        borderRadius: BorderRadius.all(Radius.circular(999)),
+                      ),
+                      child: const Icon(Icons.arrow_back),
+                    ),
+                    onPressed: () => Navigator.pop(context),
                   ),
-                  child: const Icon(Icons.arrow_back),
-                ),
-                onPressed: () => Navigator.pop(context),
+                ],
               ),
             ),
         ],

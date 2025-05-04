@@ -138,7 +138,7 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
 
                         // Prevenir le scan au changement de page
                         await Future.delayed(
-                          const Duration(milliseconds: 1500),
+                          const Duration(seconds: 3),
                         );
 
                         if (mounted) {
