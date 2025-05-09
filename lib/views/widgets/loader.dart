@@ -24,7 +24,7 @@ class _LoaderState extends State<Loader> with SingleTickerProviderStateMixin {
 
     _animation = CurvedAnimation(
       parent: _controller,
-      curve: defaultAnimationCurve,
+      curve: Curves.easeInOutCubicEmphasized,
     );
   }
 

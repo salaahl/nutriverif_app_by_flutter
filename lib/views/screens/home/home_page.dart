@@ -415,7 +415,7 @@ class _HomePageState extends State<HomePage> {
             VisibilityDetector(
               key: Key('product_demo'),
               onVisibilityChanged: (info) {
-                if (info.visibleBounds.height > 80 &&
+                if (info.visibleBounds.height > 160 &&
                     !_animatedProductIds.contains('product_demo')) {
                   setState(() {
                     _animatedProductIds.add('product_demo');
@@ -434,7 +434,7 @@ class _HomePageState extends State<HomePage> {
                   return Opacity(
                     opacity: value,
                     child: Transform.translate(
-                      offset: Offset(0, 120 * (1 - value)),
+                      offset: Offset(0, 320 * (1 - value)),
                       child: child,
                     ),
                   );
@@ -671,19 +671,19 @@ class _HomePageState extends State<HomePage> {
                         style: Theme.of(context).textTheme.displayLarge!,
                       ),
                       const SizedBox(height: 32),
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child:
-                            _provider.lastProductsIsLoading
-                                ? const Loader()
-                                : AnimatedSize(
-                                  duration: defaultAnimationTime,
-                                  curve: defaultAnimationCurve,
-                                  child: SizedBox(
+                      AnimatedSize(
+                        duration: defaultAnimationTime,
+                        curve: defaultAnimationCurve,
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child:
+                              _provider.lastProductsIsLoading
+                                  ? const Loader()
+                                  : SizedBox(
                                     height:
                                         _provider.lastProducts.isNotEmpty ||
                                                 _provider.lastProductsIsLoading
@@ -705,7 +705,7 @@ class _HomePageState extends State<HomePage> {
                                           }).toList(),
                                     ),
                                   ),
-                                ),
+                        ),
                       ),
                       Center(
                         heightFactor: 1.5,
