@@ -34,11 +34,17 @@ class ProductDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.read<ProductsProvider>();
-    final categoriesFiltered = categories
-        .where((e) => e.contains(':'))
-        .map((e) => e.split(':')[1].replaceAll('-', ' '))
-        .toList()
-        .sublist(0, min(5, categories.length));
+
+    final frenchCategories =
+        categories
+            .where((e) => e.startsWith('fr:'))
+            .map((e) => e.replaceAll('fr:', '').replaceAll('-', ' '))
+            .toList();
+
+    final categoriesFiltered = frenchCategories.sublist(
+      0,
+      min(5, frenchCategories.length),
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
