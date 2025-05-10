@@ -19,7 +19,7 @@ class _AppSearchBarState extends State<AppSearchBar> {
   late TextEditingController _searchController;
 
   final Map<String, String> _filters = {
-    'Popularité': 'popularity_key',
+    'Pertinence': 'popularity_key',
     'Nom': 'product_name',
     'Date de création': 'created_t',
     'Nutriscore': 'nutriscore_score',

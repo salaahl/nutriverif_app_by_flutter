@@ -120,7 +120,7 @@ class FakeProductsService {
     final productsList = data['products'] as List<dynamic>;
 
     /* Critères :
-      * - de sélection : nutriscore > nova > popularité
+      * - de sélection : nutriscore > nova > pertinence
       * - éliminatoires : pas de nutriscore et/ou completeness < 0.35
     */
     final selected =
@@ -185,7 +185,7 @@ class FakeProductsService {
               if (novaComp != 0) return novaComp;
             }
 
-            // 3. Si nutriscore et nova égaux, priorité sur la popularité
+            // 3. Si nutriscore et nova égaux, priorité sur la pertinence
             final aPop = a['popularity_key'];
             final bPop = b['popularity_key'];
             if (aPop is int && bPop is int) {

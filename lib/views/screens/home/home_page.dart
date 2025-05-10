@@ -256,25 +256,20 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(height: 80),
                   VisibilityDetector(
-                    key: Key('nutriscore_card'),
+                    key: Key('scores'),
                     onVisibilityChanged: (info) {
                       if (info.visibleBounds.height > 80 &&
-                          !_animatedProductIds.contains('nutriscore_card')) {
+                          !_animatedProductIds.contains('scores')) {
                         setState(() {
-                          _animatedProductIds.add('nutriscore_card');
+                          _animatedProductIds.add('scores');
                         });
                       }
                     },
                     child: TweenAnimationBuilder<double>(
                       tween: Tween(
                         begin:
-                            _animatedProductIds.contains('nutriscore_card')
-                                ? 1.0
-                                : 0.0,
-                        end:
-                            _animatedProductIds.contains('nutriscore_card')
-                                ? 1.0
-                                : 0.0,
+                            _animatedProductIds.contains('scores') ? 1.0 : 0.0,
+                        end: _animatedProductIds.contains('scores') ? 1.0 : 0.0,
                       ),
                       curve: defaultAnimationCurve,
                       duration: defaultAnimationTime,
@@ -338,73 +333,39 @@ class _HomePageState extends State<HomePage> {
                               ],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  VisibilityDetector(
-                    key: Key('nova_card'),
-                    onVisibilityChanged: (info) {
-                      if (info.visibleBounds.height > 60 &&
-                          !_animatedProductIds.contains('nova_card')) {
-                        setState(() {
-                          _animatedProductIds.add('nova_card');
-                        });
-                      }
-                    },
-                    child: TweenAnimationBuilder<double>(
-                      tween: Tween(
-                        begin:
-                            _animatedProductIds.contains('nova_card')
-                                ? 1.0
-                                : 0.0,
-                        end:
-                            _animatedProductIds.contains('nova_card')
-                                ? 1.0
-                                : 0.0,
-                      ),
-                      curve: defaultAnimationCurve,
-                      duration: defaultAnimationTime,
-                      builder: (context, value, child) {
-                        return Opacity(
-                          opacity: value,
-                          child: Transform.translate(
-                            offset: Offset(0, 80 * (1 - value)),
-                            child: child,
+                          const SizedBox(height: 32),
+                          Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                SvgPicture.network(
+                                  'https://static.openfoodfacts.org/images/attributes/dist/nova-group-1.svg',
+                                  width: 40,
+                                  semanticsLabel: 'Image du Nova score',
+                                  placeholderBuilder:
+                                      (context) => SizedBox(
+                                        width: 40,
+                                        height: 40,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      ),
+                                ),
+                                const SizedBox(height: 16),
+                                const Text(
+                                  "Le système NOVA évalue le degré de transformation des aliments plutôt que leur valeur nutritionnelle directe. Il classe les produits en quatre groupes, allant des aliments bruts ou peu transformés (groupe 1) aux produits ultratransformés (groupe 4). Ce système met en avant l'importance de privilégier les aliments naturels et peu modifiés pour une alimentation plus saine.",
+                                  textAlign: TextAlign.justify,
+                                  style: TextStyle(fontWeight: FontWeight.w300),
+                                ),
+                              ],
+                            ),
                           ),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            SvgPicture.network(
-                              'https://static.openfoodfacts.org/images/attributes/dist/nova-group-1.svg',
-                              width: 40,
-                              semanticsLabel: 'Image du Nova score',
-                              placeholderBuilder:
-                                  (context) => SizedBox(
-                                    width: 40,
-                                    height: 40,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  ),
-                            ),
-                            const SizedBox(height: 16),
-                            const Text(
-                              "Le système NOVA évalue le degré de transformation des aliments plutôt que leur valeur nutritionnelle directe. Il classe les produits en quatre groupes, allant des aliments bruts ou peu transformés (groupe 1) aux produits ultratransformés (groupe 4). Ce système met en avant l'importance de privilégier les aliments naturels et peu modifiés pour une alimentation plus saine.",
-                              textAlign: TextAlign.justify,
-                              style: TextStyle(fontWeight: FontWeight.w300),
-                            ),
-                          ],
-                        ),
+                        ],
                       ),
                     ),
                   ),
@@ -602,12 +563,7 @@ class _HomePageState extends State<HomePage> {
                             TextSpan(
                               text: "plus saines",
                               style: TextStyle(
-                                backgroundColor: Color.fromRGBO(
-                                  0,
-                                  189,
-                                  126,
-                                  0.6,
-                                ),
+                                backgroundColor: Colors.redAccent,
                               ),
                             ),
                             TextSpan(
