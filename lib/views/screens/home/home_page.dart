@@ -376,7 +376,7 @@ class _HomePageState extends State<HomePage> {
             VisibilityDetector(
               key: Key('product_demo'),
               onVisibilityChanged: (info) {
-                if (info.visibleBounds.height > 160 &&
+                if (info.visibleBounds.height > 120 &&
                     !_animatedProductIds.contains('product_demo')) {
                   setState(() {
                     _animatedProductIds.add('product_demo');
@@ -395,7 +395,7 @@ class _HomePageState extends State<HomePage> {
                   return Opacity(
                     opacity: value,
                     child: Transform.translate(
-                      offset: Offset(0, 320 * (1 - value)),
+                      offset: Offset(0, 240 * (1 - value)),
                       child: child,
                     ),
                   );
