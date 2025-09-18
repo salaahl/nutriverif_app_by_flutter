@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -7,9 +6,10 @@ import 'package:app_nutriverif/providers/products_provider.dart';
 
 import 'package:app_nutriverif/views/screens/products_page.dart';
 
+import '../../../widgets/loader.dart';
 import './product_nutriments.dart';
 
-class ProductDetails extends StatelessWidget {
+class ProductDetails extends StatefulWidget {
   final String id;
   final List<String> categories;
   final String quantity;
@@ -32,100 +32,115 @@ class ProductDetails extends StatelessWidget {
   });
 
   @override
+  State<ProductDetails> createState() => _ProductDetailsState();
+}
+
+class _ProductDetailsState extends State<ProductDetails> {
+  late ProductsProvider provider;
+
+  List<String> categoriesTranslated = [];
+  bool categoriesIsLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    provider = context.read<ProductsProvider>();
+    provider.getTranslatedCategories(widget.categories).then((categories) {
+      setState(() {
+        categoriesTranslated = categories;
+        categoriesIsLoading = false;
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final provider = context.read<ProductsProvider>();
-
-    final frenchCategories =
-        categories
-            .where((e) => e.startsWith('fr:'))
-            .map((e) => e.replaceAll('fr:', '').replaceAll('-', ' '))
-            .toList();
-
-    final categoriesFiltered = frenchCategories.sublist(
-      0,
-      min(5, frenchCategories.length),
-    );
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (quantity.isNotEmpty) ...[
+        if (widget.quantity.isNotEmpty) ...[
           Text(
             "Quantité :",
             style: TextStyle(fontWeight: FontWeight.bold, height: 1.5),
           ),
-          Text(quantity),
+          Text(widget.quantity),
           const SizedBox(height: 32),
         ],
-        if (nutriments.keys.any(
+        if (widget.nutriments.keys.any(
           (key) => provider.ajrValues.containsKey(key),
         )) ...[
-          NutritionalTable(nutriments: nutriments, servingSize: servingSize),
+          NutritionalTable(
+            nutriments: widget.nutriments,
+            servingSize: widget.servingSize,
+          ),
           const SizedBox(height: 32),
         ],
-        if (ingredients.isNotEmpty) ...[
+        if (widget.ingredients.isNotEmpty) ...[
           Text(
             "Ingrédients :",
             style: TextStyle(fontWeight: FontWeight.bold, height: 1.5),
           ),
-          Text(ingredients),
+          Text(widget.ingredients),
           const SizedBox(height: 24),
         ],
-        if (id.isNotEmpty) ...[
+        if (widget.id.isNotEmpty) ...[
           const Text(
             "Code-barres :",
             style: TextStyle(fontWeight: FontWeight.bold, height: 1.5),
           ),
-          Text(id),
+          Text(widget.id),
           const SizedBox(height: 24),
         ],
-        if (link.isNotEmpty) ...[
+        if (widget.link.isNotEmpty) ...[
           const Text(
             "Plus d'informations :",
             style: TextStyle(fontWeight: FontWeight.bold, height: 1.5),
           ),
           InkWell(
             child: Text(
-              link,
+              widget.link,
               style: const TextStyle(
                 decoration: TextDecoration.underline,
                 decorationThickness: 4,
                 decorationColor: Colors.redAccent,
               ),
             ),
-            onTap: () => launchUrlString(link),
+            onTap: () => launchUrlString(widget.link),
           ),
           const SizedBox(height: 24),
         ],
         Wrap(
           spacing: 8,
           children:
-              categoriesFiltered
-                  .map(
-                    (category) => ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: Colors.grey[400],
-                      ),
-                      onPressed: () async {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ProductSearchPage(),
+              categoriesIsLoading
+                  ? [const Loader()]
+                  : categoriesTranslated
+                      .map(
+                        (category) => ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.grey[400],
                           ),
-                        );
-                        await provider.searchProducts(
-                          query: category,
-                          method: 'complete',
-                        );
-                      },
-                      child: Text(
-                        "#$category",
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  )
-                  .toList(),
+                          onPressed: () async {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ProductSearchPage(),
+                              ),
+                            );
+                            await provider.searchProducts(
+                              query: category,
+                              method: 'complete',
+                            );
+                          },
+                          child: Text(
+                            "#$category",
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      )
+                      .toList(),
         ),
       ],
     );

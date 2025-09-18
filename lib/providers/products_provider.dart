@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../models/model_products.dart';
 import '../core/services/products_service.dart';
+import '../core/services/translate_service.dart';
 
 class ProductsProvider with ChangeNotifier {
-  final ProductsService _service = ProductsService();
+  final ProductsService _productsService = ProductsService();
+  final TranslateService _translateService = TranslateService();
 
   final List<Product> _products = [];
   bool _productsIsLoading = false;
@@ -156,6 +158,53 @@ class ProductsProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<List<String>> getTranslatedCategories(List<String> categories) async {
+    String cleanCategory(String cat, String langPrefix) {
+      return cat
+          .trim()
+          .replaceFirst(RegExp('^$langPrefix:'), '')
+          .replaceAll('-', ' ')
+          .trim();
+    }
+
+    final frenchCategories =
+        categories
+            .where((c) => c.startsWith('fr:'))
+            .map((c) => cleanCategory(c, 'fr'))
+            .toList();
+
+    final englishCategories =
+        categories
+            .where((c) => c.startsWith('en:'))
+            .map((c) => cleanCategory(c, 'en'))
+            .toList();
+
+    final categoriesToTranslate = englishCategories
+        .take(6 - frenchCategories.length)
+        .join('<SEP>');
+
+    if (categoriesToTranslate.isEmpty) {
+      return [...frenchCategories, ...englishCategories];
+    }
+
+    List<String> translatedCategories = [];
+
+    try {
+      final data = await _translateService.getTranslation(
+        text: categoriesToTranslate,
+        lang: 'FR',
+      );
+      translatedCategories = data.split('<SEP>').map((c) => c.trim()).toList();
+    } catch (e) {
+      setError('Erreur pendant la traduction: $e');
+      // Je récupère quand meme les categories en anglais
+      translatedCategories =
+          englishCategories.take(6 - frenchCategories.length).toList();
+    }
+
+    return [...frenchCategories, ...translatedCategories];
+  }
+
   Future<void> searchProducts({
     String query = '',
     String selected = 'popularity_key',
@@ -175,7 +224,7 @@ class ProductsProvider with ChangeNotifier {
     setProductsIsLoading(true);
 
     try {
-      final data = await _service.searchProductsByQuery(
+      final data = await _productsService.searchProductsByQuery(
         query: _input,
         sortBy: _filter,
         page: _page,
@@ -201,7 +250,7 @@ class ProductsProvider with ChangeNotifier {
     setProductIsLoading(true);
 
     try {
-      setProduct(await _service.fetchProductById(id));
+      setProduct(await _productsService.fetchProductById(id));
     } catch (e) {
       setError('single product error: $e');
       setProduct(Product.fromJson({}));
@@ -220,7 +269,7 @@ class ProductsProvider with ChangeNotifier {
     setSuggestedProductsIsLoading(true);
 
     try {
-      final result = await _service.fetchSuggestedProducts(
+      final result = await _productsService.fetchSuggestedProducts(
         id: id,
         categories: categories,
         nutriscore: nutriscore,
@@ -240,7 +289,7 @@ class ProductsProvider with ChangeNotifier {
     setLastProductsIsLoading(true);
 
     try {
-      final products = await _service.fetchLastProducts();
+      final products = await _productsService.fetchLastProducts();
       setLastProducts(products);
     } catch (e) {
       setError('last products error: $e');
