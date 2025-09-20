@@ -11,7 +11,7 @@ import 'package:app_nutriverif/providers/products_provider.dart';
 import '../../widgets/app_bar.dart';
 import '../../widgets/loader.dart';
 import '../../widgets/search_bar.dart';
-import '../../widgets/product_card.dart';
+import '../../widgets/product_card/product_card.dart';
 import './widgets/youtube_player.dart';
 
 import 'package:app_nutriverif/views/screens/product/widgets/product_image.dart';
@@ -144,25 +144,28 @@ class _HomePageState extends State<HomePage> {
                           Container(
                             margin: const EdgeInsets.only(top: 16),
                             width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.pushNamed(context, '/products');
-                              },
-                              style: ElevatedButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                            child: Tooltip(
+                              message: 'Plus de produits',
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pushNamed(context, '/products');
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  backgroundColor: const Color.fromRGBO(
+                                    0,
+                                    189,
+                                    126,
+                                    1,
+                                  ),
                                 ),
-                                backgroundColor: const Color.fromRGBO(
-                                  0,
-                                  189,
-                                  126,
-                                  1,
+                                child: const Icon(
+                                  Icons.add,
+                                  size: 24,
+                                  color: Colors.white,
                                 ),
-                              ),
-                              child: const Icon(
-                                Icons.add,
-                                size: 24,
-                                color: Colors.white,
                               ),
                             ),
                           ),
@@ -182,7 +185,7 @@ class _HomePageState extends State<HomePage> {
                       ).createShader(bounds);
                     },
                     child: const Text(
-                      '+ de 3 819 363 produits référencés',
+                      '+ de 4 034 279 produits référencés',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: 'Grand Hotel',

@@ -30,14 +30,14 @@ class ProductScores extends StatelessWidget {
           _ProductScore(
             imageUrl:
                 "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-$nutriscore-new-fr.svg",
-            width: 100,
+            width: 85,
             score: nutriscore,
           ),
           const SizedBox(height: 8),
           _ProductScore(
             imageUrl:
                 "https://static.openfoodfacts.org/images/attributes/dist/nova-group-$nova.svg",
-            width: 30,
+            width: 25,
             score: nova,
           ),
           if (novaDescription.containsKey(nova)) ...[

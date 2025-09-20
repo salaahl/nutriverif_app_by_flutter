@@ -10,7 +10,7 @@ import 'package:app_nutriverif/providers/products_provider.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/loader.dart';
 import '../widgets/search_bar.dart';
-import '../widgets/product_card.dart';
+import '../widgets/product_card/product_card.dart';
 
 class ProductSearchPage extends StatefulWidget {
   const ProductSearchPage({super.key});
@@ -56,8 +56,6 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    _provider = context.watch<ProductsProvider>();
-
     return Scaffold(
       body: Stack(
         children: [
@@ -76,63 +74,82 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 0.55,
-                  ),
-                  itemCount: _provider.products.length,
-                  itemBuilder: (context, index) {
-                    final product = _provider.products[index];
-                    final productCard = ProductCard(
-                      product: product,
-                      widthAjustment: 16,
-                    );
+                AnimatedSize(
+                  duration: defaultAnimationTime * 2,
+                  curve: defaultAnimationCurve,
+                  child: Container(
+                    height:
+                        _provider.productsIsLoading &&
+                                _provider.products.isEmpty
+                            ? 0
+                            : null,
+                    margin: const EdgeInsets.only(top: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                            childAspectRatio: 0.55,
+                          ),
+                      padding: EdgeInsets.only(top: 16),
+                      itemCount: _provider.products.length,
+                      itemBuilder: (context, index) {
+                        final product = _provider.products[index];
+                        final productCard = ProductCard(
+                          product: product,
+                          widthAjustment: 32,
+                        );
 
-                    final alreadyAnimated = _animatedProductIds.contains(
-                      product.id,
-                    );
+                        final alreadyAnimated = _animatedProductIds.contains(
+                          product.id,
+                        );
 
-                    return VisibilityDetector(
-                      key: Key(product.id),
-                      onVisibilityChanged: (info) {
-                        if (info.visibleFraction >= 0.20 &&
-                            !_animatedProductIds.contains(product.id)) {
-                          setState(() {
-                            _animatedProductIds.add(product.id);
-                          });
-                        }
-                      },
-                      child:
-                          alreadyAnimated
-                              ? TweenAnimationBuilder<double>(
-                                tween: Tween(
-                                  begin: 0.0,
-                                  end: alreadyAnimated ? 1.0 : 0.0,
-                                ),
-                                duration: Duration(milliseconds: 350),
-                                curve: Curves.easeInOut,
-                                builder: (context, value, child) {
-                                  return Opacity(
-                                    opacity: value,
-                                    child: Transform.translate(
-                                      offset: Offset(0, 35 * (1 - value)),
-                                      child: child,
+                        return VisibilityDetector(
+                          key: Key(product.id),
+                          onVisibilityChanged: (info) {
+                            if (info.visibleFraction >= 0.20 &&
+                                !_animatedProductIds.contains(product.id)) {
+                              setState(() {
+                                _animatedProductIds.add(product.id);
+                              });
+                            }
+                          },
+                          child:
+                              alreadyAnimated
+                                  ? TweenAnimationBuilder<double>(
+                                    tween: Tween(
+                                      begin: 0.0,
+                                      end: alreadyAnimated ? 1.0 : 0.0,
                                     ),
-                                  );
-                                },
-                                child: productCard,
-                              )
-                              : const SizedBox(
-                                height: 280,
-                                width: double.infinity,
-                              ),
-                    );
-                  },
+                                    duration: Duration(milliseconds: 350),
+                                    curve: Curves.easeInOut,
+                                    builder: (context, value, child) {
+                                      return Opacity(
+                                        opacity: value,
+                                        child: Transform.translate(
+                                          offset: Offset(0, 35 * (1 - value)),
+                                          child: child,
+                                        ),
+                                      );
+                                    },
+                                    child: productCard,
+                                  )
+                                  : const SizedBox(
+                                    height: 280,
+                                    width: double.infinity,
+                                  ),
+                        );
+                      },
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 if (_provider.productsIsLoading)

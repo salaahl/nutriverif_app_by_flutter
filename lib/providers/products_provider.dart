@@ -180,7 +180,7 @@ class ProductsProvider with ChangeNotifier {
             .toList();
 
     final categoriesToTranslate = englishCategories
-        .take(6 - frenchCategories.length)
+        .take(4 - frenchCategories.length)
         .join('<SEP>');
 
     if (categoriesToTranslate.isEmpty) {
@@ -199,7 +199,7 @@ class ProductsProvider with ChangeNotifier {
       setError('Erreur pendant la traduction: $e');
       // Je récupère quand meme les categories en anglais
       translatedCategories =
-          englishCategories.take(6 - frenchCategories.length).toList();
+          englishCategories.take(4 - frenchCategories.length).toList();
     }
 
     return [...frenchCategories, ...translatedCategories];

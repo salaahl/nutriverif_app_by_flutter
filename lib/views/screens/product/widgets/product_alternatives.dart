@@ -7,7 +7,7 @@ import 'package:app_nutriverif/models/model_products.dart';
 import 'package:app_nutriverif/providers/products_provider.dart';
 
 import 'package:app_nutriverif/views/widgets/loader.dart';
-import 'package:app_nutriverif/views/widgets/product_card.dart';
+import 'package:app_nutriverif/views/widgets/product_card/product_card.dart';
 
 class AlternativeProducts extends StatelessWidget {
   final List<Product> products;

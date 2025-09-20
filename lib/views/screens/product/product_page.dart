@@ -5,7 +5,7 @@ import 'package:app_nutriverif/core/constants/custom_values.dart';
 
 import 'package:app_nutriverif/providers/products_provider.dart';
 
-import 'package:app_nutriverif/views/widgets/app_bar.dart';
+import '../../widgets/app_bar.dart';
 import './widgets/product_image.dart';
 import './widgets/product_name.dart';
 import './widgets/product_details.dart';

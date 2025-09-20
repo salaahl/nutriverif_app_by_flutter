@@ -36,7 +36,7 @@ class ProductDetails extends StatefulWidget {
 }
 
 class _ProductDetailsState extends State<ProductDetails> {
-  late ProductsProvider provider;
+  late ProductsProvider _provider;
 
   List<String> categoriesTranslated = [];
   bool categoriesIsLoading = true;
@@ -45,8 +45,8 @@ class _ProductDetailsState extends State<ProductDetails> {
   void initState() {
     super.initState();
 
-    provider = context.read<ProductsProvider>();
-    provider.getTranslatedCategories(widget.categories).then((categories) {
+    _provider = context.read<ProductsProvider>();
+    _provider.getTranslatedCategories(widget.categories).then((categories) {
       setState(() {
         categoriesTranslated = categories;
         categoriesIsLoading = false;
@@ -56,6 +56,8 @@ class _ProductDetailsState extends State<ProductDetails> {
 
   @override
   Widget build(BuildContext context) {
+    _provider = context.watch<ProductsProvider>();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -68,7 +70,7 @@ class _ProductDetailsState extends State<ProductDetails> {
           const SizedBox(height: 32),
         ],
         if (widget.nutriments.keys.any(
-          (key) => provider.ajrValues.containsKey(key),
+          (key) => _provider.ajrValues.containsKey(key),
         )) ...[
           NutritionalTable(
             nutriments: widget.nutriments,
@@ -115,6 +117,8 @@ class _ProductDetailsState extends State<ProductDetails> {
           children:
               categoriesIsLoading
                   ? [const Loader()]
+                  : categoriesTranslated.isEmpty
+                  ? [SizedBox.shrink()]
                   : categoriesTranslated
                       .map(
                         (category) => ElevatedButton(
@@ -129,7 +133,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                                 builder: (context) => ProductSearchPage(),
                               ),
                             );
-                            await provider.searchProducts(
+                            await _provider.searchProducts(
                               query: category,
                               method: 'complete',
                             );
