@@ -13,7 +13,7 @@ class ProductsService {
       'id,image_url,brands,generic_name_fr,main_category_fr,categories_tags,created_t,last_modified_t,nutriscore_grade,nova_group,quantity,serving_size,ingredients_text_fr,nutriments,nutrient_levels,manufacturing_places,url,completeness,popularity_key';
 
   static const String _productsFields =
-      'id,image_url,brands,generic_name_fr,categories_tags,created_t,nutriscore_grade,nova_group,completeness,popularity_key';
+      'id,image_url,brands,generic_name_fr,categories_tags,created_t,nutriscore_grade,nova_group,compared_to_category,completeness,popularity_key';
 
   Future<Map<String, dynamic>> _getJson(String url) async {
     final response = await http

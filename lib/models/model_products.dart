@@ -41,7 +41,9 @@ class Product {
       image: (json['image_url'] ?? '').toString(),
       brand: (json['brands'] ?? '').toString(),
       name: (json['generic_name_fr'] ?? '').toString(),
-      category: (json['main_category_fr'] ?? '').toString(),
+      category:
+          (json['main_category_fr'] ?? json['compared_to_category'] ?? '')
+              .toString(),
       categories: (json['categories_tags'] as List?)?.cast<String>() ?? [],
       lastUpdate: (json['last_modified_t'] ?? '').toString(),
       nutriscore: (json['nutriscore_grade'] ?? 'unknown').toString(),

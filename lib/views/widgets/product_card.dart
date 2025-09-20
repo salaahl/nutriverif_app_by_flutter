@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:app_nutriverif/core/constants/custom_values.dart';
 
 import '../../models/model_products.dart';
 
+import 'package:app_nutriverif/providers/products_provider.dart';
+
 import 'package:app_nutriverif/views/screens/product/product_page.dart';
+import 'package:app_nutriverif/views/screens/products_page.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
@@ -19,6 +23,8 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.read<ProductsProvider>();
+
     return Container(
       key: Key(product.id),
       height: 280,
@@ -72,7 +78,7 @@ class ProductCard extends StatelessWidget {
             }
           },
           child: Padding(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(15),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -84,8 +90,8 @@ class ProductCard extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       constraints: const BoxConstraints(
-                        maxHeight: 100,
-                        maxWidth: 100,
+                        maxHeight: 80,
+                        maxWidth: 80,
                       ),
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -115,38 +121,103 @@ class ProductCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  product.brand,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.w900),
-                ),
-                Text(
-                  product.name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.w500,
+                SizedBox(
+                  height: 158, // 60% du container
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            product.brand,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontWeight: FontWeight.w900),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            product.name,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          SvgPicture.network(
+                            "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-${product.nutriscore}-new-fr.svg",
+                            height: 40,
+                            semanticsLabel: 'Nutriscore ${product.nutriscore}',
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              SvgPicture.network(
+                                "https://static.openfoodfacts.org/images/attributes/dist/nova-group-${product.nova}.svg",
+                                height: 35,
+                                semanticsLabel: 'Nova score ${product.nova}',
+                              ),
+                              product.category.isEmpty ||
+                                      !product.category.startsWith('fr:')
+                                  ? const SizedBox.shrink()
+                                  : Expanded(
+                                    child: Container(
+                                      margin: const EdgeInsets.only(left: 16),
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.white,
+                                          foregroundColor: Colors.black,
+                                          elevation: 0,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                          ),
+                                          tapTargetSize:
+                                              MaterialTapTargetSize.shrinkWrap,
+                                          minimumSize: const Size(0, 25),
+                                        ),
+                                        onPressed: () async {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) =>
+                                                      ProductSearchPage(),
+                                            ),
+                                          );
+                                          await provider.searchProducts(
+                                            query: product.category
+                                                .split(":")[1]
+                                                .replaceAll('-', ' '),
+                                            method: 'complete',
+                                          );
+                                        },
+                                        child: Text(
+                                          "#${product.category.split(":")[1].replaceAll('-', ' ')}",
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          softWrap: false,
+                                          style: const TextStyle(fontSize: 10),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 4),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SvgPicture.network(
-                      "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-${product.nutriscore}-new-fr.svg",
-                      height: 40,
-                      semanticsLabel: 'Nutriscore ${product.nutriscore}',
-                    ),
-                    const SizedBox(height: 4),
-                    SvgPicture.network(
-                      "https://static.openfoodfacts.org/images/attributes/dist/nova-group-${product.nova}.svg",
-                      height: 40,
-                      semanticsLabel: 'Nova score ${product.nova}',
-                    ),
-                  ],
                 ),
               ],
             ),
