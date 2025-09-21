@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+
+import 'package:app_nutriverif/core/constants/custom_values.dart';
 
 class LazyYoutubePlayer extends StatefulWidget {
   const LazyYoutubePlayer({super.key});
@@ -9,18 +12,112 @@ class LazyYoutubePlayer extends StatefulWidget {
 }
 
 class _LazyYoutubePlayerState extends State<LazyYoutubePlayer> {
-  final String videoId = 'D1jzT02IBRA';
-  bool _showPlayer = false;
-
   late YoutubePlayerController _controller;
+  late bool _showPlayer =
+      false; // Variable pour stocker l'acceptation des cookies
+
+  final String videoId = 'D1jzT02IBRA';
+
+  // Charger la valeur stockée
+  Future<void> _getCookiesStatus() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      setState(() {
+        _showPlayer = prefs.getBool('acceptCookies') ?? false;
+      });
+    } catch (e) {
+      setState(() {
+        _showPlayer = false;
+      });
+    }
+  }
+
+  // Sauvegarder la valeur
+  Future<void> _setCookiesStatus(bool value) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('acceptCookies', value);
+      setState(() {
+        _showPlayer = value;
+      });
+    } catch (e) {
+      setState(() {
+        _showPlayer = true;
+      });
+    }
+  }
+
+  Future<bool?> acceptCookies(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Row(
+            children: [
+              const Text(
+                "Cookies",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.underline,
+                  decorationThickness: 4,
+                  decorationColor: Colors.black, // couleur noire
+                ),
+              ),
+            ],
+          ),
+          content: const Text(
+            'Cette vidéo est hébergée par YouTube. Son affichage sur ce site implique le dépôt de cookies par YouTube (Google).\n\nCes cookies sont uniquement liés à la lecture de la vidéo et n’ont pas d’effet sur vos autres services Google.\n\nVoulez-vous les accepter et afficher la vidéo ?',
+            style: TextStyle(fontSize: 16),
+          ),
+          actionsAlignment: MainAxisAlignment.spaceBetween,
+          actions: [
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.secondary,
+              ),
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text("Annuler"),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: customGreen,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(true);
+                _setCookiesStatus(true);
+              },
+              child: const Text(
+                "Accepter",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   void initState() {
     super.initState();
+
     _controller = YoutubePlayerController(
       initialVideoId: videoId,
       flags: const YoutubePlayerFlags(autoPlay: true, mute: false),
     );
+
+    _getCookiesStatus();
   }
 
   @override
@@ -37,19 +134,22 @@ class _LazyYoutubePlayerState extends State<LazyYoutubePlayer> {
         borderRadius: BorderRadius.circular(12),
         child:
             _showPlayer
-                ? YoutubePlayer(
-                  controller: _controller,
-                  bottomActions: [],
+                ? RepaintBoundary(
+                  child: YoutubePlayer(
+                    controller: _controller,
+                    bottomActions: [],
+                  ),
                 )
                 : GestureDetector(
-                  onTap: () => setState(() => _showPlayer = true),
+                  onTap: () async => await acceptCookies(context),
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
                       AspectRatio(
                         aspectRatio: 16 / 9,
-                        child: Image.network(
-                          YoutubePlayer.getThumbnail(videoId: videoId),
+                        child: Image.asset(
+                          // Pour récupérer l'image de la vidéo depuis le net : YoutubePlayer.getThumbnail(videoId: videoId)
+                          "assets/images/home-video-thumb.jpg",
                           fit: BoxFit.cover,
                         ),
                       ),

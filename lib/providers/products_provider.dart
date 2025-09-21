@@ -240,6 +240,7 @@ class ProductsProvider with ChangeNotifier {
       setProducts(products, method);
     } catch (e) {
       setError('search product error: $e');
+      setProducts([], method);
     } finally {
       setProductsIsLoading(false);
     }
@@ -279,6 +280,7 @@ class ProductsProvider with ChangeNotifier {
       setSuggestedProducts(result);
     } catch (e) {
       setError('suggestion product error: $e');
+      setSuggestedProducts([]);
     } finally {
       setSuggestedProductsIsLoading(false);
     }
@@ -293,6 +295,7 @@ class ProductsProvider with ChangeNotifier {
       setLastProducts(products);
     } catch (e) {
       setError('last products error: $e');
+      setLastProducts([]);
     } finally {
       setLastProductsIsLoading(false);
     }

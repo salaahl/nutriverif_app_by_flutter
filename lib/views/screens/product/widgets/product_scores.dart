@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import 'package:app_nutriverif/core/constants/custom_values.dart';
-
 class ProductScores extends StatelessWidget {
   final String nutriscore;
   final String nova;
@@ -28,15 +26,13 @@ class ProductScores extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _ProductScore(
-            imageUrl:
-                "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-$nutriscore-new-fr.svg",
+            imageUrl: "assets/images/nutriscore-$nutriscore.svg",
             width: 85,
             score: nutriscore,
           ),
           const SizedBox(height: 8),
           _ProductScore(
-            imageUrl:
-                "https://static.openfoodfacts.org/images/attributes/dist/nova-group-$nova.svg",
+            imageUrl: "assets/images/nova-group-$nova.svg",
             width: 25,
             score: nova,
           ),
@@ -66,24 +62,14 @@ class _ProductScore extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Permet de retourner un cacheWidth adapté à la résolution de l'écran
-    int getCacheWidth(BuildContext context, double logicalWidth) {
-      final ratio = MediaQuery.of(context).devicePixelRatio;
-      return (logicalWidth * ratio).round();
-    }
-
     return Container(
       constraints: BoxConstraints(maxWidth: width),
-      child:
-          imageUrl.isEmpty
-              ? Image.asset(
-                appIcon,
-                width: width,
-                cacheWidth: getCacheWidth(context, width),
-                fit: BoxFit.cover,
-                semanticLabel: 'Nutriscore $score',
-              )
-              : SvgPicture.network(imageUrl, width: width, fit: BoxFit.cover),
+      child: SvgPicture.asset(
+        imageUrl,
+        width: width,
+        fit: BoxFit.cover,
+        semanticsLabel: "Score $score",
+      ),
     );
   }
 }

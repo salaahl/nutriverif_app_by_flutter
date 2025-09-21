@@ -35,6 +35,9 @@ class _HomePageState extends State<HomePage> {
 
     _provider.setProductDemo(await _service.fetchProductById('3608580758686'));
 
+    // Ne pas appeler setSuggestedProductsDemo si productDemo est vide
+    if (_provider.productDemo.id.isEmpty) return; 
+
     _provider.setSuggestedProductsDemo(
       await _service.fetchSuggestedProducts(
         id: _provider.productDemo.id,

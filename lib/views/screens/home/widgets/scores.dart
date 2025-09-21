@@ -33,16 +33,10 @@ class Scores extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SvgPicture.network(
-                'https://static.openfoodfacts.org/images/attributes/dist/nutriscore-a.svg',
+              SvgPicture.asset(
+                "assets/images/nutriscore-a.svg",
                 width: 160,
                 semanticsLabel: 'Image du Nutriscore',
-                placeholderBuilder:
-                    (context) => SizedBox(
-                      width: 40,
-                      height: 40,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
               ),
               const SizedBox(height: 16),
               const Text(
@@ -65,16 +59,10 @@ class Scores extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SvgPicture.network(
-                'https://static.openfoodfacts.org/images/attributes/dist/nova-group-1.svg',
+              SvgPicture.asset(
+                'assets/images/nova-group-1.svg',
                 width: 40,
                 semanticsLabel: 'Image du Nova score',
-                placeholderBuilder:
-                    (context) => SizedBox(
-                      width: 40,
-                      height: 40,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
               ),
               const SizedBox(height: 16),
               const Text(

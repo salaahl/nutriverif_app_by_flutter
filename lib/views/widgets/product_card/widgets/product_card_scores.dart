@@ -26,8 +26,8 @@ class ProductCardDetails extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        SvgPicture.network(
-          "https://static.openfoodfacts.org/images/attributes/dist/nutriscore-$nutriscore-new-fr.svg",
+        SvgPicture.asset(
+          "assets/images/nutriscore-$nutriscore.svg",
           height: 40,
           semanticsLabel: 'Nutriscore $nutriscore',
         ),
@@ -35,8 +35,8 @@ class ProductCardDetails extends StatelessWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            SvgPicture.network(
-              "https://static.openfoodfacts.org/images/attributes/dist/nova-group-$nova.svg",
+            SvgPicture.asset(
+              "assets/images/nova-group-$nova.svg",
               height: 35,
               semanticsLabel: 'Nova score $nova',
             ),
