@@ -56,6 +56,8 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
 
   @override
   Widget build(BuildContext context) {
+    _provider = context.watch<ProductsProvider>();
+
     return Scaffold(
       body: Stack(
         children: [
@@ -94,10 +96,15 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                       physics: const NeverScrollableScrollPhysics(),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
-                            childAspectRatio: 0.55,
+                            crossAxisCount: 2, // Colonnes
+                            crossAxisSpacing: 16, // Espacement horizontal
+                            mainAxisSpacing: 16, // Espacement vertical
+                            /* 
+                            * Hauteur de la carte redéfinie (car pas pris en compte)
+                            * 280 = hauteur de la carte d'un produit
+                            * 16 = prise en compte de l'espace entre chaque carte
+                            */
+                            mainAxisExtent: 296,
                           ),
                       padding: EdgeInsets.only(top: 16),
                       itemCount: _provider.products.length,
