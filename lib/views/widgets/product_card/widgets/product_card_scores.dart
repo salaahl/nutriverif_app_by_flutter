@@ -6,7 +6,6 @@ import 'package:app_nutriverif/providers/products_provider.dart';
 
 import 'package:app_nutriverif/views/screens/products_page.dart';
 
-// Contient également la catégorie du produit
 class ProductCardDetails extends StatelessWidget {
   final String nutriscore;
   final String nova;

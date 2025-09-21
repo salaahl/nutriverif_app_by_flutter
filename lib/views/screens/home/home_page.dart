@@ -63,6 +63,12 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     _provider = context.watch<ProductsProvider>();
 
+    // Permet de retourner un cacheWidth adapté à la résolution de l'écran
+    int getCacheHeight(BuildContext context, double logicalHeight) {
+      final ratio = MediaQuery.of(context).devicePixelRatio;
+      return (logicalHeight * ratio).round();
+    }
+
     return Scaffold(
       body: Center(
         child: ListView(
@@ -671,6 +677,7 @@ class _HomePageState extends State<HomePage> {
                         child: Image.asset(
                           appIcon,
                           height: 160,
+                          cacheHeight: getCacheHeight(context, 160),
                           color: Colors.grey[600],
                         ),
                       ),

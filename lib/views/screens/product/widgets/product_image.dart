@@ -10,6 +10,12 @@ class ProductImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Permet de retourner un cacheWidth adapté à la résolution de l'écran
+    int getCacheWidth(BuildContext context, double logicalWidth) {
+      final ratio = MediaQuery.of(context).devicePixelRatio;
+      return (logicalWidth * ratio).round();
+    }
+
     return AspectRatio(
       aspectRatio: 1,
       child: Hero(
@@ -28,12 +34,22 @@ class ProductImage extends StatelessWidget {
                   ? Image.asset(
                     appIcon,
                     width: 160,
+                    cacheWidth: getCacheWidth(context, 160),
                     semanticLabel: 'Image du produit',
                   )
                   : Image.network(
                     image,
                     width: 160,
+                    cacheWidth: getCacheWidth(context, 160),
                     semanticLabel: 'Image du produit',
+                    errorBuilder: (context, error, stackTrace) {
+                      return Image.asset(
+                        appIcon,
+                        width: 160,
+                        cacheWidth: getCacheWidth(context, 160),
+                        semanticLabel: 'Image de remplacement (erreur réseau)',
+                      );
+                    },
                   ),
         ),
       ),

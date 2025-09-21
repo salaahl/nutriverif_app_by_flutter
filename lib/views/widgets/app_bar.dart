@@ -10,6 +10,12 @@ Widget myAppBar(
     'arrowColor': Colors.white,
   },
 }) {
+  // Permet de retourner un cacheWidth adapté à la résolution de l'écran
+  int getCacheWidth(BuildContext context, double logicalWidth) {
+    final ratio = MediaQuery.of(context).devicePixelRatio;
+    return (logicalWidth * ratio).round();
+  }
+
   return SafeArea(
     child: SizedBox(
       height: 172,
@@ -23,7 +29,12 @@ Widget myAppBar(
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset(appIcon, height: 80, width: 80),
+                  Image.asset(
+                    appIcon,
+                    height: 80,
+                    width: 80,
+                    cacheWidth: getCacheWidth(context, 80),
+                  ),
                   const SizedBox(height: 4),
                   if (route != '/')
                     Text.rich(

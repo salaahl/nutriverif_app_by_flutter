@@ -19,6 +19,12 @@ class ProductCardImage extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final cardWidth = (screenWidth / 100 * 48) - widthAjustment;
 
+    // Permet de retourner un cacheWidth adapté à la résolution de l'écran
+    int getCacheHeight(BuildContext context, double logicalHeight) {
+      final ratio = MediaQuery.of(context).devicePixelRatio;
+      return (logicalHeight * ratio).round();
+    }
+
     return Center(
       child: Hero(
         key: Key(id),
@@ -37,18 +43,21 @@ class ProductCardImage extends StatelessWidget {
                   ? Image.asset(
                     appIcon,
                     height: 80,
+                    cacheHeight: getCacheHeight(context, 80),
                     fit: BoxFit.contain,
-                    semanticLabel: 'Image du produit',
+                    semanticLabel: 'Image de remplacement',
                   )
                   : Image.network(
                     image,
                     height: 80,
+                    cacheHeight: getCacheHeight(context, 80),
                     fit: BoxFit.contain,
                     semanticLabel: 'Image du produit',
                     errorBuilder: (context, error, stackTrace) {
                       return Image.asset(
                         appIcon,
                         height: 80,
+                        cacheHeight: getCacheHeight(context, 80),
                         fit: BoxFit.contain,
                         semanticLabel: 'Image de remplacement (erreur réseau)',
                       );

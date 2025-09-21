@@ -66,6 +66,12 @@ class _ProductScore extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Permet de retourner un cacheWidth adapté à la résolution de l'écran
+    int getCacheWidth(BuildContext context, double logicalWidth) {
+      final ratio = MediaQuery.of(context).devicePixelRatio;
+      return (logicalWidth * ratio).round();
+    }
+
     return Container(
       constraints: BoxConstraints(maxWidth: width),
       child:
@@ -73,6 +79,7 @@ class _ProductScore extends StatelessWidget {
               ? Image.asset(
                 appIcon,
                 width: width,
+                cacheWidth: getCacheWidth(context, width),
                 fit: BoxFit.cover,
                 semanticLabel: 'Nutriscore $score',
               )
