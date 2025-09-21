@@ -128,6 +128,12 @@ class _LazyYoutubePlayerState extends State<LazyYoutubePlayer> {
 
   @override
   Widget build(BuildContext context) {
+    // Permet de retourner un cacheWidth adapté à la résolution de l'écran
+    int getCacheWidth(BuildContext context, double logicalWidth) {
+      final ratio = MediaQuery.of(context).devicePixelRatio;
+      return (logicalWidth * ratio).round();
+    }
+
     return Expanded(
       child: ClipRRect(
         clipBehavior: Clip.antiAlias,
@@ -150,6 +156,11 @@ class _LazyYoutubePlayerState extends State<LazyYoutubePlayer> {
                         child: Image.asset(
                           // Pour récupérer l'image de la vidéo depuis le net : YoutubePlayer.getThumbnail(videoId: videoId)
                           "assets/images/home-video-thumb.jpg",
+                          cacheWidth: getCacheWidth(
+                            context,
+                            MediaQuery.of(context).size.width -
+                                32, // 32 correspond au padding de la page
+                          ),
                           fit: BoxFit.cover,
                         ),
                       ),
