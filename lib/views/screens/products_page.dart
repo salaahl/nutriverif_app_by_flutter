@@ -76,15 +76,14 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                AnimatedSize(
-                  duration: defaultAnimationTime * 2,
+                AnimatedOpacity(
+                  opacity:
+                      _provider.productsIsLoading && _provider.products.isEmpty
+                          ? 0
+                          : 1,
+                  duration: defaultAnimationTime,
                   curve: defaultAnimationCurve,
                   child: Container(
-                    height:
-                        _provider.productsIsLoading &&
-                                _provider.products.isEmpty
-                            ? 0
-                            : null,
                     margin: const EdgeInsets.only(top: 16),
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
@@ -100,7 +99,7 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                             crossAxisSpacing: 16, // Espacement horizontal
                             mainAxisSpacing: 16, // Espacement vertical
                             /* 
-                            * Hauteur de la carte redéfinie (car pas pris en compte)
+                            * Hauteur de la productCard redéfinie (car pas pris en compte) :
                             * 280 = hauteur de la carte d'un produit
                             * 16 = prise en compte de l'espace entre chaque carte
                             */
