@@ -25,6 +25,12 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
   final ScrollController _scrollController = ScrollController();
   final Set<String> _animatedProductIds = {};
 
+  void resetAnimatedProducts() {
+    setState(() {
+      _animatedProductIds.clear();
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -72,89 +78,87 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                   margin: const EdgeInsets.only(top: 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [AppSearchBar(showFilters: true)],
+                    children: [
+                      AppSearchBar(
+                        showFilters: true,
+                        onReset: resetAnimatedProducts,
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 12),
-                AnimatedOpacity(
-                  opacity:
-                      _provider.productsIsLoading && _provider.products.isEmpty
-                          ? 0
-                          : 1,
-                  duration: defaultAnimationTime,
-                  curve: defaultAnimationCurve,
-                  child: Container(
-                    margin: const EdgeInsets.only(top: 16),
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2, // Colonnes
-                            crossAxisSpacing: 16, // Espacement horizontal
-                            mainAxisSpacing: 16, // Espacement vertical
-                            /* 
-                            * Hauteur de la productCard redéfinie (car pas pris en compte) :
-                            * 280 = hauteur de la carte d'un produit
-                            * 16 = prise en compte de l'espace entre chaque carte
-                            */
-                            mainAxisExtent: 296,
-                          ),
-                      padding: EdgeInsets.only(top: 16),
-                      itemCount: _provider.products.length,
-                      itemBuilder: (context, index) {
-                        final product = _provider.products[index];
-                        final productCard = ProductCard(
-                          product: product,
-                          widthAjustment: 32,
-                        );
+                Container(
+                  height: _provider.products.isEmpty ? 0 : null,
+                  margin: const EdgeInsets.only(top: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2, // Colonnes
+                          crossAxisSpacing: 16, // Espacement horizontal
+                          mainAxisSpacing: 16, // Espacement vertical
+                          /* 
+                          * Hauteur de la productCard redéfinie (car pas pris en compte) :
+                          * 280 = hauteur de la carte d'un produit
+                          * 16 = prise en compte de l'espace entre chaque carte
+                          */
+                          mainAxisExtent: 296,
+                        ),
+                    padding: EdgeInsets.only(top: 16),
+                    itemCount: _provider.products.length,
+                    itemBuilder: (context, index) {
+                      final product = _provider.products[index];
+                      final productCard = ProductCard(
+                        product: product,
+                        widthAjustment: 32,
+                      );
 
-                        final alreadyAnimated = _animatedProductIds.contains(
-                          product.id,
-                        );
+                      final alreadyAnimated = _animatedProductIds.contains(
+                        product.id,
+                      );
 
-                        return VisibilityDetector(
-                          key: Key(product.id),
-                          onVisibilityChanged: (info) {
-                            if (info.visibleFraction >= 0.20 &&
-                                !_animatedProductIds.contains(product.id)) {
-                              setState(() {
-                                _animatedProductIds.add(product.id);
-                              });
-                            }
-                          },
-                          child:
-                              alreadyAnimated
-                                  ? TweenAnimationBuilder<double>(
-                                    tween: Tween(
-                                      begin: 0.0,
-                                      end: alreadyAnimated ? 1.0 : 0.0,
-                                    ),
-                                    duration: Duration(milliseconds: 350),
-                                    curve: Curves.easeInOut,
-                                    builder: (context, value, child) {
-                                      return Opacity(
-                                        opacity: value,
-                                        child: Transform.translate(
-                                          offset: Offset(0, 35 * (1 - value)),
-                                          child: child,
-                                        ),
-                                      );
-                                    },
-                                    child: productCard,
-                                  )
-                                  : const SizedBox(
-                                    height: 280,
-                                    width: double.infinity,
+                      return VisibilityDetector(
+                        key: Key(product.id),
+                        onVisibilityChanged: (info) {
+                          if (info.visibleFraction >= 0.20 &&
+                              !_animatedProductIds.contains(product.id)) {
+                            setState(() {
+                              _animatedProductIds.add(product.id);
+                            });
+                          }
+                        },
+                        child:
+                            alreadyAnimated
+                                ? TweenAnimationBuilder<double>(
+                                  tween: Tween(
+                                    begin: 0.0,
+                                    end: alreadyAnimated ? 1.0 : 0.0,
                                   ),
-                        );
-                      },
-                    ),
+                                  duration: Duration(milliseconds: 350),
+                                  curve: Curves.easeInOut,
+                                  builder: (context, value, child) {
+                                    return Opacity(
+                                      opacity: value,
+                                      child: Transform.translate(
+                                        offset: Offset(0, 35 * (1 - value)),
+                                        child: child,
+                                      ),
+                                    );
+                                  },
+                                  child: productCard,
+                                )
+                                : const SizedBox(
+                                  height: 280,
+                                  width: double.infinity,
+                                ),
+                      );
+                    },
                   ),
                 ),
                 const SizedBox(height: 16),

@@ -7,8 +7,9 @@ import 'package:app_nutriverif/providers/products_provider.dart';
 
 class AppSearchBar extends StatefulWidget {
   final bool showFilters;
+  final VoidCallback? onReset;
 
-  const AppSearchBar({super.key, this.showFilters = false});
+  const AppSearchBar({super.key, this.showFilters = false, this.onReset});
 
   @override
   State<AppSearchBar> createState() => _AppSearchBarState();
@@ -129,6 +130,8 @@ class _AppSearchBarState extends State<AppSearchBar> {
                     ),
                   );
                 } else {
+                  if (widget.onReset != null) widget.onReset!();
+
                   await _provider.searchProducts(
                     query: input,
                     selected: _provider.filter,
