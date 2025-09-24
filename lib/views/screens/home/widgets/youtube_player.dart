@@ -114,7 +114,11 @@ class _LazyYoutubePlayerState extends State<LazyYoutubePlayer> {
 
     _controller = YoutubePlayerController(
       initialVideoId: videoId,
-      flags: const YoutubePlayerFlags(autoPlay: true, mute: false),
+      flags: const YoutubePlayerFlags(
+        autoPlay: false,
+        mute: false,
+        captionLanguage: 'fr',
+      ),
     );
 
     _getCookiesStatus();

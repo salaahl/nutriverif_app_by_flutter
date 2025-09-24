@@ -31,7 +31,7 @@ class ProductCardDetails extends StatelessWidget {
           height: 40,
           semanticsLabel: 'Nutriscore $nutriscore',
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 4),
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
