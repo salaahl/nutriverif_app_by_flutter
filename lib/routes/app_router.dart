@@ -7,6 +7,7 @@ import '../models/model_products.dart';
 import 'package:app_nutriverif/views/screens/home/home_page.dart';
 import 'package:app_nutriverif/views/screens/products_page.dart';
 import 'package:app_nutriverif/views/screens/about_page.dart';
+import 'package:app_nutriverif/views/screens/legal_notice.dart';
 import 'package:app_nutriverif/views/screens/product/product_page.dart';
 import 'package:app_nutriverif/views/screens/barcode_scanner_page.dart';
 
@@ -19,6 +20,9 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       break;
     case '/about':
       page = const AboutPage();
+      break;
+    case '/legal-notice':
+      page = const LegalNoticePage();
       break;
     case '/products':
       page = const ProductSearchPage();

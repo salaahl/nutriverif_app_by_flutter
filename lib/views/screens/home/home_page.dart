@@ -36,7 +36,7 @@ class _HomePageState extends State<HomePage> {
     _provider.setProductDemo(await _service.fetchProductById('3608580758686'));
 
     // Ne pas appeler setSuggestedProductsDemo si productDemo est vide
-    if (_provider.productDemo.id.isEmpty) return; 
+    if (_provider.productDemo.id.isEmpty) return;
 
     _provider.setSuggestedProductsDemo(
       await _service.fetchSuggestedProducts(
@@ -178,11 +178,31 @@ class _HomePageState extends State<HomePage> {
                             },
                             child: Text(
                               'En savoir plus',
-                              style: TextStyle(fontWeight: FontWeight.w500),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
-                          SizedBox(width: 8),
-                          Icon(Icons.arrow_forward_rounded, size: 18),
+                          const SizedBox(width: 8),
+                          const Icon(Icons.arrow_forward_rounded, size: 18),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pushNamed(context, '/legal-notice');
+                            },
+                            child: Text(
+                              'Mentions légales',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          const Icon(Icons.arrow_forward_rounded, size: 18),
                         ],
                       ),
                     ],

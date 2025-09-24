@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:app_nutriverif/core/constants/custom_values.dart';
 
@@ -6,6 +8,14 @@ import '../widgets/app_bar.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
+
+  void _launchURL(String url) async {
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    } else {
+      throw 'Impossible d\'ouvrir $url';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,13 +72,39 @@ class AboutPage extends StatelessWidget {
                     },
                   ),
                   SizedBox(height: 24),
-                  Text(
-                    'NutriVérif est une application web de food checking alimentée par la base de données d\'Open Food Facts et développée par '
-                    'Salaha Sokhona (https://www.linkedin.com/in/salaha-sokhona). Elle résulte d\'une volonté de pouvoir vérifier la composition de ses aliments par le biais d\'une application simple, '
-                    'ne requiérant pas d\'inscription et fournissant le strict minimum de fonctionnalités. Elle liste les produits alimentaires avec leurs ingrédients, '
-                    'valeurs nutritionnelles et autres juteuses informations que l\'on peut trouver sur les labels de ces produits.',
-                    style: TextStyle(fontSize: 16),
+                  RichText(
                     textAlign: TextAlign.center,
+                    text: TextSpan(
+                      text:
+                          'NutriVérif est une application web de food checking alimentée par la base de données d\'Open Food Facts et développée par ',
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                      ).copyWith(height: 1.4, letterSpacing: 0.4),
+                      children: [
+                        TextSpan(
+                          text: 'Salaha Sokhona',
+                          style: const TextStyle(
+                            decoration: TextDecoration.underline,
+                            decorationThickness: 4,
+                          ),
+                          recognizer:
+                              TapGestureRecognizer()
+                                ..onTap = () {
+                                  _launchURL(
+                                    'https://www.linkedin.com/in/salaha-sokhona/',
+                                  );
+                                },
+                        ),
+                        const TextSpan(
+                          text:
+                              '. Elle résulte d\'une volonté de pouvoir vérifier la composition de ses aliments par le biais d\'une application simple, '
+                              'ne requiérant pas d\'inscription et fournissant le strict minimum de fonctionnalités. Elle liste les produits alimentaires avec leurs ingrédients, '
+                              'valeurs nutritionnelles et autres juteuses informations que l\'on peut trouver sur les labels de ces produits.',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ],
+                    ),
                   ),
                   SizedBox(height: 16),
                   Text(
