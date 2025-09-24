@@ -47,10 +47,12 @@ class _ProductDetailsState extends State<ProductDetails> {
 
     _provider = context.read<ProductsProvider>();
     _provider.getTranslatedCategories(widget.categories).then((categories) {
-      setState(() {
-        categoriesTranslated = categories;
-        categoriesIsLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          categoriesTranslated = categories;
+          categoriesIsLoading = false;
+        });
+      }
     });
   }
 
