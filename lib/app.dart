@@ -18,10 +18,19 @@ class MyApp extends StatelessWidget {
           seedColor: Colors.white,
         ).copyWith(surface: const Color.fromRGBO(245, 245, 245, 1)),
         textTheme: TextTheme(
-          displayLarge: const TextStyle(
+          titleLarge: const TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+          ),
+          titleMedium: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
+          bodyLarge: const TextStyle(fontSize: 16),
+          bodyMedium: const TextStyle(
+            fontSize: 14,
+          ), // 14 est également la taille par défaut du système
+          bodySmall: const TextStyle(fontSize: 12),
         ),
       ),
       onGenerateRoute: generateRoute,

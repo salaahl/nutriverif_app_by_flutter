@@ -40,9 +40,10 @@ Widget myAppBar(
                     Text.rich(
                       TextSpan(
                         text: 'Nutri',
-                        style: const TextStyle(
+                        style: Theme.of(
+                          context,
+                        ).textTheme.titleMedium!.copyWith(
                           fontFamily: 'Grand Hotel',
-                          fontSize: 24,
                           fontWeight: FontWeight.w300,
                         ),
                         children: [

@@ -56,17 +56,16 @@ class AlternativeProducts extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Center(
+            Center(
               child: Text.rich(
                 TextSpan(
                   text: "A",
-                  style: TextStyle(
+                  style: Theme.of(context).textTheme.titleLarge!.copyWith(
                     fontFamily: 'Grand Hotel',
-                    fontSize: 32,
                     color: Colors.redAccent,
                   ),
                   children: [
-                    TextSpan(
+                    const TextSpan(
                       text: "lternatives",
                       style: TextStyle(color: Colors.black),
                     ),

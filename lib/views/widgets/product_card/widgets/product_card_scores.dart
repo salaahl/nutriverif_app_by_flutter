@@ -74,7 +74,13 @@ class ProductCardDetails extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           softWrap: false,
-                          style: const TextStyle(fontSize: 10),
+                          style: TextStyle(
+                            fontSize:
+                                Theme.of(
+                                  context,
+                                ).textTheme.bodySmall!.fontSize! -
+                                2,
+                          ),
                         ),
                       ),
                     ),

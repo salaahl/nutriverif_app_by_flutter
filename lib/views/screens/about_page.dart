@@ -36,11 +36,7 @@ class AboutPage extends StatelessWidget {
                 SizedBox(height: 16),
                 Text(
                   'A PROPOS DE NOUS',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w400,
-                    letterSpacing: -0.5,
-                  ),
+                  style: Theme.of(context).textTheme.titleMedium,
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 8),
@@ -62,7 +58,6 @@ class AboutPage extends StatelessWidget {
                         ),
                         Text(
                           '(et un peu d\'Open Food Facts)',
-                          style: const TextStyle(fontSize: 14),
                           textAlign: TextAlign.center,
                         ),
                       ],
@@ -75,9 +70,8 @@ class AboutPage extends StatelessWidget {
                   text: TextSpan(
                     text:
                         'NutriVérif est une application web de food checking alimentée par la base de données d\'Open Food Facts et développée par ',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.black,
-                      fontSize: 16,
                       height: 1.4,
                       letterSpacing: 0.5,
                     ),
@@ -96,22 +90,20 @@ class AboutPage extends StatelessWidget {
                                 );
                               },
                       ),
-                      const TextSpan(
+                      TextSpan(
                         text:
                             '. Elle résulte d\'une volonté de pouvoir vérifier la composition de ses aliments par le biais d\'une application simple, '
                             'ne requiérant pas d\'inscription et fournissant le strict minimum de fonctionnalités. Elle liste les produits alimentaires avec leurs ingrédients, '
                             'valeurs nutritionnelles et autres juteuses informations que l\'on peut trouver sur les labels de ces produits.',
-                        style: TextStyle(fontSize: 16),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
-                const Text(
+                const SizedBox(height: 32),
+                Text(
                   'Open Food Facts est une association à but non-lucratif composée de volontaires. Plus de 100.000 contributeurs comme vous ont ajouté plus de 3 000 000 '
                   'produits de 150 pays. Les données sur la nourriture sont d\'intérêt public et doivent être libres et ouvertes. La base de données complète est publiée en open data '
                   'et peut être réutilisée par quiconque et pour n\'importe quel usage.',
-                  style: TextStyle(fontSize: 16),
                   textAlign: TextAlign.center,
                 ),
               ],

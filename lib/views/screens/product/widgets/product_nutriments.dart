@@ -116,15 +116,12 @@ class NutritionalTableState extends State<NutritionalTable> {
                     Container(
                       height: rowHeight,
                       decoration: const BoxDecoration(color: Colors.white),
-                      child: const Padding(
-                        padding: EdgeInsets.all(12),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
                         child: Text(
                           'VALEURS NUTRITIONELLES',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium!
+                              .copyWith(fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
@@ -138,26 +135,20 @@ class NutritionalTableState extends State<NutritionalTable> {
                               ? 'Par portion (${widget.servingSize})'
                                   .toUpperCase()
                               : 'Par portion (N/A)',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium!
+                              .copyWith(fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
                     Container(
                       height: rowHeight,
                       decoration: BoxDecoration(color: Colors.grey[100]),
-                      child: const Padding(
-                        padding: EdgeInsets.all(12),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
                         child: Text(
                           'AJR*',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium!
+                              .copyWith(fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
@@ -182,10 +173,11 @@ class NutritionalTableState extends State<NutritionalTable> {
                             padding: const EdgeInsets.all(12),
                             child: Text(
                               provider.ajrValues[entry.key]?['name'],
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
+                              style: Theme.of(
+                                context,
+                              ).textTheme.bodySmall!.copyWith(
                                 color: Colors.grey[900],
+                                fontWeight: FontWeight.w400,
                               ),
                             ),
                           ),
@@ -196,10 +188,8 @@ class NutritionalTableState extends State<NutritionalTable> {
                             padding: EdgeInsets.all(12),
                             child: Text(
                               "${entry.value.toStringAsFixed(0)} ${widget.nutriments[entry.key.replaceAll('_serving', '_unit')]}",
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
-                              ),
+                              style: Theme.of(context).textTheme.bodySmall!
+                                  .copyWith(color: Colors.grey),
                             ),
                           ),
                         ),
@@ -213,10 +203,8 @@ class NutritionalTableState extends State<NutritionalTable> {
                                       provider.ajrValues[entry.key] != null)
                                   ? ('${(((double.parse(entry.value.toString())) / provider.ajrValues[entry.key]?['value']!) * 100).toStringAsFixed(0)}%')
                                   : '—',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
-                              ),
+                              style: Theme.of(context).textTheme.bodySmall!
+                                  .copyWith(color: Colors.grey),
                             ),
                           ),
                         ),
@@ -227,9 +215,9 @@ class NutritionalTableState extends State<NutritionalTable> {
           ),
         ),
         const SizedBox(height: 8),
-        const Text(
+        Text(
           'Ajr* : Apports Journaliers Recommandés',
-          style: TextStyle(fontSize: 12),
+          style: Theme.of(context).textTheme.bodySmall,
         ),
       ],
     );

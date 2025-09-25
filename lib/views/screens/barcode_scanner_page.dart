@@ -60,7 +60,7 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
             Text.rich(
               textAlign: TextAlign.center,
               TextSpan(
-                style: Theme.of(context).textTheme.displayLarge!,
+                style: Theme.of(context).textTheme.titleMedium,
                 children: [
                   const TextSpan(text: 'Retrouver un produit par son '),
                   const TextSpan(

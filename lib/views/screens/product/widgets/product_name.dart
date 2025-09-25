@@ -31,8 +31,7 @@ class ProductName extends StatelessWidget {
         Text.rich(
           TextSpan(
             text: "$brand - ",
-            style: const TextStyle(
-              fontSize: 20,
+            style: Theme.of(context).textTheme.titleMedium!.copyWith(
               fontWeight: FontWeight.w500,
               color: customGreen,
             ),

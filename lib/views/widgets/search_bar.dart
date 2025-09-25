@@ -55,7 +55,10 @@ class _AppSearchBarState extends State<AppSearchBar> {
                 controller: _searchController,
                 decoration: InputDecoration(
                   hintText: 'Un nom de produit, une marque ou une categorie...',
-                  hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+                  hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: Colors.grey,
+                    fontWeight: FontWeight.bold,
+                  ),
                   prefixIcon: IconButton(
                     padding: const EdgeInsets.only(
                       left: 12,
@@ -95,7 +98,9 @@ class _AppSearchBarState extends State<AppSearchBar> {
                     horizontal: 12.0,
                   ),
                 ),
-                style: const TextStyle(color: Colors.black87, fontSize: 14),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium!.copyWith(color: Colors.black87),
               ),
             ),
             IconButton(

@@ -27,13 +27,8 @@ class LegalNoticePage extends StatelessWidget {
           Column(
             children: [
               RichText(
-                text: const TextSpan(
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w400,
-                    letterSpacing: -0.5,
-                    color: Colors.black,
-                  ),
+                text: TextSpan(
+                  style: Theme.of(context).textTheme.titleMedium,
                   text: 'MENTIONS ',
                   children: [
                     TextSpan(
@@ -48,11 +43,9 @@ class LegalNoticePage extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 child: RichText(
                   text: TextSpan(
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.black,
-                      letterSpacing: 0.5,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium!.copyWith(letterSpacing: 0.5),
                     children: [
                       const TextSpan(text: 'Le site NutriVérif est édité par '),
                       TextSpan(
@@ -74,28 +67,27 @@ class LegalNoticePage extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
-              const Text(
+              const SizedBox(height: 32),
+              Text(
                 'Le site utilise des cookies essentiels au bon fonctionnement du site. Ces cookies ne collectent '
                 'pas de données personnelles et sont utilisés uniquement dans le but d\'améliorer l\'expérience de '
                 'navigation de l\'utilisateur.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16),
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
-              const SizedBox(height: 16),
-              const Text(
+              const SizedBox(height: 32),
+              Text(
                 'Les présentes mentions légales sont régies par le droit français. En cas de litige, les '
                 'tribunaux français seront seuls compétents.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16),
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 32),
               RichText(
                 textAlign: TextAlign.center,
                 text: TextSpan(
-                  style: const TextStyle(
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     color: Colors.black,
-                    fontSize: 16,
                     height: 1.4,
                     letterSpacing: 0.5,
                   ),

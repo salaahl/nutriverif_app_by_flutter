@@ -53,7 +53,7 @@ class _FeaturedProductState extends State<FeaturedProduct> {
               ],
             ),
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.displayLarge!,
+            style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 48),
           const Text.rich(

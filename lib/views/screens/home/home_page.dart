@@ -77,18 +77,15 @@ class _HomePageState extends State<HomePage> {
                       text: 'Nutri',
                       style: TextStyle(
                         fontFamily: 'Grand Hotel',
-                        fontSize: 60,
+                        fontSize:
+                            Theme.of(context).textTheme.titleLarge!.fontSize! *
+                            2,
                         fontWeight: FontWeight.w300,
                       ),
                       children: [
                         TextSpan(
                           text: 'Vérif',
-                          style: TextStyle(
-                            fontFamily: 'Grand Hotel',
-                            fontSize: 60,
-                            fontWeight: FontWeight.w300,
-                            color: customGreen,
-                          ),
+                          style: TextStyle(color: customGreen),
                         ),
                       ],
                     ),
@@ -96,7 +93,7 @@ class _HomePageState extends State<HomePage> {
                   Text(
                     'Manger (plus) sain',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w100),
+                    style: Theme.of(context).textTheme.bodyLarge,
                   ),
                   const SizedBox(height: 60),
                   AppSearchBar(),
@@ -114,13 +111,11 @@ class _HomePageState extends State<HomePage> {
                         end: Alignment.centerLeft,
                       ).createShader(bounds);
                     },
-                    child: const Text(
+                    child: Text(
                       '+ de 4 034 279 produits référencés',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
                         fontFamily: 'Grand Hotel',
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
                         color:
                             Colors
                                 .white, // La couleur du texte sera "masquée" par le gradient

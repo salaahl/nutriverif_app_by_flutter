@@ -70,9 +70,9 @@ class _LazyYoutubePlayerState extends State<LazyYoutubePlayer> {
               ),
             ],
           ),
-          content: const Text(
+          content: Text(
             'Cette vidéo est hébergée par YouTube. Son affichage sur ce site implique le dépôt de cookies par YouTube (Google).\n\nCes cookies sont uniquement liés à la lecture de la vidéo et n’ont pas d’effet sur vos autres services Google.\n\nVoulez-vous les accepter et afficher la vidéo ?',
-            style: TextStyle(fontSize: 16),
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
           actionsAlignment: MainAxisAlignment.spaceBetween,
           actions: [

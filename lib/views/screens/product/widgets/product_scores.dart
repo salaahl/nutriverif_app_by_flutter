@@ -40,7 +40,7 @@ class ProductScores extends StatelessWidget {
             const SizedBox(height: 2),
             Text(
               '(${novaDescription[nova] as String})',
-              style: const TextStyle(fontSize: 12, color: Colors.black),
+              style: Theme.of(context).textTheme.bodySmall,
             ),
           ],
         ],

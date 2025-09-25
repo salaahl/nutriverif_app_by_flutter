@@ -37,7 +37,7 @@ class LastProducts extends StatelessWidget {
               ],
             ),
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.displayLarge!,
+            style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 32),
           AnimatedSize(

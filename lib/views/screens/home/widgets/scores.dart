@@ -12,7 +12,7 @@ class Scores extends StatelessWidget {
       children: [
         Text.rich(
           TextSpan(
-            style: Theme.of(context).textTheme.displayLarge!,
+            style: Theme.of(context).textTheme.titleMedium,
             children: [
               TextSpan(text: 'Votre alimentation '),
               TextSpan(
