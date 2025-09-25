@@ -139,6 +139,8 @@ class _HomePageState extends State<HomePage> {
                               text:
                                   'NutriVérif est alimentée par "Open Food Facts", une base de données de produits alimentaires créée par tous et pour tous.',
                               style: TextStyle(
+                                height: 1.4,
+                                letterSpacing: 0.5,
                                 backgroundColor: Color.fromRGBO(
                                   0,
                                   189,
@@ -158,6 +160,8 @@ class _HomePageState extends State<HomePage> {
                               text:
                                   'Vous pouvez l\'utiliser pour faire de meilleurs choix alimentaires, et comme les données sont ouvertes, tout le monde peut les réutiliser pour tout usage.',
                               style: TextStyle(
+                                height: 1.4,
+                                letterSpacing: 0.5,
                                 backgroundColor: Color.fromRGBO(
                                   0,
                                   189,
@@ -172,37 +176,82 @@ class _HomePageState extends State<HomePage> {
                       const SizedBox(height: 16),
                       Row(
                         children: [
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pushNamed(context, '/about');
-                            },
-                            child: Text(
-                              'En savoir plus',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w500,
-                              ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.pushNamed(context, '/about');
+                                  },
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        'En savoir plus',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      const Icon(
+                                        Icons.arrow_forward_rounded,
+                                        size: 18,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          const Icon(Icons.arrow_forward_rounded, size: 18),
                         ],
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 8),
                       Row(
                         children: [
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pushNamed(context, '/legal-notice');
-                            },
-                            child: Text(
-                              'Mentions légales',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w500,
-                              ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.pushNamed(
+                                      context,
+                                      '/legal-notice',
+                                    );
+                                  },
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        'Mentions légales',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      const Icon(
+                                        Icons.arrow_forward_rounded,
+                                        size: 18,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          const Icon(Icons.arrow_forward_rounded, size: 18),
                         ],
                       ),
                     ],
