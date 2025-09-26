@@ -134,7 +134,7 @@ class _HomePageState extends State<HomePage> {
                               text:
                                   'NutriVérif est alimentée par "Open Food Facts", une base de données de produits alimentaires créée par tous et pour tous.',
                               style: TextStyle(
-                                height: 1.4,
+                                height: 1.5,
                                 letterSpacing: 0.5,
                                 backgroundColor: Color.fromRGBO(
                                   0,
@@ -155,7 +155,7 @@ class _HomePageState extends State<HomePage> {
                               text:
                                   'Vous pouvez l\'utiliser pour faire de meilleurs choix alimentaires, et comme les données sont ouvertes, tout le monde peut les réutiliser pour tout usage.',
                               style: TextStyle(
-                                height: 1.4,
+                                height: 1.5,
                                 letterSpacing: 0.5,
                                 backgroundColor: Color.fromRGBO(
                                   0,
