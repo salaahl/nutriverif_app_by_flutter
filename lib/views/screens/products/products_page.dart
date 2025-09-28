@@ -5,9 +5,9 @@ import 'package:provider/provider.dart';
 import 'package:app_nutriverif/core/constants/custom_values.dart';
 import 'package:app_nutriverif/providers/products_provider.dart';
 
-import '../../../../widgets/app_bar.dart';
-import '../../../../widgets/loader.dart';
-import '../../../../widgets/search_bar.dart';
+import '../../widgets/app_bar.dart';
+import '../../widgets/loader.dart';
+import '../../widgets/search_bar.dart';
 import 'widgets/grid_item.dart';
 
 class ProductSearchPage extends StatefulWidget {

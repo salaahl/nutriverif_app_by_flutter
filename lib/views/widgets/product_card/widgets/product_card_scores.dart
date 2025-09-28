@@ -4,7 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:app_nutriverif/providers/products_provider.dart';
 
-import 'package:app_nutriverif/views/screens/home/widgets/products/products_page.dart';
+import 'package:app_nutriverif/views/screens/products/products_page.dart';
 
 class ProductCardDetails extends StatelessWidget {
   final String nutriscore;

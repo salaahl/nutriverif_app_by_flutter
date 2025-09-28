@@ -5,7 +5,7 @@ import 'package:app_nutriverif/core/constants/custom_values.dart';
 import '../models/model_products.dart';
 
 import 'package:app_nutriverif/views/screens/home/home_page.dart';
-import 'package:app_nutriverif/views/screens/home/widgets/products/products_page.dart';
+import 'package:app_nutriverif/views/screens/products/products_page.dart';
 import 'package:app_nutriverif/views/screens/about_page.dart';
 import 'package:app_nutriverif/views/screens/legal_notice.dart';
 import 'package:app_nutriverif/views/screens/product/product_page.dart';
