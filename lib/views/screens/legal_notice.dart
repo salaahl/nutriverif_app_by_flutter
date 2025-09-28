@@ -131,7 +131,7 @@ class LegalNoticePage extends StatelessWidget {
           ),
           _buildLinkTextSpan(
             'Open Food Facts',
-            'https://fr.openfoodfacts.org/conditions-d-utilisation',
+            'https://fr.openfoodfacts.org',
           ),
           const TextSpan(
             text:
