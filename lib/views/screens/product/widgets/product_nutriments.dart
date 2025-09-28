@@ -177,7 +177,7 @@ class _AjrButtonSelectionState extends State<AjrButtonSelection> {
 TableRow _buildNutrientRow(
   BuildContext context,
   String key,
-  double value,
+  num value, // num pour accepter les int et double
   Map<String, dynamic> ajrValues,
   Map<String, dynamic> nutriments,
 ) {

@@ -50,8 +50,9 @@ class _ProductPageState extends State<ProductPage>
 
   @override
   void dispose() {
-    _animationController.dispose();
     super.dispose();
+
+    _animationController.dispose();
   }
 
   Future<void> _initializeProduct() async {
@@ -74,7 +75,7 @@ class _ProductPageState extends State<ProductPage>
       _animationController.forward();
 
       if (_shouldLoadSuggestions()) {
-        _loadSuggestionsInBackground();
+        _loadSuggestions();
       }
     } catch (e) {
       if (!mounted) return;
@@ -87,13 +88,13 @@ class _ProductPageState extends State<ProductPage>
     }
   }
 
-  /// Retourne true si le produit doit charger des suggestions au vu de son score
+  // Retourne true si le produit devrait charger des suggestions au vu de son score
   bool _shouldLoadSuggestions() {
     final product = _provider.product;
-    return product.nutriscore != 'a' || (int.tryParse(product.nova) ?? 0) != 1;
+    return product.nutriscore == 'a' && (int.tryParse(product.nova) ?? 0) == 1;
   }
 
-  Future<void> _loadSuggestionsInBackground() async {
+  Future<void> _loadSuggestions() async {
     try {
       await _provider.loadSuggestedProducts(
         id: _provider.product.id,
@@ -109,126 +110,83 @@ class _ProductPageState extends State<ProductPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body:
-          _isLoading
-              ? _buildLoadingState()
-              : _hasError
-              ? _buildErrorState()
-              : _buildSuccessState(),
-    );
-  }
-
-  Widget _buildLoadingState() {
-    return CustomScrollView(
-      slivers: [
-        SliverPadding(
-          padding: screenPadding,
-          sliver: SliverList(
-            delegate: SliverChildListDelegate([
-              myAppBar(context),
-              ProductImage(id: widget.id, image: widget.image),
-              const SizedBox(height: 20),
-              const Loader(),
-            ]),
+      body: CustomScrollView(
+        slivers: [
+          SliverPadding(
+            padding: screenPadding,
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                myAppBar(context),
+                ProductImage(id: widget.id, image: widget.image),
+                const SizedBox(height: 20),
+                if (_isLoading)
+                  const Loader()
+                else if (_hasError)
+                  _buildErrorState(),
+              ]),
+            ),
           ),
-        ),
-      ],
+          if (!_hasError) _buildSuccessState(),
+        ],
+      ),
     );
   }
 
   Widget _buildErrorState() {
-    return CustomScrollView(
-      slivers: [
-        SliverPadding(
-          padding: screenPadding,
-          sliver: SliverList(
-            delegate: SliverChildListDelegate([
-              myAppBar(context),
-              ProductImage(id: widget.id, image: widget.image),
-              const SizedBox(height: 20),
-              Center(
-                child: Column(
-                  children: [
-                    const Icon(
-                      Icons.error_outline,
-                      size: 64,
-                      color: Colors.red,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Erreur lors du chargement',
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                    if (_errorMessage != null) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        _errorMessage!,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          _isLoading = true;
-                          _hasError = false;
-                          _errorMessage = null;
-                        });
-                        _animationController.reset();
-                        _initializeProduct();
-                      },
-                      child: const Text('Réessayer'),
-                    ),
-                  ],
-                ),
-              ),
-            ]),
+    return Center(
+      child: Column(
+        children: [
+          const Icon(Icons.error_outline, size: 64, color: Colors.red),
+          const SizedBox(height: 16),
+          Text(
+            'Erreur lors du chargement',
+            style: Theme.of(context).textTheme.headlineSmall,
           ),
-        ),
-      ],
+          if (_errorMessage != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              _errorMessage!,
+              style: Theme.of(context).textTheme.bodyMedium,
+              textAlign: TextAlign.center,
+            ),
+          ],
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _isLoading = true;
+                _hasError = false;
+                _errorMessage = null;
+              });
+              _animationController.reset();
+              _initializeProduct();
+            },
+            child: const Text('Réessayer'),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildSuccessState() {
     return Consumer<ProductsProvider>(
       builder: (context, provider, child) {
-        return CustomScrollView(
-          // Optimisation : Physics plus fluide
-          physics: const BouncingScrollPhysics(
-            parent: AlwaysScrollableScrollPhysics(),
+        return SliverToBoxAdapter(
+          child: _AnimatedContent(
+            animation: _animationController,
+            product: provider.product,
+            suggestedProducts: provider.suggestedProducts,
           ),
-          slivers: [
-            SliverPadding(
-              padding: screenPadding,
-              sliver: SliverList(
-                delegate: SliverChildListDelegate([
-                  myAppBar(context),
-                  ProductImage(id: widget.id, image: widget.image),
-                ]),
-              ),
-            ),
-
-            // Contenu animé séparé pour éviter les rebuilds
-            SliverToBoxAdapter(
-              child: _AnimatedContent(
-                animation: _animationController,
-                product: provider.product,
-                suggestedProducts: provider.suggestedProducts,
-              ),
-            ),
-          ],
         );
       },
     );
   }
 }
 
-// Widget séparé pour le contenu animé (évite les rebuilds)
 class _AnimatedContent extends StatelessWidget {
   final Animation<double> animation;
-  final dynamic product; // Remplacer par votre type Product
-  final List<dynamic> suggestedProducts; // Remplacer par List<Product>
+  final dynamic product;
+  final List<dynamic> suggestedProducts;
 
   const _AnimatedContent({
     required this.animation,
@@ -276,13 +234,5 @@ class _AnimatedContent extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-// Extension pour optimiser les comparaisons (optionnel)
-extension ProductPageOptimizations on _ProductPageState {
-  bool get isProductOptimal {
-    final product = _provider.product;
-    return product.nutriscore == 'a' && (int.tryParse(product.nova) ?? 0) == 1;
   }
 }

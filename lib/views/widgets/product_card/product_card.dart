@@ -81,6 +81,7 @@ class ProductCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ProductCardImage(
+                  key: ValueKey(product.id),
                   id: product.id,
                   image: product.image,
                   widthAjustment: widthAjustment,
