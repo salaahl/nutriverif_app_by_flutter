@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import 'package:app_nutriverif/core/constants/custom_values.dart';
-
 import 'package:app_nutriverif/core/services/products_service.dart';
 import 'package:app_nutriverif/providers/products_provider.dart';
 
@@ -22,39 +21,76 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
   late ProductsProvider _provider;
+  late AnimationController _animationController;
 
   final _service = ProductsService();
+  final ValueNotifier<Set<String>> _visibleSections =
+      ValueNotifier<Set<String>>({});
 
-  final Set<String> _animatedProductIds = {};
-
-  Future<void> initProducts() async {
-    _provider = context.read<ProductsProvider>();
-    if (_provider.productDemo.id.isNotEmpty) return;
-
-    _provider.setProductDemo(await _service.fetchProductById('3608580758686'));
-
-    // Ne pas appeler setSuggestedProductsDemo si productDemo est vide
-    if (_provider.productDemo.id.isEmpty) return;
-
-    _provider.setSuggestedProductsDemo(
-      await _service.fetchSuggestedProducts(
-        id: _provider.productDemo.id,
-        categories: _provider.productDemo.categories,
-        nutriscore: _provider.productDemo.nutriscore,
-        nova: _provider.productDemo.nova,
-      ),
-    );
-
-    await _provider.loadLastProducts();
-  }
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+    _initProducts();
+  }
 
-    initProducts();
+  @override
+  void dispose() {
+    _animationController.dispose();
+    _visibleSections.dispose();
+    super.dispose();
+  }
+
+  Future<void> _initProducts() async {
+    if (_isInitialized) return;
+
+    try {
+      _provider = context.read<ProductsProvider>();
+
+      if (_provider.productDemo.id.isNotEmpty) {
+        _isInitialized = true;
+        return;
+      }
+
+      final productDemo = await _service.fetchProductById('3608580758686');
+      _provider.setProductDemo(productDemo);
+
+      if (productDemo.id.isEmpty) return;
+
+      await Future.wait([
+        _service
+            .fetchSuggestedProducts(
+              id: productDemo.id,
+              categories: productDemo.categories,
+              nutriscore: productDemo.nutriscore,
+              nova: productDemo.nova,
+            )
+            .then((suggestedProducts) {
+              _provider.setSuggestedProductsDemo(suggestedProducts);
+            }),
+        _provider.loadLastProducts(),
+      ]);
+
+      _isInitialized = true;
+    } catch (e) {
+      debugPrint('Erreur lors du chargement des produits: $e');
+    }
+  }
+
+  void _onSectionVisible(String sectionId) {
+    final currentVisible = Set<String>.from(_visibleSections.value);
+    if (!currentVisible.contains(sectionId)) {
+      currentVisible.add(sectionId);
+      _visibleSections.value = currentVisible;
+    }
   }
 
   @override
@@ -62,300 +98,242 @@ class _HomePageState extends State<HomePage> {
     _provider = context.watch<ProductsProvider>();
 
     return Scaffold(
-      body: Center(
-        child: ListView(
-          children: [
-            Padding(
-              padding: screenPadding,
-              child: Column(
-                children: [
-                  myAppBar(context, route: '/'),
-                  const SizedBox(height: 20),
-                  Text.rich(
-                    textAlign: TextAlign.center,
-                    TextSpan(
-                      text: 'Nutri',
-                      style: TextStyle(
-                        fontFamily: 'Grand Hotel',
-                        fontSize:
-                            Theme.of(context).textTheme.titleLarge!.fontSize! *
-                            2,
-                        fontWeight: FontWeight.w300,
-                      ),
-                      children: [
-                        TextSpan(
-                          text: 'Vérif',
-                          style: TextStyle(color: customGreen),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Text(
-                    'Manger (plus) sain',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                  const SizedBox(height: 60),
-                  AppSearchBar(),
-                  const SizedBox(height: 16),
-                  SearchProductsResults(),
-                  const SizedBox(height: 35),
-                  ShaderMask(
-                    shaderCallback: (bounds) {
-                      return LinearGradient(
-                        colors: [
-                          Color.fromRGBO(87, 107, 128, 0.365),
-                          Color.fromRGBO(47, 44, 54, 1),
-                        ],
-                        begin: Alignment.centerRight,
-                        end: Alignment.centerLeft,
-                      ).createShader(bounds);
-                    },
-                    child: Text(
-                      '+ de 4 034 279 produits référencés',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                        fontFamily: 'Grand Hotel',
-                        color:
-                            Colors
-                                .white, // La couleur du texte sera "masquée" par le gradient
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 80),
-                  Row(children: [LazyYoutubePlayer()]),
-                  const SizedBox(height: 32),
-                  Column(
-                    children: [
-                      const Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text:
-                                  'NutriVérif est alimentée par "Open Food Facts", une base de données de produits alimentaires créée par tous et pour tous.',
-                              style: TextStyle(
-                                height: 1.5,
-                                letterSpacing: 0.5,
-                                backgroundColor: Color.fromRGBO(
-                                  0,
-                                  189,
-                                  126,
-                                  0.6,
-                                ), // Applique le surlignage seulement sur le texte
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      const Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text:
-                                  'Vous pouvez l\'utiliser pour faire de meilleurs choix alimentaires, et comme les données sont ouvertes, tout le monde peut les réutiliser pour tout usage.',
-                              style: TextStyle(
-                                height: 1.5,
-                                letterSpacing: 0.5,
-                                backgroundColor: Color.fromRGBO(
-                                  0,
-                                  189,
-                                  126,
-                                  0.6,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                            child: Row(
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.pushNamed(context, '/about');
-                                  },
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        'En savoir plus',
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      const Icon(
-                                        Icons.arrow_forward_rounded,
-                                        size: 18,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                            child: Row(
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.pushNamed(
-                                      context,
-                                      '/legal-notice',
-                                    );
-                                  },
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        'Mentions légales',
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      const Icon(
-                                        Icons.arrow_forward_rounded,
-                                        size: 18,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 80),
-                  VisibilityDetector(
-                    key: Key('scores'),
-                    onVisibilityChanged: (info) {
-                      if (info.visibleBounds.height > 80 &&
-                          !_animatedProductIds.contains('scores')) {
-                        setState(() {
-                          _animatedProductIds.add('scores');
-                        });
-                      }
-                    },
-                    child: TweenAnimationBuilder<double>(
-                      tween: Tween(
-                        begin:
-                            _animatedProductIds.contains('scores') ? 1.0 : 0.0,
-                        end: _animatedProductIds.contains('scores') ? 1.0 : 0.0,
-                      ),
-                      curve: defaultAnimationCurve,
-                      duration: defaultAnimationTime,
-                      builder: (context, value, child) {
-                        return Opacity(
-                          opacity: value,
-                          child: Transform.translate(
-                            offset: Offset(0, 120 * (1 - value)),
-                            child: child,
-                          ),
-                        );
-                      },
-                      child: const Scores(),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 80),
-            VisibilityDetector(
-              key: Key('featured_product'),
-              onVisibilityChanged: (info) {
-                if (info.visibleBounds.height > 120 &&
-                    !_animatedProductIds.contains('featured_product')) {
-                  setState(() {
-                    _animatedProductIds.add('featured_product');
-                  });
-                }
-              },
-              child: TweenAnimationBuilder<double>(
-                tween: Tween(
-                  begin:
-                      _animatedProductIds.contains('featured_product')
-                          ? 1.0
-                          : 0.0,
-                  end:
-                      _animatedProductIds.contains('featured_product')
-                          ? 1.0
-                          : 0.0,
-                ),
-                curve: defaultAnimationCurve,
-                duration: defaultAnimationTime,
-                builder: (context, value, child) {
-                  return Opacity(
-                    opacity: value,
-                    child: Transform.translate(
-                      offset: Offset(0, 240 * (1 - value)),
-                      child: child,
-                    ),
-                  );
-                },
-                child: FeaturedProduct(),
-              ),
-            ),
-            const SizedBox(height: 80),
-            VisibilityDetector(
-              key: Key('last_products'),
-              onVisibilityChanged: (info) {
-                if (info.visibleBounds.height > 80 &&
-                    !_animatedProductIds.contains('last_products')) {
-                  setState(() {
-                    _animatedProductIds.add('last_products');
-                  });
-                }
-              },
-              child: TweenAnimationBuilder<double>(
-                tween: Tween(
-                  begin:
-                      _animatedProductIds.contains('last_products') ? 1.0 : 0.0,
-                  end:
-                      _animatedProductIds.contains('last_products') ? 1.0 : 0.0,
-                ),
-                curve: defaultAnimationCurve,
-                duration: defaultAnimationTime,
-                builder: (context, value, child) {
-                  return Opacity(
-                    opacity: value,
-                    child: Transform.translate(
-                      offset: Offset(0, 120 * (1 - value)),
-                      child: child,
-                    ),
-                  );
-                },
-                child: LastProducts(),
-              ),
-            ),
-          ],
+      body: CustomScrollView(
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
         ),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+        slivers: [
+          SliverPadding(
+            padding: screenPadding,
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                myAppBar(context, route: '/'),
+                const SizedBox(height: 20),
+                _buildTitle(),
+                const SizedBox(height: 60),
+                const AppSearchBar(),
+                const SizedBox(height: 16),
+                SearchProductsResults(),
+                const SizedBox(height: 35),
+                _buildProductCount(),
+                const SizedBox(height: 80),
+                const Row(children: [LazyYoutubePlayer()]),
+                const SizedBox(height: 32),
+                _buildAboutSection(),
+                const SizedBox(height: 80),
+              ]),
+            ),
+          ),
+
+          SliverPadding(
+            padding: screenPadding,
+            sliver: _buildAnimatedSection(
+              'scores',
+              const Scores(),
+              visibleHeight: 80,
+            ),
+          ),
+
+          const SliverToBoxAdapter(child: SizedBox(height: 80)),
+
+          _buildAnimatedSection(
+            'featured_product',
+            FeaturedProduct(),
+            visibleHeight: 120,
+            offset: 240,
+          ),
+
+          const SliverToBoxAdapter(child: SizedBox(height: 80)),
+
+          SliverPadding(
+            padding: screenPadding,
+            sliver: _buildAnimatedSection(
+              'last_products',
+              LastProducts(),
+              visibleHeight: 80,
+            ),
+          ),
+
+          // Bottom padding
+          const SliverToBoxAdapter(child: SizedBox(height: 40)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTitle() {
+    return Column(
+      children: [
+        Text.rich(
+          textAlign: TextAlign.center,
+          TextSpan(
+            text: 'Nutri',
+            style: TextStyle(
+              fontFamily: 'Grand Hotel',
+              fontSize: Theme.of(context).textTheme.titleLarge!.fontSize! * 2,
+              fontWeight: FontWeight.w300,
+            ),
+            children: [
+              TextSpan(text: 'Vérif', style: TextStyle(color: customGreen)),
+            ],
+          ),
+        ),
+        Text(
+          'Manger (plus) sain',
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProductCount() {
+    return ShaderMask(
+      shaderCallback: (bounds) {
+        return const LinearGradient(
+          colors: [
+            Color.fromRGBO(87, 107, 128, 0.365),
+            Color.fromRGBO(47, 44, 54, 1),
+          ],
+          begin: Alignment.centerRight,
+          end: Alignment.centerLeft,
+        ).createShader(bounds);
+      },
+      child: Text(
+        '+ de 4 034 279 produits référencés',
+        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.titleLarge!.copyWith(
+          fontFamily: 'Grand Hotel',
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAboutSection() {
+    return Column(
+      children: [
+        const _HighlightedText(
+          'NutriVérif est alimentée par "Open Food Facts", une base de données de produits alimentaires créée par tous et pour tous.',
+        ),
+        const SizedBox(height: 16),
+        const _HighlightedText(
+          'Vous pouvez l\'utiliser pour faire de meilleurs choix alimentaires, et comme les données sont ouvertes, tout le monde peut les réutiliser pour tout usage.',
+        ),
+        const SizedBox(height: 16),
+        _buildActionButton('En savoir plus', '/about'),
+        const SizedBox(height: 8),
+        _buildActionButton('Mentions légales', '/legal-notice'),
+      ],
+    );
+  }
+
+  Widget _buildActionButton(String text, String route) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(999),
+          ),
+          child: GestureDetector(
+            onTap: () => Navigator.pushNamed(context, route),
+            child: Row(
+              children: [
+                Text(text, style: const TextStyle(fontWeight: FontWeight.w500)),
+                const SizedBox(width: 8),
+                const Icon(Icons.arrow_forward_rounded, size: 18),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAnimatedSection(
+    String sectionId,
+    Widget child, {
+    double visibleHeight = 80,
+    double offset = 120,
+  }) {
+    return SliverToBoxAdapter(
+      child: ValueListenableBuilder<Set<String>>(
+        valueListenable: _visibleSections,
+        builder: (context, visibleSections, _) {
+          final isVisible = visibleSections.contains(sectionId);
+
+          return VisibilityDetector(
+            key: Key(sectionId),
+            onVisibilityChanged: (info) {
+              if (info.visibleBounds.height > visibleHeight && !isVisible) {
+                _onSectionVisible(sectionId);
+              }
+            },
+            child: _AnimatedSection(
+              isVisible: isVisible,
+              offset: offset,
+              child: child,
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _HighlightedText extends StatelessWidget {
+  final String text;
+
+  const _HighlightedText(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(
+            text: text,
+            style: const TextStyle(
+              height: 1.5,
+              letterSpacing: 0.5,
+              backgroundColor: Color.fromRGBO(0, 189, 126, 0.6),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AnimatedSection extends StatelessWidget {
+  final bool isVisible;
+  final double offset;
+  final Widget child;
+
+  const _AnimatedSection({
+    required this.isVisible,
+    required this.offset,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: isVisible ? 1.0 : 0.0),
+      curve: defaultAnimationCurve,
+      duration: defaultAnimationTime,
+      builder: (context, value, child) {
+        return Opacity(
+          opacity: value,
+          child: Transform.translate(
+            offset: Offset(0, offset * (1 - value)),
+            child: child,
+          ),
+        );
+      },
+      child: child,
     );
   }
 }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app_nutriverif/core/constants/custom_values.dart';
-
 import 'package:app_nutriverif/providers/products_provider.dart';
 
 import '../../widgets/app_bar.dart';
@@ -20,90 +19,274 @@ class ProductPage extends StatefulWidget {
   const ProductPage({super.key, required this.id, required this.image});
 
   @override
-  State<ProductPage> createState() => ProductPageState();
+  State<ProductPage> createState() => _ProductPageState();
 }
 
-class ProductPageState extends State<ProductPage> {
+class _ProductPageState extends State<ProductPage>
+    with SingleTickerProviderStateMixin {
   late ProductsProvider _provider;
+  late AnimationController _animationController;
 
-  bool _refresh = false;
+  bool _isLoading = true;
+  bool _hasError = false;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
 
+    _animationController = AnimationController(
+      duration: defaultAnimationTime,
+      vsync: this,
+    );
+
     _provider = context.read<ProductsProvider>();
-    _provider.suggestedProducts.clear();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _provider.loadProductById(widget.id);
-      _refresh = true;
-
-      if (_provider.product.nutriscore != 'a' ||
-          int.tryParse(_provider.product.nova) != 1) {
-        _provider.loadSuggestedProducts(
-          id: _provider.product.id,
-          categories: _provider.product.categories,
-          nutriscore: _provider.product.nutriscore,
-          nova: _provider.product.nova,
-        );
-      }
+      await _initializeProduct();
     });
   }
 
   @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _initializeProduct() async {
+    if (!mounted) return;
+
+    try {
+      // Optimisation : Clear seulement si nécessaire
+      if (_provider.suggestedProducts.isNotEmpty) {
+        _provider.suggestedProducts.clear();
+      }
+
+      // Chargement du produit principal
+      await _provider.loadProductById(widget.id);
+
+      if (!mounted) return;
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      // Démarrer l'animation
+      _animationController.forward();
+
+      // Optimisation : Chargement des produits suggérés en arrière-plan
+      // seulement si le produit n'est pas déjà optimal
+      if (_shouldLoadSuggestions()) {
+        _loadSuggestionsInBackground();
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _isLoading = false;
+        _hasError = true;
+        _errorMessage = e.toString();
+      });
+    }
+  }
+
+  bool _shouldLoadSuggestions() {
+    final product = _provider.product;
+    return product.nutriscore != 'a' || (int.tryParse(product.nova) ?? 0) != 1;
+  }
+
+  Future<void> _loadSuggestionsInBackground() async {
+    // Chargement asynchrone des suggestions sans bloquer l'UI
+    try {
+      await _provider.loadSuggestedProducts(
+        id: _provider.product.id,
+        categories: _provider.product.categories,
+        nutriscore: _provider.product.nutriscore,
+        nova: _provider.product.nova,
+      );
+    } catch (e) {
+      // Échec silencieux des suggestions (non critique)
+      debugPrint('Erreur lors du chargement des suggestions: $e');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    _provider = context.watch<ProductsProvider>();
-
     return Scaffold(
-      body: ListView(
-        padding: screenPadding,
-        children: [
-          myAppBar(context),
-          ProductImage(id: widget.id, image: widget.image),
-          TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0.0, end: _refresh ? 1.0 : 0.0),
-            curve: defaultAnimationCurve,
-            duration: defaultAnimationTime,
-            builder: (context, value, child) {
-              return Opacity(
-                opacity: value,
-                child: Transform.translate(
-                  offset: Offset(0, 60 * (1 - value)),
-                  child: child,
-                ),
-              );
-            },
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ProductName(
-                  lastUpdate: _provider.product.lastUpdate,
-                  brand: _provider.product.brand,
-                  name: _provider.product.name,
-                ),
+      body:
+          _isLoading
+              ? _buildLoadingState()
+              : _hasError
+              ? _buildErrorState()
+              : _buildSuccessState(),
+    );
+  }
 
-                ProductScores(
-                  nutriscore: _provider.product.nutriscore,
-                  nova: _provider.product.nova,
-                ),
-                ProductNutrients(nutrients: _provider.product.nutrientLevels),
-                ProductDetails(
-                  id: _provider.product.id,
-                  categories: _provider.product.categories,
-                  quantity: _provider.product.quantity,
-                  servingSize: _provider.product.servingSize,
-                  nutriments: _provider.product.nutriments,
-                  ingredients: _provider.product.ingredients,
-                  manufacturingPlace: _provider.product.manufacturingPlace,
-                  link: _provider.product.link,
-                ),
-                AlternativeProducts(products: _provider.suggestedProducts),
-              ],
-            ),
+  Widget _buildLoadingState() {
+    return CustomScrollView(
+      slivers: [
+        SliverPadding(
+          padding: screenPadding,
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              myAppBar(context),
+              ProductImage(id: widget.id, image: widget.image),
+              const SizedBox(height: 20),
+              const Center(child: CircularProgressIndicator()),
+            ]),
           ),
-        ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildErrorState() {
+    return CustomScrollView(
+      slivers: [
+        SliverPadding(
+          padding: screenPadding,
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              myAppBar(context),
+              ProductImage(id: widget.id, image: widget.image),
+              const SizedBox(height: 20),
+              Center(
+                child: Column(
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: Colors.red,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Erreur lors du chargement',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    if (_errorMessage != null) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        _errorMessage!,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _isLoading = true;
+                          _hasError = false;
+                          _errorMessage = null;
+                        });
+                        _animationController.reset();
+                        _initializeProduct();
+                      },
+                      child: const Text('Réessayer'),
+                    ),
+                  ],
+                ),
+              ),
+            ]),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSuccessState() {
+    return Consumer<ProductsProvider>(
+      builder: (context, provider, child) {
+        return CustomScrollView(
+          // Optimisation : Physics plus fluide
+          physics: const BouncingScrollPhysics(
+            parent: AlwaysScrollableScrollPhysics(),
+          ),
+          slivers: [
+            SliverPadding(
+              padding: screenPadding,
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  myAppBar(context),
+                  ProductImage(id: widget.id, image: widget.image),
+                ]),
+              ),
+            ),
+
+            // Contenu animé séparé pour éviter les rebuilds
+            SliverToBoxAdapter(
+              child: _AnimatedContent(
+                animation: _animationController,
+                product: provider.product,
+                suggestedProducts: provider.suggestedProducts,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+// Widget séparé pour le contenu animé (évite les rebuilds)
+class _AnimatedContent extends StatelessWidget {
+  final Animation<double> animation;
+  final dynamic product; // Remplacer par votre type Product
+  final List<dynamic> suggestedProducts; // Remplacer par List<Product>
+
+  const _AnimatedContent({
+    required this.animation,
+    required this.product,
+    required this.suggestedProducts,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: animation,
+      builder: (context, child) {
+        return Opacity(
+          opacity: animation.value,
+          child: Transform.translate(
+            offset: Offset(0, 60 * (1 - animation.value)),
+            child: child,
+          ),
+        );
+      },
+      child: Padding(
+        padding: screenPadding,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ProductName(
+              lastUpdate: product.lastUpdate,
+              brand: product.brand,
+              name: product.name,
+            ),
+            ProductScores(nutriscore: product.nutriscore, nova: product.nova),
+            ProductNutrients(nutrients: product.nutrientLevels),
+            ProductDetails(
+              id: product.id,
+              categories: product.categories,
+              quantity: product.quantity,
+              servingSize: product.servingSize,
+              nutriments: product.nutriments,
+              ingredients: product.ingredients,
+              manufacturingPlace: product.manufacturingPlace,
+              link: product.link,
+            ),
+            AlternativeProducts(products: suggestedProducts),
+          ],
+        ),
       ),
     );
+  }
+}
+
+// Extension pour optimiser les comparaisons (optionnel)
+extension ProductPageOptimizations on _ProductPageState {
+  bool get isProductOptimal {
+    final product = _provider.product;
+    return product.nutriscore == 'a' && (int.tryParse(product.nova) ?? 0) == 1;
   }
 }

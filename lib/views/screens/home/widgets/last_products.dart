@@ -21,69 +21,66 @@ class LastProducts extends StatelessWidget {
       return (logicalHeight * ratio).round();
     }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        children: [
-          Text.rich(
-            TextSpan(
-              text: "Produits",
-              children: [
-                TextSpan(
-                  text: " recemment ",
-                  style: TextStyle(color: customGreen),
-                ),
-                TextSpan(text: "ajoutés"),
-              ],
-            ),
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 32),
-          AnimatedSize(
-            duration: defaultAnimationTime,
-            curve: defaultAnimationCurve,
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(16),
+    return Column(
+      children: [
+        Text.rich(
+          TextSpan(
+            text: "Produits",
+            children: [
+              TextSpan(
+                text: " recemment ",
+                style: TextStyle(color: customGreen),
               ),
-              child:
-                  provider.lastProductsIsLoading
-                      ? const Loader()
-                      : SizedBox(
-                        height:
-                            provider.lastProducts.isNotEmpty ||
-                                    provider.lastProductsIsLoading
-                                ? null
-                                : 0,
-                        width: double.infinity,
-                        child: Wrap(
-                          alignment: WrapAlignment.spaceBetween,
-                          spacing: MediaQuery.of(context).size.width / 100 * 4,
-                          children:
-                              provider.lastProducts.map((product) {
-                                return ProductCard(
-                                  product: product,
-                                  widthAjustment: 32,
-                                );
-                              }).toList(),
-                        ),
+              TextSpan(text: "ajoutés"),
+            ],
+          ),
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: 32),
+        AnimatedSize(
+          duration: defaultAnimationTime,
+          curve: defaultAnimationCurve,
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child:
+                provider.lastProductsIsLoading
+                    ? const Loader()
+                    : SizedBox(
+                      height:
+                          provider.lastProducts.isNotEmpty ||
+                                  provider.lastProductsIsLoading
+                              ? null
+                              : 0,
+                      width: double.infinity,
+                      child: Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        spacing: MediaQuery.of(context).size.width / 100 * 4,
+                        children:
+                            provider.lastProducts.map((product) {
+                              return ProductCard(
+                                product: product,
+                                widthAjustment: 32,
+                              );
+                            }).toList(),
                       ),
-            ),
+                    ),
           ),
-          Center(
-            heightFactor: 1.5,
-            child: Image.asset(
-              appIcon,
-              height: 160,
-              cacheHeight: getCacheHeight(context, 160),
-              color: Colors.grey[600],
-            ),
+        ),
+        Center(
+          heightFactor: 1.5,
+          child: Image.asset(
+            appIcon,
+            height: 160,
+            cacheHeight: getCacheHeight(context, 160),
+            color: Colors.grey[600],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

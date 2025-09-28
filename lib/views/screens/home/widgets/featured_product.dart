@@ -70,7 +70,10 @@ class _FeaturedProductState extends State<FeaturedProduct> {
           ),
           // Présentation partielle d'un produit
           if (_provider.productDemo.id.isEmpty)
-            Loader()
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 32),
+              child: Loader(),
+            )
           else ...[
             Container(
               margin: const EdgeInsets.symmetric(vertical: 32),

@@ -3,14 +3,13 @@ import 'package:provider/provider.dart';
 
 import 'package:app_nutriverif/core/constants/custom_values.dart';
 
-import 'package:app_nutriverif/models/model_products.dart';
 import 'package:app_nutriverif/providers/products_provider.dart';
 
 import 'package:app_nutriverif/views/widgets/loader.dart';
 import 'package:app_nutriverif/views/widgets/product_card/product_card.dart';
 
 class AlternativeProducts extends StatelessWidget {
-  final List<Product> products;
+  final List<dynamic> products;
 
   const AlternativeProducts({super.key, required this.products});
 
