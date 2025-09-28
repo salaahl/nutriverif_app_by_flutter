@@ -4,7 +4,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 
 import 'package:app_nutriverif/providers/products_provider.dart';
 
-import 'package:app_nutriverif/views/screens/products_page.dart';
+import 'package:app_nutriverif/views/screens/home/widgets/products/products_page.dart';
 
 import '../../../widgets/loader.dart';
 import './product_nutriments.dart';
@@ -120,7 +120,7 @@ class _ProductDetailsState extends State<ProductDetails> {
               categoriesIsLoading
                   ? [const Loader()]
                   : categoriesTranslated.isEmpty
-                  ? [SizedBox.shrink()]
+                  ? [const SizedBox.shrink()]
                   : categoriesTranslated
                       .map(
                         (category) => ElevatedButton(

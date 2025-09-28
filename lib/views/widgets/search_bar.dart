@@ -30,15 +30,14 @@ class _AppSearchBarState extends State<AppSearchBar> {
   @override
   void initState() {
     super.initState();
-
     _provider = context.read<ProductsProvider>();
     _searchController = TextEditingController(text: _provider.input);
   }
 
   @override
   void dispose() {
-    _searchController.dispose();
     super.dispose();
+    _searchController.dispose();
   }
 
   @override
@@ -202,7 +201,7 @@ class _AppSearchBarState extends State<AppSearchBar> {
                     );
                   }).toList(),
             )
-            : SizedBox.shrink(),
+            : const SizedBox.shrink(),
       ],
     );
   }
