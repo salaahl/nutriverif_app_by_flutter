@@ -50,24 +50,37 @@ class ProductNutrients extends StatelessWidget {
                   bgColor = Colors.grey;
               }
 
-              return Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: bgColor,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  label,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+              return Nutrient(
+                key: ValueKey(entry.key),
+                label: label,
+                bgColor: bgColor,
               );
             }).toList(),
+      ),
+    );
+  }
+}
+
+class Nutrient extends StatelessWidget {
+  final String label;
+  final Color bgColor;
+
+  const Nutrient({super.key, required this.label, required this.bgColor});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }

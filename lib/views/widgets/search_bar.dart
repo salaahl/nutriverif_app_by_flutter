@@ -27,6 +27,51 @@ class _AppSearchBarState extends State<AppSearchBar> {
     'Nova Score': 'nova_score',
   };
 
+  Future<void> _searchProducts() async {
+    final input = _searchController.text.trim();
+    FocusScope.of(context).unfocus();
+
+    if (input.isEmpty || input.length < 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Center(
+            child: Text(
+              'Veuillez entrer un nom de produit valide',
+              style: TextStyle(fontWeight: FontWeight.w500),
+            ),
+          ),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } else {
+      if (widget.onReset != null) widget.onReset!();
+
+      await _provider.searchProducts(
+        query: input,
+        selected: _provider.filter,
+        method: 'complete',
+      );
+
+      if (_provider.products.isEmpty && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Center(
+              child: Text(
+                _provider.error != null
+                    ? 'Une erreur est survenue'
+                    : 'Aucun produit trouvé',
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
+            ),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -62,7 +107,7 @@ class _AppSearchBarState extends State<AppSearchBar> {
                     padding: const EdgeInsets.only(
                       left: 12,
                     ), // rééquilibrage avec le padding appliqué sur le TextField
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.qr_code_rounded,
                       color: Colors.grey,
                       semanticLabel: 'Rechercher un produit par code-barres',
@@ -116,49 +161,8 @@ class _AppSearchBarState extends State<AppSearchBar> {
                   semanticLabel: 'Rechercher',
                 ),
               ),
-              onPressed: () async {
-                final input = _searchController.text.trim();
-                FocusScope.of(context).unfocus();
-
-                if (input.isEmpty || input.length < 2) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Center(
-                        child: Text(
-                          'Veuillez entrer un nom de produit valide',
-                          style: TextStyle(fontWeight: FontWeight.w500),
-                        ),
-                      ),
-                      backgroundColor: Colors.redAccent,
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                } else {
-                  if (widget.onReset != null) widget.onReset!();
-
-                  await _provider.searchProducts(
-                    query: input,
-                    selected: _provider.filter,
-                    method: 'complete',
-                  );
-
-                  if (_provider.products.isEmpty && context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Center(
-                          child: Text(
-                            _provider.error != null
-                                ? 'Une erreur est survenue'
-                                : 'Aucun produit trouvé',
-                            style: TextStyle(fontWeight: FontWeight.w500),
-                          ),
-                        ),
-                        backgroundColor: Colors.redAccent,
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  }
-                }
+              onPressed: () {
+                _searchProducts();
               },
             ),
           ],
@@ -170,39 +174,58 @@ class _AppSearchBarState extends State<AppSearchBar> {
               runSpacing: 12,
               children:
                   _filters.entries.map((filter) {
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _provider.setFilter(filter.value);
-                        });
-                      },
-                      child: AnimatedContainer(
-                        duration: Duration(milliseconds: 350),
-                        curve: Curves.easeInOut,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color:
-                              _provider.filter == filter.value
-                                  ? customGreen
-                                  : Colors.grey,
-                          borderRadius: BorderRadius.circular(999),
-                        ),
-                        child: Text(
-                          filter.key,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
+                    return SearchBarFilter(
+                      key: ValueKey(filter.key),
+                      provider: _provider,
+                      filter: filter,
                     );
                   }).toList(),
             )
             : const SizedBox.shrink(),
       ],
+    );
+  }
+}
+
+class SearchBarFilter extends StatefulWidget {
+  final ProductsProvider provider;
+  final MapEntry<String, String> filter;
+
+  const SearchBarFilter({
+    super.key,
+    required this.provider,
+    required this.filter,
+  });
+
+  @override
+  State<SearchBarFilter> createState() => _SearchBarFilterState();
+}
+
+class _SearchBarFilterState extends State<SearchBarFilter> {
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          widget.provider.setFilter(widget.filter.value);
+        });
+      },
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 350),
+        curve: Curves.easeInOut,
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color:
+              widget.provider.filter == widget.filter.value
+                  ? customGreen
+                  : Colors.grey,
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: Text(
+          widget.filter.key,
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+      ),
     );
   }
 }

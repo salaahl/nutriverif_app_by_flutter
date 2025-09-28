@@ -53,50 +53,43 @@ class _LoaderState extends State<Loader> with SingleTickerProviderStateMixin {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Transform.rotate(
-                    angle: _animation.value * 6 * pi,
-                    child: Container(
-                      width: 0,
-                      height: 0,
-                      decoration: const BoxDecoration(
-                        border: Border(
-                          left: BorderSide(
-                            width: 48,
-                            color: Colors.transparent,
-                          ),
-                          right: BorderSide(
-                            width: 48,
-                            color: Colors.transparent,
-                          ),
-                          bottom: BorderSide(width: 64, color: customGreen),
-                        ),
-                      ),
-                    ),
+                  LoaderFrame(
+                    animation: _animation.value * 6 * pi,
+                    color: customGreen,
                   ),
-                  Transform.rotate(
-                    angle: _animation.value * 8 * pi,
-                    child: Container(
-                      width: 0,
-                      height: 0,
-                      decoration: const BoxDecoration(
-                        border: Border(
-                          left: BorderSide(
-                            width: 48,
-                            color: Colors.transparent,
-                          ),
-                          right: BorderSide(
-                            width: 48,
-                            color: Colors.transparent,
-                          ),
-                          top: BorderSide(width: 64, color: Colors.black),
-                        ),
-                      ),
-                    ),
+                  LoaderFrame(
+                    animation: _animation.value * 8 * pi,
+                    color: Colors.black,
                   ),
                 ],
               ),
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+class LoaderFrame extends StatelessWidget {
+  final double animation;
+  final Color color;
+
+  const LoaderFrame({super.key, required this.animation, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Transform.rotate(
+      angle: animation,
+      child: Container(
+        width: 0,
+        height: 0,
+        decoration: BoxDecoration(
+          border: Border(
+            left: BorderSide(width: 48, color: Colors.transparent),
+            right: BorderSide(width: 48, color: Colors.transparent),
+            bottom: BorderSide(width: 64, color: color),
+          ),
         ),
       ),
     );

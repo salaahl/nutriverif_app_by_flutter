@@ -6,7 +6,6 @@ import 'package:app_nutriverif/providers/products_provider.dart';
 
 import 'package:app_nutriverif/views/screens/products/products_page.dart';
 
-import '../../../widgets/loader.dart';
 import './product_nutriments.dart';
 
 class ProductDetails extends StatefulWidget {
@@ -81,7 +80,7 @@ class _ProductDetailsState extends State<ProductDetails> {
           const SizedBox(height: 32),
         ],
         if (widget.ingredients.isNotEmpty) ...[
-          Text(
+          const Text(
             "Ingrédients :",
             style: TextStyle(fontWeight: FontWeight.bold, height: 1.5),
           ),
@@ -118,37 +117,89 @@ class _ProductDetailsState extends State<ProductDetails> {
           spacing: 8,
           children:
               categoriesIsLoading
-                  ? [const Loader()]
+                  ? [const CategoriesLoader()]
                   : categoriesTranslated.isEmpty
                   ? [const SizedBox.shrink()]
                   : categoriesTranslated
+                      .where(
+                        (category) => category.trim().isNotEmpty,
+                      ) // Empêcher les chaines de caractères vides
                       .map(
-                        (category) => ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            backgroundColor: Colors.grey[400],
-                          ),
-                          onPressed: () async {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ProductSearchPage(),
-                              ),
-                            );
-                            await _provider.searchProducts(
-                              query: category,
-                              method: 'complete',
-                            );
-                          },
-                          child: Text(
-                            "#$category",
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
+                        (category) => CategoryButton(
+                          key: ValueKey(category),
+                          provider: _provider,
+                          category: category,
                         ),
                       )
                       .toList(),
         ),
       ],
+    );
+  }
+}
+
+class CategoriesLoader extends StatefulWidget {
+  const CategoriesLoader({super.key});
+
+  @override
+  State<CategoriesLoader> createState() => _CategoriesLoaderState();
+}
+
+class _CategoriesLoaderState extends State<CategoriesLoader> {
+  int _animationKey = 0;
+
+  void _restartAnimation() {
+    setState(() {
+      _animationKey++;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      key: ValueKey(_animationKey),
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 1200),
+      builder: (context, value, child) {
+        final dotsCount = (value * 4).floor().clamp(0, 3);
+        return Text(
+          "Chargement des catégories${'.' * dotsCount}",
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        );
+      },
+      onEnd: _restartAnimation,
+    );
+  }
+}
+
+class CategoryButton extends StatelessWidget {
+  final ProductsProvider provider;
+  final String category;
+
+  const CategoryButton({
+    super.key,
+    required this.provider,
+    required this.category,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.grey[400],
+      ),
+      onPressed: () async {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ProductSearchPage()),
+        );
+        await provider.searchProducts(query: category, method: 'complete');
+      },
+      child: Text(
+        "#$category",
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
     );
   }
 }

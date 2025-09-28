@@ -34,57 +34,9 @@ class NutritionalTableState extends State<NutritionalTable> {
       children: [
         Row(
           children: [
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  provider.setAjrSelected('women');
-                });
-              },
-              child: AnimatedContainer(
-                duration: Duration(milliseconds: 350),
-                curve: Curves.easeInOut,
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color:
-                      provider.ajrSelected == 'women'
-                          ? customGreen
-                          : Colors.grey,
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Text(
-                  'femme',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
+            AjrButtonSelection(provider: provider, gender: 'women'),
             const SizedBox(width: 16),
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  provider.setAjrSelected('men');
-                });
-              },
-              child: AnimatedContainer(
-                duration: Duration(milliseconds: 350),
-                curve: Curves.easeInOut,
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color:
-                      provider.ajrSelected == 'men' ? customGreen : Colors.grey,
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Text(
-                  'homme',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
+            AjrButtonSelection(provider: provider, gender: 'men'),
           ],
         ),
         const SizedBox(height: 16),
@@ -111,6 +63,7 @@ class NutritionalTableState extends State<NutritionalTable> {
                 2: const FractionColumnWidth(0.20),
               },
               children: [
+                // En-tete du tableau
                 TableRow(
                   children: [
                     Container(
@@ -155,60 +108,14 @@ class NutritionalTableState extends State<NutritionalTable> {
                   ],
                 ),
                 for (var entry in entries)
-                  // Je n'affiche que les nutriments élligibles aux ajr
+                  // Lignes du tableau. Je n'affiche que les nutriments élligibles aux ajr
                   if (provider.ajrValues.containsKey(entry.key))
-                    TableRow(
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: Colors.grey[300]!,
-                            width: 1,
-                          ),
-                        ),
-                      ),
-                      children: [
-                        Container(
-                          decoration: const BoxDecoration(color: Colors.white),
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Text(
-                              provider.ajrValues[entry.key]?['name'],
-                              style: Theme.of(
-                                context,
-                              ).textTheme.bodySmall!.copyWith(
-                                color: Colors.grey[900],
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          decoration: const BoxDecoration(color: Colors.white),
-                          child: Padding(
-                            padding: EdgeInsets.all(12),
-                            child: Text(
-                              "${entry.value.toStringAsFixed(0)} ${widget.nutriments[entry.key.replaceAll('_serving', '_unit')]}",
-                              style: Theme.of(context).textTheme.bodySmall!
-                                  .copyWith(color: Colors.grey),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          decoration: BoxDecoration(color: Colors.grey[100]),
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Text(
-                              (double.tryParse(entry.value.toString()) !=
-                                          null &&
-                                      provider.ajrValues[entry.key] != null)
-                                  ? ('${(((double.parse(entry.value.toString())) / provider.ajrValues[entry.key]?['value']!) * 100).toStringAsFixed(0)}%')
-                                  : '—',
-                              style: Theme.of(context).textTheme.bodySmall!
-                                  .copyWith(color: Colors.grey),
-                            ),
-                          ),
-                        ),
-                      ],
+                    _buildNutrientRow(
+                      context,
+                      entry.key,
+                      entry.value,
+                      provider.ajrValues,
+                      widget.nutriments,
                     ),
               ],
             ),
@@ -222,4 +129,103 @@ class NutritionalTableState extends State<NutritionalTable> {
       ],
     );
   }
+}
+
+class AjrButtonSelection extends StatefulWidget {
+  final ProductsProvider provider;
+  final String gender;
+
+  const AjrButtonSelection({
+    super.key,
+    required this.provider,
+    required this.gender,
+  });
+
+  @override
+  State<AjrButtonSelection> createState() => _AjrButtonSelectionState();
+}
+
+class _AjrButtonSelectionState extends State<AjrButtonSelection> {
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          widget.provider.setAjrSelected(widget.gender);
+        });
+      },
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 350),
+        curve: Curves.easeInOut,
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color:
+              widget.provider.ajrSelected == widget.gender
+                  ? customGreen
+                  : Colors.grey,
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: Text(
+          widget.gender == 'women' ? 'femme' : 'homme',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
+}
+
+TableRow _buildNutrientRow(
+  BuildContext context,
+  String key,
+  double value,
+  Map<String, dynamic> ajrValues,
+  Map<String, dynamic> nutriments,
+) {
+  return TableRow(
+    decoration: BoxDecoration(
+      border: Border(bottom: BorderSide(color: Colors.grey[300]!, width: 1)),
+    ),
+    children: [
+      Container(
+        decoration: const BoxDecoration(color: Colors.white),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Text(
+            ajrValues[key]?['name'],
+            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+              color: Colors.grey[900],
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ),
+      ),
+      Container(
+        decoration: const BoxDecoration(color: Colors.white),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Text(
+            "${value.toStringAsFixed(0)} ${nutriments[key.replaceAll('_serving', '_unit')]}",
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall!.copyWith(color: Colors.grey),
+          ),
+        ),
+      ),
+      Container(
+        decoration: BoxDecoration(color: Colors.grey[100]),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Text(
+            (double.tryParse(value.toString()) != null &&
+                    ajrValues[key] != null)
+                ? ('${((value / ajrValues[key]?['value']!) * 100).toStringAsFixed(0)}%')
+                : '—',
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall!.copyWith(color: Colors.grey),
+          ),
+        ),
+      ),
+    ],
+  );
 }

@@ -55,23 +55,7 @@ class AlternativeProducts extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
-              child: Text.rich(
-                TextSpan(
-                  text: "A",
-                  style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                    fontFamily: 'Grand Hotel',
-                    color: Colors.redAccent,
-                  ),
-                  children: [
-                    const TextSpan(
-                      text: "lternatives",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            const WidgetTitle(),
             const SizedBox(height: 16),
             provider.suggestedProductsIsLoading
                 ? const Loader()
@@ -86,6 +70,31 @@ class AlternativeProducts extends StatelessWidget {
                         );
                       }).toList(),
                 ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class WidgetTitle extends StatelessWidget {
+  const WidgetTitle({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text.rich(
+        TextSpan(
+          text: "A",
+          style: Theme.of(context).textTheme.titleLarge!.copyWith(
+            fontFamily: 'Grand Hotel',
+            color: Colors.redAccent,
+          ),
+          children: [
+            const TextSpan(
+              text: "lternatives",
+              style: TextStyle(color: Colors.black),
+            ),
           ],
         ),
       ),

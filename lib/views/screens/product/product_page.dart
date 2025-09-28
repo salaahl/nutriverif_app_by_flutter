@@ -5,6 +5,7 @@ import 'package:app_nutriverif/core/constants/custom_values.dart';
 import 'package:app_nutriverif/providers/products_provider.dart';
 
 import '../../widgets/app_bar.dart';
+import '../../widgets/loader.dart';
 import './widgets/product_image.dart';
 import './widgets/product_name.dart';
 import './widgets/product_details.dart';
@@ -57,12 +58,10 @@ class _ProductPageState extends State<ProductPage>
     if (!mounted) return;
 
     try {
-      // Optimisation : Clear seulement si nécessaire
       if (_provider.suggestedProducts.isNotEmpty) {
         _provider.suggestedProducts.clear();
       }
 
-      // Chargement du produit principal
       await _provider.loadProductById(widget.id);
 
       if (!mounted) return;
@@ -74,8 +73,6 @@ class _ProductPageState extends State<ProductPage>
       // Démarrer l'animation
       _animationController.forward();
 
-      // Optimisation : Chargement des produits suggérés en arrière-plan
-      // seulement si le produit n'est pas déjà optimal
       if (_shouldLoadSuggestions()) {
         _loadSuggestionsInBackground();
       }
@@ -90,13 +87,13 @@ class _ProductPageState extends State<ProductPage>
     }
   }
 
+  /// Retourne true si le produit doit charger des suggestions au vu de son score
   bool _shouldLoadSuggestions() {
     final product = _provider.product;
     return product.nutriscore != 'a' || (int.tryParse(product.nova) ?? 0) != 1;
   }
 
   Future<void> _loadSuggestionsInBackground() async {
-    // Chargement asynchrone des suggestions sans bloquer l'UI
     try {
       await _provider.loadSuggestedProducts(
         id: _provider.product.id,
@@ -105,7 +102,6 @@ class _ProductPageState extends State<ProductPage>
         nova: _provider.product.nova,
       );
     } catch (e) {
-      // Échec silencieux des suggestions (non critique)
       debugPrint('Erreur lors du chargement des suggestions: $e');
     }
   }
@@ -132,7 +128,7 @@ class _ProductPageState extends State<ProductPage>
               myAppBar(context),
               ProductImage(id: widget.id, image: widget.image),
               const SizedBox(height: 20),
-              const Center(child: CircularProgressIndicator()),
+              const Loader(),
             ]),
           ),
         ),
