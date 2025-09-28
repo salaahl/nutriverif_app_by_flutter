@@ -4,7 +4,6 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app_nutriverif/core/constants/custom_values.dart';
-
 import 'package:app_nutriverif/providers/products_provider.dart';
 
 import '../widgets/app_bar.dart';
@@ -17,22 +16,67 @@ class BarcodeScannerPage extends StatefulWidget {
   State<BarcodeScannerPage> createState() => _BarcodeScannerPageState();
 }
 
-class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
+class _BarcodeScannerPageState extends State<BarcodeScannerPage>
+    with WidgetsBindingObserver {
+  late MobileScannerController _controller;
   bool _isScannerRunning = true;
+  bool _isProcessing = false;
 
-  Future<void> stopScanner() async {
-    if (_isScannerRunning) {
-      setState(() {
-        _isScannerRunning = false;
-      });
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
+    _controller = MobileScannerController(
+      useNewCameraSelector: true,
+      detectionSpeed: DetectionSpeed.normal,
+      facing: CameraFacing.back,
+      returnImage: false,
+    );
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    switch (state) {
+      case AppLifecycleState.paused:
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.detached:
+        _controller.stop();
+        break;
+      case AppLifecycleState.resumed:
+        if (mounted && _isScannerRunning) {
+          _controller.start();
+        }
+        break;
+      case AppLifecycleState.inactive:
+        break;
     }
   }
 
-  Future<void> startScanner() async {
-    if (!_isScannerRunning) {
+  Future<void> _stopScanner() async {
+    if (_isScannerRunning && mounted) {
+      setState(() {
+        _isScannerRunning = false;
+      });
+      await _controller.stop();
+    }
+  }
+
+  Future<void> _startScanner() async {
+    if (!_isScannerRunning && mounted) {
       setState(() {
         _isScannerRunning = true;
       });
+      await _controller.start();
     }
   }
 
@@ -40,16 +84,84 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
     return RegExp(r'^\d{13}$').hasMatch(code);
   }
 
+  Future<void> _handleBarcode(String rawValue) async {
+    if (_isProcessing) return; // Éviter les scans multiples
+
+    setState(() {
+      _isProcessing = true;
+    });
+
+    try {
+      await _stopScanner();
+
+      if (!_isValidEAN13(rawValue)) {
+        _showErrorSnackBar('Code-barres invalide');
+        return;
+      }
+
+      // Laisser un temps minimal au loader
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      final provider = context.read<ProductsProvider>();
+      await provider.loadProductById(rawValue);
+
+      if (!mounted) return;
+
+      if (provider.product.id.isNotEmpty) {
+        await Navigator.pushNamed(
+          context,
+          '/product',
+          arguments: provider.product,
+        );
+
+        // Quand on revient de la page produit, relancer le scanner
+        if (mounted) {
+          await Future.delayed(const Duration(milliseconds: 500));
+          await _startScanner();
+        }
+      } else {
+        _showErrorSnackBar('Produit non trouvé');
+        // Relancer le scanner après un délai
+        await Future.delayed(const Duration(seconds: 2));
+        if (mounted) {
+          await _startScanner();
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        _showErrorSnackBar('Erreur lors du scan: ${e.toString()}');
+        await Future.delayed(const Duration(seconds: 2));
+        if (mounted) {
+          await _startScanner();
+        }
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isProcessing = false;
+        });
+      }
+    }
+  }
+
+  void _showErrorSnackBar(String message) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontWeight: FontWeight.w500),
+        ),
+        backgroundColor: Colors.redAccent,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<ProductsProvider>();
-    final MobileScannerController controller = MobileScannerController(
-      useNewCameraSelector: true,
-      detectionSpeed: DetectionSpeed.normal,
-      facing: CameraFacing.back,
-      returnImage: false,
-    );
-
     return Scaffold(
       body: Padding(
         padding: screenPadding,
@@ -61,9 +173,9 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
               textAlign: TextAlign.center,
               TextSpan(
                 style: Theme.of(context).textTheme.titleMedium,
-                children: [
-                  const TextSpan(text: 'Retrouver un produit par son '),
-                  const TextSpan(
+                children: const [
+                  TextSpan(text: 'Retrouver un produit par son '),
+                  TextSpan(
                     text: 'code-barres',
                     style: TextStyle(color: Colors.redAccent),
                   ),
@@ -71,88 +183,34 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
               ),
             ),
             const SizedBox(height: 32),
-            _isScannerRunning
-                ? AspectRatio(
-                  aspectRatio: 1,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(width: 8, color: Colors.white),
-                    ),
-                    child: MobileScanner(
-                      controller: controller,
-                      onDetect: (capture) async {
-                        await stopScanner();
-
-                        // Laisser un temps minimal au loader
-                        await Future.delayed(const Duration(seconds: 1));
-
-                        final List<Barcode> barcodes = capture.barcodes;
-                        for (final barcode in barcodes) {
-                          final String? rawValue = barcode.rawValue;
-
-                          // Validation
-                          if (rawValue != null && _isValidEAN13(rawValue)) {
-                            await provider.loadProductById(rawValue);
-
-                            if (context.mounted) {
-                              if (provider.product.id.isNotEmpty) {
-                                Navigator.pushNamed(
-                                  context,
-                                  '/product',
-                                  arguments: provider.product,
-                                );
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Produit non trouvé',
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    backgroundColor: Colors.redAccent,
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
-                                );
+            AspectRatio(
+              aspectRatio: 1,
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(width: 8, color: Colors.white),
+                ),
+                child:
+                    _isScannerRunning && !_isProcessing
+                        ? MobileScanner(
+                          controller: _controller,
+                          onDetect: (capture) {
+                            final List<Barcode> barcodes = capture.barcodes;
+                            for (final barcode in barcodes) {
+                              final String? rawValue = barcode.rawValue;
+                              if (rawValue != null) {
+                                _handleBarcode(rawValue);
+                                return; // Traiter seulement le premier code-barres
                               }
                             }
-                          } else if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Center(
-                                  child: Text(
-                                    'Code-barres invalide',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                                backgroundColor: Colors.redAccent,
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
-                          }
-                        }
-
-                        // Prevenir le scan au changement de page
-                        await Future.delayed(const Duration(seconds: 3));
-
-                        if (mounted) {
-                          await startScanner();
-                        }
-                      },
-                    ),
-                  ),
-                )
-                : AspectRatio(
-                  aspectRatio: 1,
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: const Loader(),
-                  ),
-                ),
+                          },
+                        )
+                        : const Center(child: Loader()),
+              ),
+            ),
+            if (_isProcessing) ...[
+              const SizedBox(height: 16),
+              const Text('Traitement en cours...'),
+            ],
           ],
         ),
       ),
