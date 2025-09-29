@@ -153,6 +153,7 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
         return OptimizedProductItem(
           key: ValueKey(product.id),
           product: product,
+          index: index,
           notifier: _getOrCreateNotifier(product.id),
         );
       },
