@@ -58,7 +58,11 @@ class ProductsService {
     required String nova,
   }) async {
     final url =
-        'https://world.openfoodfacts.org/cgi/search.pl?search_terms=${Uri.encodeComponent(name)}&fields=${Uri.encodeComponent(_productsFields)}&purchase_places_tags=france&sort_by=nutriscore_score,nova_group,popularity_key&page_size=300&action=process&json=1';
+        'https://world.openfoodfacts.org/cgi/search.pl?'
+        'search_terms=${Uri.encodeComponent(name)}'
+        '&categories_tags=${Uri.encodeComponent(categories.join('|'))}'
+        '&fields=${Uri.encodeComponent(_productsFields)}'
+        '&purchase_places_tags=france&sort_by=nutriscore_score,nova_group,popularity_key&page_size=300&action=process&json=1';
 
     try {
       final data = await _getJson(url);

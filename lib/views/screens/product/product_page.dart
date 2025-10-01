@@ -98,7 +98,8 @@ class _ProductPageState extends State<ProductPage>
     try {
       await _provider.loadSuggestedProducts(
         id: _provider.product.id,
-        name: _provider.product.name,
+        name:
+            '${_provider.product.brand.split(',')[0]} ${_provider.product.name}',
         categories: _provider.product.categories,
         nutriscore: _provider.product.nutriscore,
         nova: _provider.product.nova,

@@ -31,6 +31,7 @@ void main() {
       () async {
         await provider.loadSuggestedProducts(
           id: '3608580758686',
+          name: 'Barre de chocolat',
           categories: ['Snacks', 'Desserts', 'Chocolate products'],
           nutriscore: 'b',
           nova: '2',
