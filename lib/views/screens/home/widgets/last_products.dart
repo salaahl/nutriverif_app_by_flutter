@@ -13,8 +13,6 @@ class LastProducts extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.read<ProductsProvider>();
-
     // Permet de retourner un cacheWidth adapté à la résolution de l'écran
     int getCacheHeight(BuildContext context, double logicalHeight) {
       final ratio = MediaQuery.of(context).devicePixelRatio;
@@ -41,34 +39,42 @@ class LastProducts extends StatelessWidget {
         AnimatedSize(
           duration: defaultAnimationTime,
           curve: defaultAnimationCurve,
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child:
-                provider.lastProductsIsLoading
-                    ? const Loader()
-                    : SizedBox(
-                      height:
-                          provider.lastProducts.isNotEmpty ||
-                                  provider.lastProductsIsLoading
-                              ? null
-                              : 0,
-                      width: double.infinity,
-                      child: Wrap(
-                        alignment: WrapAlignment.spaceBetween,
-                        spacing: MediaQuery.of(context).size.width / 100 * 4,
-                        children:
-                            provider.lastProducts.map((product) {
-                              return ProductCard(
-                                product: product,
-                                widthAjustment: 32,
-                              );
-                            }).toList(),
-                      ),
-                    ),
+          child: Selector<ProductsProvider, bool>(
+            selector: (_, provider) => provider.lastProductsIsLoading,
+            builder: (context, isLoading, _) {
+              final provider = context.read<ProductsProvider>();
+
+              return Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child:
+                    provider.lastProductsIsLoading
+                        ? const Loader()
+                        : SizedBox(
+                          height:
+                              provider.lastProducts.isNotEmpty ||
+                                      provider.lastProductsIsLoading
+                                  ? null
+                                  : 0,
+                          width: double.infinity,
+                          child: Wrap(
+                            alignment: WrapAlignment.spaceBetween,
+                            spacing:
+                                MediaQuery.of(context).size.width / 100 * 4,
+                            children:
+                                provider.lastProducts.map((product) {
+                                  return ProductCard(
+                                    product: product,
+                                    widthAjustment: 32,
+                                  );
+                                }).toList(),
+                          ),
+                        ),
+              );
+            },
           ),
         ),
         Center(

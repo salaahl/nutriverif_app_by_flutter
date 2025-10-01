@@ -57,8 +57,6 @@ class _ProductDetailsState extends State<ProductDetails> {
 
   @override
   Widget build(BuildContext context) {
-    _provider = context.watch<ProductsProvider>();
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -124,13 +122,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                       .where(
                         (category) => category.trim().isNotEmpty,
                       ) // Empêcher les chaines de caractères vides
-                      .map(
-                        (category) => CategoryButton(
-                          key: ValueKey(category),
-                          provider: _provider,
-                          category: category,
-                        ),
-                      )
+                      .map((category) => CategoryButton(category: category))
                       .toList(),
         ),
       ],
@@ -173,17 +165,14 @@ class _CategoriesLoaderState extends State<CategoriesLoader> {
 }
 
 class CategoryButton extends StatelessWidget {
-  final ProductsProvider provider;
   final String category;
 
-  const CategoryButton({
-    super.key,
-    required this.provider,
-    required this.category,
-  });
+  const CategoryButton({super.key, required this.category});
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.read<ProductsProvider>();
+
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         foregroundColor: Colors.white,

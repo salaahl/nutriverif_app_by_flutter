@@ -52,12 +52,13 @@ class ProductsService {
 
   Future<List<Product>> fetchSuggestedProducts({
     required String id,
+    required String name,
     required List<String> categories,
     required String nutriscore,
     required String nova,
   }) async {
     final url =
-        '$_api2BaseUrl?categories_tags=${Uri.encodeComponent(categories.last)}&fields=${Uri.encodeComponent(_productsFields)}&purchase_places_tags=france&sort_by=nutriscore_score,nova_group,popularity_key&page_size=300&action=process&json=1';
+        'https://world.openfoodfacts.org/cgi/search.pl?search_terms=${Uri.encodeComponent(name)}&fields=${Uri.encodeComponent(_productsFields)}&purchase_places_tags=france&sort_by=nutriscore_score,nova_group,popularity_key&page_size=300&action=process&json=1';
 
     try {
       final data = await _getJson(url);

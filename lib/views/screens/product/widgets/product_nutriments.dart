@@ -34,9 +34,19 @@ class NutritionalTableState extends State<NutritionalTable> {
       children: [
         Row(
           children: [
-            AjrButtonSelection(provider: provider, gender: 'women'),
+            Selector<ProductsProvider, String>(
+              selector: (_, provider) => provider.ajrSelected,
+              builder: (context, gender, _) {
+                return AjrButtonSelection(gender: 'women');
+              },
+            ),
             const SizedBox(width: 16),
-            AjrButtonSelection(provider: provider, gender: 'men'),
+            Selector<ProductsProvider, String>(
+              selector: (_, provider) => provider.ajrSelected,
+              builder: (context, gender, _) {
+                return AjrButtonSelection(gender: 'men');
+              },
+            ),
           ],
         ),
         const SizedBox(height: 16),
@@ -114,7 +124,7 @@ class NutritionalTableState extends State<NutritionalTable> {
                       context,
                       entry.key,
                       entry.value,
-                      provider.ajrValues,
+                      provider.ajrValues[entry.key]?['name'] as String,
                       widget.nutriments,
                     ),
               ],
@@ -132,14 +142,9 @@ class NutritionalTableState extends State<NutritionalTable> {
 }
 
 class AjrButtonSelection extends StatefulWidget {
-  final ProductsProvider provider;
   final String gender;
 
-  const AjrButtonSelection({
-    super.key,
-    required this.provider,
-    required this.gender,
-  });
+  const AjrButtonSelection({super.key, required this.gender});
 
   @override
   State<AjrButtonSelection> createState() => _AjrButtonSelectionState();
@@ -148,11 +153,11 @@ class AjrButtonSelection extends StatefulWidget {
 class _AjrButtonSelectionState extends State<AjrButtonSelection> {
   @override
   Widget build(BuildContext context) {
+    final provider = context.read<ProductsProvider>();
+
     return GestureDetector(
       onTap: () {
-        setState(() {
-          widget.provider.setAjrSelected(widget.gender);
-        });
+        provider.setAjrSelected(widget.gender);
       },
       child: AnimatedContainer(
         duration: Duration(milliseconds: 350),
@@ -160,9 +165,7 @@ class _AjrButtonSelectionState extends State<AjrButtonSelection> {
         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color:
-              widget.provider.ajrSelected == widget.gender
-                  ? customGreen
-                  : Colors.grey,
+              provider.ajrSelected == widget.gender ? customGreen : Colors.grey,
           borderRadius: BorderRadius.circular(999),
         ),
         child: Text(
@@ -178,7 +181,7 @@ TableRow _buildNutrientRow(
   BuildContext context,
   String key,
   num value, // num pour accepter les int et double
-  Map<String, dynamic> ajrValues,
+  String columnName,
   Map<String, dynamic> nutriments,
 ) {
   return TableRow(
@@ -191,7 +194,7 @@ TableRow _buildNutrientRow(
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Text(
-            ajrValues[key]?['name'],
+            columnName,
             style: Theme.of(context).textTheme.bodySmall!.copyWith(
               color: Colors.grey[900],
               fontWeight: FontWeight.w400,
@@ -211,20 +214,27 @@ TableRow _buildNutrientRow(
           ),
         ),
       ),
-      Container(
-        decoration: BoxDecoration(color: Colors.grey[100]),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Text(
-            (double.tryParse(value.toString()) != null &&
-                    ajrValues[key] != null)
-                ? ('${((value / ajrValues[key]?['value']!) * 100).toStringAsFixed(0)}%')
-                : '—',
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall!.copyWith(color: Colors.grey),
-          ),
-        ),
+      Selector<ProductsProvider, String>(
+        selector: (_, provider) => provider.ajrSelected,
+        builder: (context, gender, _) {
+          final ajrValues = context.read<ProductsProvider>().ajrValues;
+
+          return Container(
+            decoration: BoxDecoration(color: Colors.grey[100]),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Text(
+                (double.tryParse(value.toString()) != null &&
+                        ajrValues[key] != null)
+                    ? ('${((value / ajrValues[key]?['value']!) * 100).toStringAsFixed(0)}%')
+                    : '—',
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall!.copyWith(color: Colors.grey),
+              ),
+            ),
+          );
+        },
       ),
     ],
   );

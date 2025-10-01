@@ -24,6 +24,7 @@ class ProductsProvider with ChangeNotifier {
   int _page = 1;
   int _pages = 1;
   String? _error;
+  final Set<String> _animatedIds = {};
 
   List<Product> get products => _products;
   bool get productsIsLoading => _productsIsLoading;
@@ -42,6 +43,8 @@ class ProductsProvider with ChangeNotifier {
   int get pages => _pages;
   bool get hasMorePages => _page < _pages;
   String? get error => _error;
+  Set<String> get animatedIds => _animatedIds;
+  bool hasAnimatedId(String id) => _animatedIds.contains(id);
 
   Map<String, Map<String, dynamic>> get ajrValues {
     if (_ajrSelected == 'women') {
@@ -158,6 +161,22 @@ class ProductsProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void addAnimatedId(String id) {
+    if (animatedIds.contains(id)) return;
+    animatedIds.add(id);
+    notifyListeners();
+  }
+
+  void removeAnimatedId(String id) {
+    animatedIds.remove(id);
+    notifyListeners();
+  }
+
+  void clearAnimatedIds(String extension) {
+    animatedIds.removeWhere((id) => id.endsWith(extension));
+    notifyListeners();
+  }
+
   Future<List<String>> getTranslatedCategories(List<String> categories) async {
     String cleanCategory(String cat, String langPrefix) {
       return cat
@@ -216,6 +235,7 @@ class ProductsProvider with ChangeNotifier {
       _page++;
     } else {
       setProducts([], method);
+      clearAnimatedIds('_product');
       if (query.isNotEmpty) setInput(query);
       if (selected.isNotEmpty) setFilter(selected);
       setPage(1);
@@ -262,6 +282,7 @@ class ProductsProvider with ChangeNotifier {
 
   Future<void> loadSuggestedProducts({
     required String id,
+    required String name,
     required List<String> categories,
     required String nutriscore,
     required String nova,
@@ -272,6 +293,7 @@ class ProductsProvider with ChangeNotifier {
     try {
       final result = await _productsService.fetchSuggestedProducts(
         id: id,
+        name: name,
         categories: categories,
         nutriscore: nutriscore,
         nova: nova,

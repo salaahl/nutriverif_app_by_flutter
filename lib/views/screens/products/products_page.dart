@@ -21,14 +21,13 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
   late ProductsProvider _provider;
   late ScrollController _scrollController;
 
-  // Optimisation : Réutilisation des notifiers + nettoyage automatique
-  final Map<String, ValueNotifier<bool>> _animatedNotifiers = {};
   bool _refresh = true;
   Timer? _debounceTimer;
 
   @override
   void initState() {
     super.initState();
+
     _provider = context.read<ProductsProvider>();
     _scrollController = ScrollController();
     _scrollController.addListener(_onScroll);
@@ -36,21 +35,13 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
 
   @override
   void dispose() {
+    super.dispose();
+
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     _debounceTimer?.cancel();
 
-    for (var notifier in _animatedNotifiers.values) {
-      notifier.dispose();
-    }
-    _animatedNotifiers.clear();
-    super.dispose();
-  }
-
-  void resetAnimatedProducts() {
-    _animatedNotifiers.forEach((key, notifier) {
-      notifier.value = false;
-    });
+    _provider.clearAnimatedIds('_product');
   }
 
   void _onScroll() {
@@ -65,7 +56,7 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
 
     final scrollPos = _scrollController.position;
 
-    if (scrollPos.pixels >= scrollPos.maxScrollExtent - 440 &&
+    if (scrollPos.pixels >= scrollPos.maxScrollExtent - 560 &&
         _provider.hasMorePages &&
         _refresh &&
         !_provider.productsIsLoading) {
@@ -80,8 +71,6 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    _provider = context.watch<ProductsProvider>();
-
     return Scaffold(
       body: CustomScrollView(
         controller: _scrollController,
@@ -95,42 +84,72 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
               delegate: SliverChildListDelegate([
                 myAppBar(context),
                 const SizedBox(height: 16),
-                AppSearchBar(showFilters: true, onReset: resetAnimatedProducts),
+                AppSearchBar(showFilters: true),
                 const SizedBox(height: 28),
               ]),
             ),
           ),
 
-          if (_provider.products.isNotEmpty)
-            SliverPadding(
-              padding: screenPadding,
-              sliver: SliverToBoxAdapter(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: _buildGridView(),
-                ),
+          SliverPadding(
+            padding: screenPadding,
+            sliver: SliverToBoxAdapter(
+              child: Selector<
+                ProductsProvider,
+                ({bool isLoading, bool hasProducts})
+              >(
+                selector:
+                    (_, provider) => (
+                      isLoading: provider.productsIsLoading,
+                      hasProducts: provider.products.isNotEmpty,
+                    ),
+                builder: (context, state, _) {
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child:
+                        state.isLoading && !state.hasProducts
+                            ? Padding(
+                              padding: EdgeInsets.symmetric(vertical: 32),
+                              child: _loaderWithPadding(),
+                            )
+                            : _buildGridView(),
+                  );
+                },
               ),
             ),
+          ),
 
-          if (_provider.productsIsLoading)
-            const SliverToBoxAdapter(
-              child: Center(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 32),
-                  child: Loader(),
+          Selector<ProductsProvider, ({bool isLoading, bool hasProducts})>(
+            selector:
+                (_, provider) => (
+                  isLoading: provider.productsIsLoading,
+                  hasProducts: provider.products.isNotEmpty,
                 ),
-              ),
-            ),
+            builder: (context, state, _) {
+              if (state.isLoading && state.hasProducts) {
+                return SliverToBoxAdapter(child: _loaderWithPadding());
+              }
+              return const SliverToBoxAdapter(child: SizedBox.shrink());
+            },
+          ),
         ],
       ),
     );
   }
 
+  Widget _loaderWithPadding() => Center(
+    child: const Padding(
+      padding: EdgeInsets.symmetric(vertical: 32),
+      child: Loader(),
+    ),
+  );
+
   Widget _buildGridView() {
+    final provider = context.read<ProductsProvider>();
+
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -141,29 +160,21 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
         mainAxisSpacing: 16,
         mainAxisExtent: 296, // productCard + spacing
       ),
-      itemCount: _provider.products.length,
+      itemCount: provider.products.length,
 
       cacheExtent: 1000, // Pre-cache les items
       addAutomaticKeepAlives: false, // Économise la mémoire
       addRepaintBoundaries: false, // Réduit les repaints
 
       itemBuilder: (context, index) {
-        final product = _provider.products[index];
+        final product = provider.products[index];
 
         return OptimizedProductItem(
           key: ValueKey(product.id),
           product: product,
           index: index,
-          notifier: _getOrCreateNotifier(product.id),
         );
       },
-    );
-  }
-
-  ValueNotifier<bool> _getOrCreateNotifier(String productId) {
-    return _animatedNotifiers.putIfAbsent(
-      productId,
-      () => ValueNotifier<bool>(false),
     );
   }
 }

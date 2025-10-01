@@ -7,9 +7,8 @@ import 'package:app_nutriverif/providers/products_provider.dart';
 
 class AppSearchBar extends StatefulWidget {
   final bool showFilters;
-  final VoidCallback? onReset;
 
-  const AppSearchBar({super.key, this.showFilters = false, this.onReset});
+  const AppSearchBar({super.key, this.showFilters = false});
 
   @override
   State<AppSearchBar> createState() => _AppSearchBarState();
@@ -45,8 +44,6 @@ class _AppSearchBarState extends State<AppSearchBar> {
         ),
       );
     } else {
-      if (widget.onReset != null) widget.onReset!();
-
       await _provider.searchProducts(
         query: input,
         selected: _provider.filter,
@@ -87,8 +84,6 @@ class _AppSearchBarState extends State<AppSearchBar> {
 
   @override
   Widget build(BuildContext context) {
-    _provider = context.watch<ProductsProvider>();
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -169,17 +164,21 @@ class _AppSearchBarState extends State<AppSearchBar> {
         ),
         const SizedBox(height: 12),
         widget.showFilters
-            ? Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children:
-                  _filters.entries.map((filter) {
-                    return SearchBarFilter(
-                      key: ValueKey(filter.key),
-                      provider: _provider,
-                      filter: filter,
-                    );
-                  }).toList(),
+            ? Selector<ProductsProvider, String>(
+              selector: (_, provider) => provider.filter,
+              builder: (context, currentFilter, _) {
+                return Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children:
+                      _filters.entries.map((filter) {
+                        return SearchBarFilter(
+                          key: ValueKey(filter.key),
+                          filter: filter,
+                        );
+                      }).toList(),
+                );
+              },
             )
             : const SizedBox.shrink(),
       ],
@@ -188,14 +187,9 @@ class _AppSearchBarState extends State<AppSearchBar> {
 }
 
 class SearchBarFilter extends StatefulWidget {
-  final ProductsProvider provider;
   final MapEntry<String, String> filter;
 
-  const SearchBarFilter({
-    super.key,
-    required this.provider,
-    required this.filter,
-  });
+  const SearchBarFilter({super.key, required this.filter});
 
   @override
   State<SearchBarFilter> createState() => _SearchBarFilterState();
@@ -204,10 +198,12 @@ class SearchBarFilter extends StatefulWidget {
 class _SearchBarFilterState extends State<SearchBarFilter> {
   @override
   Widget build(BuildContext context) {
+    final provider = context.read<ProductsProvider>();
+
     return GestureDetector(
       onTap: () {
         setState(() {
-          widget.provider.setFilter(widget.filter.value);
+          provider.setFilter(widget.filter.value);
         });
       },
       child: AnimatedContainer(
@@ -216,7 +212,7 @@ class _SearchBarFilterState extends State<SearchBarFilter> {
         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color:
-              widget.provider.filter == widget.filter.value
+              provider.filter == widget.filter.value
                   ? customGreen
                   : Colors.grey,
           borderRadius: BorderRadius.circular(999),

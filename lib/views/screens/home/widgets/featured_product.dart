@@ -21,16 +21,6 @@ class FeaturedProduct extends StatefulWidget {
 }
 
 class _FeaturedProductState extends State<FeaturedProduct> {
-  late ProductsProvider _provider;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _provider = context.read<ProductsProvider>();
-  }
-
-  final Set<String> _animatedProductIds = {};
 
   @override
   Widget build(BuildContext context) {
@@ -69,115 +59,134 @@ class _FeaturedProductState extends State<FeaturedProduct> {
             ),
           ),
           // Présentation partielle d'un produit
-          if (_provider.productDemo.id.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 32),
-              child: Loader(),
-            )
-          else ...[
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 32),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ProductImage(
-                    id: _provider.productDemo.id,
-                    image: _provider.productDemo.image,
-                  ),
-                  ProductName(
-                    lastUpdate: _provider.productDemo.lastUpdate,
-                    brand: _provider.productDemo.brand,
-                    name: _provider.productDemo.name,
-                  ),
-                  ProductScores(
-                    nutriscore: _provider.productDemo.nutriscore,
-                    nova: _provider.productDemo.nova,
-                  ),
-                  ProductNutrients(
-                    nutrients: _provider.productDemo.nutrientLevels,
-                  ),
-                ],
-              ),
-            ),
-            const Text.rich(
-              TextSpan(
-                text:
-                    "Notre fonctionnalité intelligente vous propose instantanément des alternatives ",
-                children: [
-                  TextSpan(
-                    text: "mieux notées et tout aussi savoureuses",
-                    style: TextStyle(backgroundColor: Colors.redAccent),
-                  ),
-                  TextSpan(text: " :"),
-                ],
-              ),
-            ),
-            const SizedBox(height: 32),
-            VisibilityDetector(
-              key: Key('products_demo_arrow'),
-              onVisibilityChanged: (info) {
-                if (info.visibleBounds.height > 25 &&
-                    !_animatedProductIds.contains('products_demo_arrow')) {
-                  setState(() {
-                    _animatedProductIds.add('products_demo_arrow');
-                  });
-                }
-              },
-              child: TweenAnimationBuilder<double>(
-                tween: Tween(
-                  begin:
-                      _animatedProductIds.contains('products_demo_arrow')
-                          ? 1.0
-                          : 0.0,
-                  end:
-                      _animatedProductIds.contains('products_demo_arrow')
-                          ? 1.0
-                          : 0.0,
-                ),
-                curve: defaultAnimationCurve,
-                duration: defaultAnimationTime,
-                builder: (context, value, child) {
-                  return Opacity(
-                    opacity: value,
-                    child: Transform.translate(
-                      offset: Offset(0, -30 * (1 - value)),
-                      child: child,
-                    ),
-                  );
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: Icon(
-                        Icons.arrow_downward_rounded,
-                        color: customGreen,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            _provider.suggestedProductsDemo.isEmpty
-                ? Padding(
-                  padding: const EdgeInsets.only(top: 48, bottom: 62),
+          Selector<ProductsProvider, bool>(
+            selector: (_, provider) => provider.productDemo.id.isEmpty,
+            builder: (context, isEmpty, _) {
+              final provider = context.read<ProductsProvider>();
+
+              if (isEmpty) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 32),
                   child: Loader(),
-                )
-                : AlternativeProducts(
-                  products: _provider.suggestedProductsDemo,
-                ),
-          ],
+                );
+              }
+              return Column(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.symmetric(vertical: 32),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ProductImage(
+                          id: provider.productDemo.id,
+                          image: provider.productDemo.image,
+                        ),
+                        ProductName(
+                          lastUpdate: provider.productDemo.lastUpdate,
+                          brand: provider.productDemo.brand,
+                          name: provider.productDemo.name,
+                        ),
+                        ProductScores(
+                          nutriscore: provider.productDemo.nutriscore,
+                          nova: provider.productDemo.nova,
+                        ),
+                        ProductNutrients(
+                          nutrients: provider.productDemo.nutrientLevels,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Text.rich(
+                    TextSpan(
+                      text:
+                          "Notre fonctionnalité intelligente vous propose instantanément des alternatives ",
+                      children: [
+                        TextSpan(
+                          text: "mieux notées et tout aussi savoureuses",
+                          style: TextStyle(backgroundColor: Colors.redAccent),
+                        ),
+                        TextSpan(text: " :"),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  VisibilityDetector(
+                    key: Key('products_demo_arrow'),
+                    onVisibilityChanged: (info) {
+                      if (info.visibleBounds.height > 25 &&
+                          !provider.hasAnimatedId('products_demo_arrow')) {
+                        provider.addAnimatedId('products_demo_arrow');
+                      }
+                    },
+                    child: Selector<ProductsProvider, bool>(
+                      selector:
+                          (_, provider) =>
+                              provider.hasAnimatedId('products_demo_arrow'),
+                      builder: (context, hasAnimated, _) {
+                        return TweenAnimationBuilder<double>(
+                          tween: Tween(
+                            begin: hasAnimated ? 1.0 : 0.0,
+                            end: hasAnimated ? 1.0 : 0.0,
+                          ),
+                          curve: defaultAnimationCurve,
+                          duration: defaultAnimationTime,
+                          builder: (context, value, child) {
+                            return Opacity(
+                              opacity: value,
+                              child: Transform.translate(
+                                offset: Offset(0, -30 * (1 - value)),
+                                child: child,
+                              ),
+                            );
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[200],
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Icon(
+                                  Icons.arrow_downward_rounded,
+                                  color: customGreen,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Selector<ProductsProvider, bool>(
+                    selector:
+                        (_, provider) => provider.suggestedProductsDemo.isEmpty,
+                    builder: (context, isEmpty, _) {
+                      if (isEmpty) {
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 48, bottom: 62),
+                          child: Loader(),
+                        );
+                      }
+                      return AlternativeProducts(
+                        products:
+                            context
+                                .read<ProductsProvider>()
+                                .suggestedProductsDemo,
+                      );
+                    },
+                  ),
+                ],
+              );
+            },
+          ),
           const Text.rich(
             TextSpan(
               text: "Trouvez des options ",

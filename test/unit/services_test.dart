@@ -28,6 +28,7 @@ void main() {
       () async {
         final suggestedProducts = await service.fetchSuggestedProducts(
           id: '3608580758686',
+          name: 'Barre de chocolat',
           categories: ['Snacks', 'Desserts', 'Chocolate products'],
           nutriscore: 'a',
           nova: '2',

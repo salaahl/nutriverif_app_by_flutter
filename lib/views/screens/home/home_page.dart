@@ -23,7 +23,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
-  late ProductsProvider _provider;
   late AnimationController _animationController;
 
   final _service = ProductsService();
@@ -53,15 +52,15 @@ class _HomePageState extends State<HomePage>
     if (_isInitialized) return;
 
     try {
-      _provider = context.read<ProductsProvider>();
+      final ProductsProvider provider = context.read<ProductsProvider>();
 
-      if (_provider.productDemo.id.isNotEmpty) {
+      if (provider.productDemo.id.isNotEmpty) {
         _isInitialized = true;
         return;
       }
 
       final productDemo = await _service.fetchProductById('3608580758686');
-      _provider.setProductDemo(productDemo);
+      provider.setProductDemo(productDemo);
 
       if (productDemo.id.isEmpty) return;
 
@@ -69,14 +68,15 @@ class _HomePageState extends State<HomePage>
         _service
             .fetchSuggestedProducts(
               id: productDemo.id,
+              name: productDemo.name,
               categories: productDemo.categories,
               nutriscore: productDemo.nutriscore,
               nova: productDemo.nova,
             )
             .then((suggestedProducts) {
-              _provider.setSuggestedProductsDemo(suggestedProducts);
+              provider.setSuggestedProductsDemo(suggestedProducts);
             }),
-        _provider.loadLastProducts(),
+        provider.loadLastProducts(),
       ]);
 
       _isInitialized = true;
@@ -85,18 +85,8 @@ class _HomePageState extends State<HomePage>
     }
   }
 
-  void _onSectionVisible(String sectionId) {
-    final currentVisible = Set<String>.from(_visibleSections.value);
-    if (!currentVisible.contains(sectionId)) {
-      currentVisible.add(sectionId);
-      _visibleSections.value = currentVisible;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    _provider = context.watch<ProductsProvider>();
-
     return Scaffold(
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(
@@ -113,7 +103,18 @@ class _HomePageState extends State<HomePage>
                 const SizedBox(height: 60),
                 const AppSearchBar(),
                 const SizedBox(height: 16),
-                SearchProductsResults(),
+                Selector<ProductsProvider, bool>(
+                  selector: (_, provider) => provider.productsIsLoading,
+                  builder: (context, isLoading, _) {
+                    final hasProducts =
+                        context.read<ProductsProvider>().products.isNotEmpty;
+
+                    if (isLoading || hasProducts) {
+                      return SearchProductsResults();
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
                 const SizedBox(height: 35),
                 _buildProductCount(),
                 const SizedBox(height: 80),
@@ -258,26 +259,21 @@ class _HomePageState extends State<HomePage>
     double visibleHeight = 80,
     double offset = 120,
   }) {
-    return SliverToBoxAdapter(
-      child: ValueListenableBuilder<Set<String>>(
-        valueListenable: _visibleSections,
-        builder: (context, visibleSections, _) {
-          final isVisible = visibleSections.contains(sectionId);
+    final provider = context.read<ProductsProvider>();
 
-          return VisibilityDetector(
-            key: Key(sectionId),
-            onVisibilityChanged: (info) {
-              if (info.visibleBounds.height > visibleHeight && !isVisible) {
-                _onSectionVisible(sectionId);
-              }
-            },
-            child: _AnimatedSection(
-              isVisible: isVisible,
-              offset: offset,
-              child: child,
-            ),
-          );
+    return SliverToBoxAdapter(
+      child: VisibilityDetector(
+        key: Key(sectionId),
+        onVisibilityChanged: (info) {
+          if (info.visibleBounds.height > visibleHeight) {
+            provider.addAnimatedId('${sectionId}_section');
+          }
         },
+        child: _AnimatedSection(
+          sectionId: '${sectionId}_section',
+          offset: offset,
+          child: child,
+        ),
       ),
     );
   }
@@ -308,32 +304,40 @@ class _HighlightedText extends StatelessWidget {
 }
 
 class _AnimatedSection extends StatelessWidget {
-  final bool isVisible;
+  final String sectionId;
   final double offset;
   final Widget child;
 
   const _AnimatedSection({
-    required this.isVisible,
+    required this.sectionId,
     required this.offset,
     required this.child,
   });
 
   @override
   Widget build(BuildContext context) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.0, end: isVisible ? 1.0 : 0.0),
-      curve: defaultAnimationCurve,
-      duration: defaultAnimationTime,
-      builder: (context, value, child) {
-        return Opacity(
-          opacity: value,
-          child: Transform.translate(
-            offset: Offset(0, offset * (1 - value)),
-            child: child,
+    return Selector<ProductsProvider, bool>(
+      selector: (_, provider) => provider.hasAnimatedId(sectionId),
+      builder: (context, hasAnimated, _) {
+        return TweenAnimationBuilder<double>(
+          tween: Tween(
+            begin: hasAnimated ? 1.0 : 0.0,
+            end: hasAnimated ? 1.0 : 0.0,
           ),
+          curve: defaultAnimationCurve,
+          duration: defaultAnimationTime,
+          builder: (context, value, child) {
+            return Opacity(
+              opacity: value,
+              child: Transform.translate(
+                offset: Offset(0, offset * (1 - value)),
+                child: child,
+              ),
+            );
+          },
+          child: child,
         );
       },
-      child: child,
     );
   }
 }

@@ -91,13 +91,14 @@ class _ProductPageState extends State<ProductPage>
   // Retourne true si le produit devrait charger des suggestions au vu de son score
   bool _shouldLoadSuggestions() {
     final product = _provider.product;
-    return product.nutriscore == 'a' && (int.tryParse(product.nova) ?? 0) == 1;
+    return product.nutriscore != 'a' || (int.tryParse(product.nova) ?? 4) != 1;
   }
 
   Future<void> _loadSuggestions() async {
     try {
       await _provider.loadSuggestedProducts(
         id: _provider.product.id,
+        name: _provider.product.name,
         categories: _provider.product.categories,
         nutriscore: _provider.product.nutriscore,
         nova: _provider.product.nova,
@@ -169,14 +170,11 @@ class _ProductPageState extends State<ProductPage>
   }
 
   Widget _buildSuccessState() {
-    return Consumer<ProductsProvider>(
-      builder: (context, provider, child) {
+    return Selector<ProductsProvider, bool>(
+      selector: (_, provider) => provider.productIsLoading,
+      builder: (context, isLoading, _) {
         return SliverToBoxAdapter(
-          child: _AnimatedContent(
-            animation: _animationController,
-            product: provider.product,
-            suggestedProducts: provider.suggestedProducts,
-          ),
+          child: _AnimatedContent(animation: _animationController),
         );
       },
     );
@@ -185,17 +183,15 @@ class _ProductPageState extends State<ProductPage>
 
 class _AnimatedContent extends StatelessWidget {
   final Animation<double> animation;
-  final dynamic product;
-  final List<dynamic> suggestedProducts;
 
-  const _AnimatedContent({
-    required this.animation,
-    required this.product,
-    required this.suggestedProducts,
-  });
+  const _AnimatedContent({required this.animation});
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.read<ProductsProvider>();
+    final product = provider.product;
+    final suggestedProducts = provider.suggestedProducts;
+
     return AnimatedBuilder(
       animation: animation,
       builder: (context, child) {
