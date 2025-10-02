@@ -10,13 +10,8 @@ import 'package:app_nutriverif/views/widgets/product_card/product_card.dart';
 
 class AlternativeProducts extends StatelessWidget {
   final List<dynamic> products;
-  final bool animateHero;
 
-  const AlternativeProducts({
-    super.key,
-    required this.products,
-    this.animateHero = false,
-  });
+  const AlternativeProducts({super.key, required this.products});
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +72,6 @@ class AlternativeProducts extends StatelessWidget {
                             return ProductCard(
                               product: product,
                               widthAjustment: 32,
-                              animate: animateHero,
                             );
                           }).toList(),
                     ),

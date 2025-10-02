@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:app_nutriverif/core/constants/custom_values.dart';
+
 class ProductCardName extends StatelessWidget {
   final String brand;
   final String name;
@@ -15,19 +17,17 @@ class ProductCardName extends StatelessWidget {
           brand,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.w900),
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+            fontWeight: FontWeight.w900,
+            color: customGreen,
+          ),
         ),
         const SizedBox(height: 2),
         Text(
           name,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.bodySmall!.copyWith(
-            color: Colors.grey,
-            fontWeight: FontWeight.w500,
-          ),
+          style: Theme.of(context).textTheme.bodySmall,
         ),
       ],
     );

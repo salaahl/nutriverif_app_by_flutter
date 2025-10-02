@@ -179,7 +179,6 @@ class _FeaturedProductState extends State<FeaturedProduct> {
                             context
                                 .read<ProductsProvider>()
                                 .suggestedProductsDemo,
-                        animateHero: true,
                       );
                     },
                   ),

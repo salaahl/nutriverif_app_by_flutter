@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:app_nutriverif/core/constants/custom_values.dart';
 import 'package:app_nutriverif/providers/products_provider.dart';
-
-import 'package:app_nutriverif/models/model_products.dart';
 
 import '../../widgets/app_bar.dart';
 import '../../widgets/loader.dart';
@@ -16,15 +13,25 @@ import './widgets/product_nutrients.dart';
 import './widgets/product_scores.dart';
 import './widgets/product_alternatives.dart';
 
-import 'package:app_nutriverif/core/services/products_service.dart';
-
-import 'package:app_nutriverif/views/screens/products/products_page.dart';
-
 class ProductPage extends StatefulWidget {
-  final Product product;
+  final String id;
   final String image;
+  final String lastUpdate;
+  final String brand;
+  final String name;
+  final String nutriscore;
+  final String nova;
 
-  const ProductPage({super.key, required this.product, required this.image});
+  const ProductPage({
+    super.key,
+    required this.id,
+    required this.image,
+    required this.lastUpdate,
+    required this.brand,
+    required this.name,
+    required this.nutriscore,
+    required this.nova,
+  });
 
   @override
   State<ProductPage> createState() => _ProductPageState();
@@ -38,13 +45,6 @@ class _ProductPageState extends State<ProductPage>
   bool _isLoading = true;
   bool _hasError = false;
   String? _errorMessage;
-
-  static const novaDescription = {
-    '1': 'Aliments non transformés / minimalement',
-    '2': 'Ingrédients culinaires transformés',
-    '3': 'Aliments transformés',
-    '4': 'Produits ultra-transformés',
-  };
 
   @override
   void initState() {
@@ -77,7 +77,7 @@ class _ProductPageState extends State<ProductPage>
         _provider.suggestedProducts.clear();
       }
 
-      await _provider.loadProductById(widget.product.id);
+      await _provider.loadProductById(widget.id);
 
       if (!mounted) return;
 
@@ -125,20 +125,6 @@ class _ProductPageState extends State<ProductPage>
 
   @override
   Widget build(BuildContext context) {
-    String formattedDate = '';
-    if (widget.product.lastUpdate.isNotEmpty) {
-      final date = DateTime.fromMillisecondsSinceEpoch(
-        int.parse(widget.product.lastUpdate) * 1000,
-      );
-      formattedDate =
-          'Dernière mise à jour : ${date.day}-${date.month}-${date.year}';
-    }
-
-    int getCacheWidth(BuildContext context, double logicalWidth) {
-      final ratio = MediaQuery.of(context).devicePixelRatio;
-      return (logicalWidth * ratio).round();
-    }
-
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -147,101 +133,7 @@ class _ProductPageState extends State<ProductPage>
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 myAppBar(context),
-                AspectRatio(
-                  aspectRatio: 1,
-                  child: Hero(
-                    key: Key(widget.product.id),
-                    tag: widget.product.id,
-                    child: Container(
-                      width: double.infinity,
-                      margin: const EdgeInsets.only(bottom: 32),
-                      padding: const EdgeInsets.all(32),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(48),
-                      ),
-                      child:
-                          widget.product.image.isEmpty
-                              ? Image.asset(
-                                appIcon,
-                                width: 160,
-                                cacheWidth: getCacheWidth(context, 160),
-                                semanticLabel: 'Image du produit',
-                              )
-                              : Image.network(
-                                widget.product.image,
-                                width: 160,
-                                cacheWidth: getCacheWidth(context, 160),
-                                semanticLabel: 'Image du produit',
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Image.asset(
-                                    appIcon,
-                                    width: 160,
-                                    cacheWidth: getCacheWidth(context, 160),
-                                    semanticLabel:
-                                        'Image de remplacement (erreur réseau)',
-                                  );
-                                },
-                              ),
-                    ),
-                  ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text.rich(
-                      TextSpan(
-                        text: "${widget.product.brand} - ",
-                        style: Theme.of(
-                          context,
-                        ).textTheme.titleMedium!.copyWith(
-                          fontWeight: FontWeight.w500,
-                          color: customGreen,
-                        ),
-                        children: [
-                          TextSpan(
-                            text: widget.product.name,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(formattedDate),
-                  ],
-                ),
-                Container(
-                  margin: const EdgeInsets.symmetric(vertical: 32),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _ProductScore(
-                        imageUrl:
-                            "assets/images/nutriscore-${widget.product.nutriscore}.svg",
-                        width: 85,
-                        score: widget.product.nutriscore,
-                      ),
-                      const SizedBox(height: 8),
-                      _ProductScore(
-                        imageUrl:
-                            "assets/images/nova-group-${widget.product.nova}.svg",
-                        width: 25,
-                        score: widget.product.nova,
-                      ),
-                      if (novaDescription.containsKey(widget.product.nova)) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          '(${novaDescription[widget.product.nova] as String})',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
+                _buildProductHeader(),
                 if (_isLoading)
                   const Loader()
                 else if (_hasError)
@@ -252,6 +144,22 @@ class _ProductPageState extends State<ProductPage>
           if (!_hasError) _buildSuccessState(),
         ],
       ),
+    );
+  }
+
+  Widget _buildProductHeader() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ProductImage(id: widget.id, image: widget.image),
+        const SizedBox(height: 20),
+        ProductName(
+          lastUpdate: widget.lastUpdate,
+          brand: widget.brand,
+          name: widget.name,
+        ),
+        ProductScores(nutriscore: widget.nutriscore, nova: widget.nova),
+      ],
     );
   }
 
@@ -344,31 +252,6 @@ class _AnimatedContent extends StatelessWidget {
             AlternativeProducts(products: suggestedProducts),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _ProductScore extends StatelessWidget {
-  final String imageUrl;
-  final double width;
-  final String score;
-
-  const _ProductScore({
-    required this.imageUrl,
-    required this.width,
-    required this.score,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      constraints: BoxConstraints(maxWidth: width),
-      child: SvgPicture.asset(
-        imageUrl,
-        width: width,
-        fit: BoxFit.cover,
-        semanticsLabel: "Score $score",
       ),
     );
   }
