@@ -16,7 +16,7 @@ class TranslateService {
             headers: {'Content-Type': 'application/json'},
             body: jsonEncode({'text': text, 'target_lang': 'FR'}),
           )
-          .timeout(Duration(seconds: 45));
+          .timeout(Duration(seconds: 15));
 
       if (response.statusCode != 200) {
         throw Exception('Erreur HTTP ${response.statusCode}: ${response.body}');
@@ -27,7 +27,7 @@ class TranslateService {
 
       return raw ?? "";
     } catch (e) {
-      return "";
+      throw Exception('Erreur lors de la traduction: $e');
     }
   }
 }
