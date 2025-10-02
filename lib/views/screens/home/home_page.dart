@@ -118,7 +118,7 @@ class _HomePageState extends State<HomePage>
                 const SizedBox(height: 35),
                 _buildProductCount(),
                 const SizedBox(height: 80),
-                const Row(children: [LazyYoutubePlayer()]),
+                const LazyYoutubePlayer(),
                 const SizedBox(height: 32),
                 _buildAboutSection(),
                 const SizedBox(height: 80),

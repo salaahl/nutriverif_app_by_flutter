@@ -11,8 +11,13 @@ class LazyYoutubePlayer extends StatefulWidget {
   State<LazyYoutubePlayer> createState() => _LazyYoutubePlayerState();
 }
 
-class _LazyYoutubePlayerState extends State<LazyYoutubePlayer> {
+class _LazyYoutubePlayerState extends State<LazyYoutubePlayer>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   late YoutubePlayerController _controller;
+  static bool? _cachedCookiesStatus;
   late bool _showPlayer =
       false; // Variable pour stocker l'acceptation des cookies
 
@@ -22,13 +27,16 @@ class _LazyYoutubePlayerState extends State<LazyYoutubePlayer> {
   Future<void> _getCookiesStatus() async {
     try {
       final prefs = await SharedPreferences.getInstance();
+      final status = prefs.getBool('acceptCookies') ?? false;
 
       setState(() {
-        _showPlayer = prefs.getBool('acceptCookies') ?? false;
+        _showPlayer = status;
+        _cachedCookiesStatus = status;
       });
     } catch (e) {
       setState(() {
         _showPlayer = false;
+        _cachedCookiesStatus = false;
       });
     }
   }
@@ -121,7 +129,11 @@ class _LazyYoutubePlayerState extends State<LazyYoutubePlayer> {
       ),
     );
 
-    _getCookiesStatus();
+    _showPlayer = _cachedCookiesStatus ?? false;
+
+    if (_cachedCookiesStatus == null) {
+      _getCookiesStatus();
+    }
   }
 
   @override
@@ -132,41 +144,41 @@ class _LazyYoutubePlayerState extends State<LazyYoutubePlayer> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     // Permet de retourner un cacheWidth adapté à la résolution de l'écran
     int getCacheWidth(BuildContext context, double logicalWidth) {
       final ratio = MediaQuery.of(context).devicePixelRatio;
       return (logicalWidth * ratio).round();
     }
 
-    return Expanded(
-      child: ClipRRect(
-        clipBehavior: Clip.antiAlias,
-        borderRadius: BorderRadius.circular(12),
-        child:
-            _showPlayer
-                ? RepaintBoundary(
-                  child: YoutubePlayer(
-                    controller: _controller,
-                    bottomActions: [],
-                  ),
-                )
-                : GestureDetector(
-                  onTap: () async => await acceptCookies(context),
+    return ClipRRect(
+      clipBehavior: Clip.antiAlias,
+      borderRadius: BorderRadius.circular(12),
+      child:
+          _showPlayer
+              ? RepaintBoundary(
+                child: YoutubePlayer(
+                  controller: _controller,
+                  bottomActions: [],
+                ),
+              )
+              : GestureDetector(
+                onTap: () async => await acceptCookies(context),
+                child: AspectRatio(
+                  aspectRatio: 16 / 9,
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      AspectRatio(
-                        aspectRatio: 16 / 9,
-                        child: Image.asset(
-                          // Pour récupérer l'image de la vidéo depuis le net : YoutubePlayer.getThumbnail(videoId: videoId)
-                          "assets/images/home-video-thumb.jpg",
-                          cacheWidth: getCacheWidth(
-                            context,
-                            MediaQuery.of(context).size.width -
-                                32, // 32 correspond au padding de la page
-                          ),
-                          fit: BoxFit.cover,
+                      // Pour récupérer l'image de la vidéo depuis le net : YoutubePlayer.getThumbnail(videoId: videoId)
+                      Image.asset(
+                        "assets/images/home-video-thumb.jpg",
+                        cacheWidth: getCacheWidth(
+                          context,
+                          MediaQuery.of(context).size.width -
+                              32, // Correspon au padding de la page
                         ),
+                        fit: BoxFit.cover,
                       ),
                       const Icon(
                         Icons.play_arrow_rounded,
@@ -176,7 +188,7 @@ class _LazyYoutubePlayerState extends State<LazyYoutubePlayer> {
                     ],
                   ),
                 ),
-      ),
+              ),
     );
   }
 }
