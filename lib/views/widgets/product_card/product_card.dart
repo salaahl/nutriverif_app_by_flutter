@@ -11,11 +11,13 @@ import './widgets/product_card_scores.dart';
 class ProductCard extends StatelessWidget {
   final Product product;
   final double widthAjustment;
+  final bool animate;
 
   const ProductCard({
     super.key,
     required this.product,
     required this.widthAjustment,
+    this.animate = true,
   });
 
   @override
@@ -85,6 +87,7 @@ class ProductCard extends StatelessWidget {
                   id: product.id,
                   image: product.image,
                   widthAjustment: widthAjustment,
+                  animate: animate,
                 ),
                 const SizedBox(height: 8),
                 SizedBox(

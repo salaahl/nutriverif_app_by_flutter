@@ -21,7 +21,6 @@ class FeaturedProduct extends StatefulWidget {
 }
 
 class _FeaturedProductState extends State<FeaturedProduct> {
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -180,6 +179,7 @@ class _FeaturedProductState extends State<FeaturedProduct> {
                             context
                                 .read<ProductsProvider>()
                                 .suggestedProductsDemo,
+                        animateHero: true,
                       );
                     },
                   ),

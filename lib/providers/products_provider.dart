@@ -174,7 +174,6 @@ class ProductsProvider with ChangeNotifier {
 
   void clearAnimatedIds(String extension) {
     animatedIds.removeWhere((id) => id.endsWith(extension));
-    notifyListeners();
   }
 
   Future<List<String>> getTranslatedCategories(List<String> categories) async {
