@@ -141,9 +141,8 @@ class FakeProductsService {
             if (!score.contains(eNutriscore) || !score.contains(nutriscore)) {
               return false;
             }
-
             // 3. Critères éliminatoires : completeness inférieur à 0.35
-            if (completeness is! double || completeness < 0.35) {
+            if (completeness is! num || completeness < 0.35) {
               return false;
             }
 
@@ -198,6 +197,8 @@ class FakeProductsService {
             return 0;
           });
 
+    if (selected.isEmpty) return [];
+
     return selected.take(4).map((p) => Product.fromJson(p)).toList();
   }
 
@@ -208,18 +209,18 @@ class FakeProductsService {
 
         switch (index) {
           case 0:
-            product['generic_name_fr'] = 'Second product';
+            product['generic_name_fr'] = 'Second most ancient product';
             product['created_t'] = DateTime(2023, 12, 1).millisecondsSinceEpoch;
             break;
-          // Completeness trop faible pour être inclus
+          // Completeness trop faible pour être récupéré
           case 2:
-            product['generic_name_fr'] = 'Bad product';
+            product['generic_name_fr'] = 'Most ancient product but completeness too low';
             product['created_t'] = DateTime(2024, 1, 1).millisecondsSinceEpoch;
             product['completeness'] = 0.25;
             break;
           // 1er
           case 3:
-            product['generic_name_fr'] = 'Best product';
+            product['generic_name_fr'] = 'Most recent product';
             product['created_t'] = DateTime(2025, 1, 1).millisecondsSinceEpoch;
             break;
           default:

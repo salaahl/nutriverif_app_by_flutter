@@ -2,17 +2,21 @@ import 'package:flutter/material.dart';
 
 import 'package:app_nutriverif/models/model_products.dart';
 import './fake_products_service.dart';
+import './fake_translate_service.dart';
 
 class FakeProductsProvider with ChangeNotifier {
-  final FakeProductsService _service = FakeProductsService();
+  final FakeProductsService _productsService = FakeProductsService();
+    final FakeTranslateService _translateService = FakeTranslateService();
 
   final List<Product> _products = [];
   bool _productsIsLoading = false;
   Product _product = Product.fromJson({});
+  Product _productDemo = Product.fromJson({});
   bool _productIsLoading = false;
   final List<Product> _lastProducts = [];
   bool _lastProductsIsLoading = false;
   final List<Product> _suggestedProducts = [];
+  final List<Product> _suggestedProductsDemo = [];
   bool _suggestedProductsIsLoading = false;
   String _ajrSelected = 'women';
   String _input = '';
@@ -20,14 +24,17 @@ class FakeProductsProvider with ChangeNotifier {
   int _page = 1;
   int _pages = 1;
   String? _error;
+  final Set<String> _animatedIds = {};
 
   List<Product> get products => _products;
   bool get productsIsLoading => _productsIsLoading;
   Product get product => _product;
+  Product get productDemo => _productDemo;
   bool get productIsLoading => _productIsLoading;
   List<Product> get lastProducts => _lastProducts;
   bool get lastProductsIsLoading => _lastProductsIsLoading;
   List<Product> get suggestedProducts => _suggestedProducts;
+  List<Product> get suggestedProductsDemo => _suggestedProductsDemo;
   bool get suggestedProductsIsLoading => _suggestedProductsIsLoading;
   String get ajrSelected => _ajrSelected;
   String get input => _input;
@@ -36,6 +43,8 @@ class FakeProductsProvider with ChangeNotifier {
   int get pages => _pages;
   bool get hasMorePages => _page < _pages;
   String? get error => _error;
+  Set<String> get animatedIds => _animatedIds;
+  bool hasAnimatedId(String id) => _animatedIds.contains(id);
 
   Map<String, Map<String, dynamic>> get ajrValues {
     if (_ajrSelected == 'women') {
@@ -84,6 +93,11 @@ class FakeProductsProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void setProductDemo(Product product) {
+    _productDemo = product;
+    notifyListeners();
+  }
+
   void setProductIsLoading(bool isLoading) {
     _productIsLoading = isLoading;
     notifyListeners();
@@ -103,6 +117,12 @@ class FakeProductsProvider with ChangeNotifier {
   void setSuggestedProducts(List<Product> products) {
     _suggestedProducts.clear();
     _suggestedProducts.addAll(products);
+    notifyListeners();
+  }
+
+  void setSuggestedProductsDemo(List<Product> products) {
+    _suggestedProductsDemo.clear();
+    _suggestedProductsDemo.addAll(products);
     notifyListeners();
   }
 
@@ -141,6 +161,68 @@ class FakeProductsProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void addAnimatedId(String id) {
+    if (animatedIds.contains(id)) return;
+    animatedIds.add(id);
+    notifyListeners();
+  }
+
+  void removeAnimatedId(String id) {
+    animatedIds.remove(id);
+    notifyListeners();
+  }
+
+  void clearAnimatedIds(String extension) {
+    animatedIds.removeWhere((id) => id.endsWith(extension));
+  }
+
+  Future<List<String>> getTranslatedCategories(List<String> categories) async {
+    String cleanCategory(String cat, String langPrefix) {
+      return cat
+          .trim()
+          .replaceFirst(RegExp('^$langPrefix:'), '')
+          .replaceAll('-', ' ')
+          .trim();
+    }
+
+    final frenchCategories =
+        categories
+            .where((c) => c.startsWith('fr:'))
+            .map((c) => cleanCategory(c, 'fr'))
+            .toList();
+
+    final englishCategories =
+        categories
+            .where((c) => c.startsWith('en:'))
+            .map((c) => cleanCategory(c, 'en'))
+            .toList();
+
+    final categoriesToTranslate = englishCategories
+        .take(4 - frenchCategories.length)
+        .join('<SEP>');
+
+    if (categoriesToTranslate.isEmpty) {
+      return [...frenchCategories, ...englishCategories];
+    }
+
+    List<String> translatedCategories = [];
+
+    try {
+      final data = await _translateService.getTranslation(
+        text: categoriesToTranslate,
+        lang: 'FR',
+      );
+      translatedCategories = data.split('<SEP>').map((c) => c.trim()).toList();
+    } catch (e) {
+      setError('Erreur pendant la traduction: $e');
+      // Je récupère quand meme les categories en anglais
+      translatedCategories =
+          englishCategories.take(4 - frenchCategories.length).toList();
+    }
+
+    return [...frenchCategories, ...translatedCategories];
+  }
+
   Future<void> searchProducts({
     String query = '',
     String selected = 'popularity_key',
@@ -152,6 +234,7 @@ class FakeProductsProvider with ChangeNotifier {
       _page++;
     } else {
       setProducts([], method);
+      clearAnimatedIds('_product');
       if (query.isNotEmpty) setInput(query);
       if (selected.isNotEmpty) setFilter(selected);
       setPage(1);
@@ -160,7 +243,7 @@ class FakeProductsProvider with ChangeNotifier {
     setProductsIsLoading(true);
 
     try {
-      final data = await _service.searchProductsByQuery(
+      final data = await _productsService.searchProductsByQuery(
         query: _input,
         sortBy: _filter,
         page: _page,
@@ -176,6 +259,7 @@ class FakeProductsProvider with ChangeNotifier {
       setProducts(products, method);
     } catch (e) {
       setError('search product error: $e');
+      setProducts([], method);
     } finally {
       setProductsIsLoading(false);
     }
@@ -186,7 +270,7 @@ class FakeProductsProvider with ChangeNotifier {
     setProductIsLoading(true);
 
     try {
-      setProduct(await _service.fetchProductById(id));
+      setProduct(await _productsService.fetchProductById(id));
     } catch (e) {
       setError('single product error: $e');
       setProduct(Product.fromJson({}));
@@ -207,7 +291,7 @@ class FakeProductsProvider with ChangeNotifier {
     setSuggestedProductsIsLoading(true);
 
     try {
-      final result = await _service.fetchSuggestedProducts(
+      final result = await _productsService.fetchSuggestedProducts(
         id: id,
         brand: brand,
         name: name,
@@ -219,6 +303,7 @@ class FakeProductsProvider with ChangeNotifier {
       setSuggestedProducts(result);
     } catch (e) {
       setError('suggestion product error: $e');
+      setSuggestedProducts([]);
     } finally {
       setSuggestedProductsIsLoading(false);
     }
@@ -229,10 +314,11 @@ class FakeProductsProvider with ChangeNotifier {
     setLastProductsIsLoading(true);
 
     try {
-      final products = await _service.fetchLastProducts();
+      final products = await _productsService.fetchLastProducts();
       setLastProducts(products);
     } catch (e) {
       setError('last products error: $e');
+      setLastProducts([]);
     } finally {
       setLastProductsIsLoading(false);
     }

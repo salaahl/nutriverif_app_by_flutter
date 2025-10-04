@@ -31,6 +31,7 @@ void main() {
       () async {
         await provider.loadSuggestedProducts(
           id: '3608580758686',
+          brand: 'Marque de chocolat',
           name: 'Barre de chocolat',
           categories: ['Snacks', 'Desserts', 'Chocolate products'],
           nutriscore: 'b',
@@ -48,7 +49,34 @@ void main() {
         await provider.loadLastProducts();
 
         expect(provider.lastProducts, hasLength(3));
-        expect(provider.lastProducts[0].name, 'Best product');
+        expect(provider.lastProducts[0].name, 'Most recent product');
+        expect(provider.lastProducts[1].name, 'Second most ancient product');
+      },
+    );
+
+    test(
+      's\'assurer que l\'appel de getTranslatedCategories traite correctement les categories',
+      () async {
+        final categories = [
+          'fr:Snacks',
+          'fr:Desserts',
+          'fr:Produits au chocolat',
+          'en:Snacks',
+          'en:Desserts',
+          'en:Chocolate products',
+        ];
+        final translatedCategories = await provider.getTranslatedCategories(
+          categories,
+        );
+
+        expect(translatedCategories, hasLength(4));
+        expect(translatedCategories[0], 'Snacks');
+        expect(translatedCategories[1], 'Desserts');
+        expect(translatedCategories[2], 'Produits au chocolat');
+        expect(
+          translatedCategories[3],
+          'Bonjour',
+        ); // Texte retourné par le service de traduction
       },
     );
   });
