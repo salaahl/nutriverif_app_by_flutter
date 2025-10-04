@@ -59,7 +59,10 @@ class _HomePageState extends State<HomePage>
         return;
       }
 
-      final productDemo = await _service.fetchProductById('3608580758686');
+      final productDemo = await _service.fetchProductById(
+        '3608580758686',
+        isDemo: true,
+      );
       provider.setProductDemo(productDemo);
 
       if (productDemo.id.isEmpty) return;
@@ -68,6 +71,7 @@ class _HomePageState extends State<HomePage>
         _service
             .fetchSuggestedProducts(
               id: productDemo.id,
+              brand: productDemo.brand,
               name: productDemo.name,
               categories: productDemo.categories,
               nutriscore: productDemo.nutriscore,

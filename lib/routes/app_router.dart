@@ -38,6 +38,7 @@ Route<dynamic> generateRoute(RouteSettings settings) {
           name: args.name,
           nutriscore: args.nutriscore,
           nova: args.nova,
+          categories: args.categories,
         );
       } else {
         page = const HomePage();

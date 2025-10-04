@@ -4,13 +4,14 @@ import 'package:http/http.dart' as http;
 import '../../models/model_products.dart';
 
 class ProductsService {
+  static const String _apiBaseUrl = 'https://world.openfoodfacts.org/cgi/search.pl?';
   static const String _api2BaseUrl =
       'https://world.openfoodfacts.org/api/v2/search';
 
   static const String _api3BaseUrl = 'https://world.openfoodfacts.org/api/v3';
 
   static const String _productFields =
-      'id,image_url,brands,generic_name_fr,main_category_fr,categories_tags,created_t,last_modified_t,nutriscore_grade,nova_group,quantity,serving_size,ingredients_text_fr,nutriments,nutrient_levels,manufacturing_places,url,completeness,popularity_key';
+      'quantity,serving_size,ingredients_text_fr,nutriments,nutrient_levels,manufacturing_places,url';
 
   static const String _productsFields =
       'id,image_url,brands,generic_name_fr,categories_tags,created_t,last_modified_t,nutriscore_grade,nova_group,compared_to_category,completeness,popularity_key';
@@ -23,8 +24,12 @@ class ProductsService {
     return jsonDecode(response.body);
   }
 
-  Future<Product> fetchProductById(String id) async {
-    final url = '$_api3BaseUrl/product/$id?fields=$_productFields';
+  Future<Product> fetchProductById(String id, {bool isDemo = false}) async {
+    final String fields =
+        !isDemo
+            ? _productFields
+            : 'id,image_url,brands,generic_name_fr,categories_tags,last_modified_t,nutriscore_grade,nova_group,quantity,serving_size,ingredients_text_fr,nutriments,nutrient_levels,manufacturing_places,url';
+    final url = '$_api3BaseUrl/product/$id?fields=$fields';
 
     try {
       final data = await _getJson(url);
@@ -40,7 +45,10 @@ class ProductsService {
     required int page,
   }) async {
     final url =
-        'https://world.openfoodfacts.org/cgi/search.pl?search_terms=${Uri.encodeComponent(query)}&fields=${Uri.encodeComponent(_productsFields)}&purchase_places_tags=france&sort_by=${Uri.encodeComponent(sortBy)}&page_size=20&page=$page&search_simple=1&action=process&json=1';
+        '${_apiBaseUrl}search_terms=${Uri.encodeComponent(query)}'
+        '&fields=${Uri.encodeComponent(_productsFields)}'
+        '&purchase_places_tags=france&sort_by=${Uri.encodeComponent(sortBy)}&page_size=20&page=$page'
+        '&search_simple=1&action=process&json=1';
 
     try {
       final data = await _getJson(url);
@@ -52,20 +60,23 @@ class ProductsService {
 
   Future<List<Product>> fetchSuggestedProducts({
     required String id,
+    required String brand,
     required String name,
     required List<String> categories,
     required String nutriscore,
     required String nova,
   }) async {
-    final url =
-        'https://world.openfoodfacts.org/cgi/search.pl?'
-        'search_terms=${Uri.encodeComponent(name)}'
+    // Optimisation : je ne récupère dans un premier temps que les infos essentielles au calcul
+    final String fields =
+        'id,nutriscore_grade,nova_group,completeness,popularity_key';
+    String url =
+        '${_apiBaseUrl}search_terms=${Uri.encodeComponent(name != '' ? name : brand)}'
         '&categories_tags=${Uri.encodeComponent(categories.join('|'))}'
-        '&fields=${Uri.encodeComponent(_productsFields)}'
+        '&fields=${Uri.encodeComponent(fields)}'
         '&purchase_places_tags=france&sort_by=nutriscore_score,nova_group,popularity_key&page_size=300&action=process&json=1';
 
     try {
-      final data = await _getJson(url);
+      Map<String, dynamic> data = await _getJson(url);
 
       const score = ['a', 'b', 'c', 'd', 'e'];
 
@@ -89,9 +100,8 @@ class ProductsService {
               if (!score.contains(eNutriscore) || !score.contains(nutriscore)) {
                 return false;
               }
-
               // 3. Critères éliminatoires : completeness inférieur à 0.35
-              if (completeness is! double || completeness < 0.35) {
+              if (completeness is! num || completeness < 0.35) {
                 return false;
               }
 
@@ -146,7 +156,17 @@ class ProductsService {
               return 0;
             });
 
-      return selected.take(4).map((p) => Product.fromJson(p)).toList();
+      if (selected.isEmpty) return [];
+
+      // 8. Selection des 4 meilleurs produits
+      url =
+          '${_apiBaseUrl}code=${Uri.encodeComponent(selected.take(4).map((e) => e['id']).join('|'))}'
+          '&fields=${Uri.encodeComponent(_productsFields)}'
+          '&sort_by=nutriscore_score,nova_group,popularity_key&page_size=4&action=process&json=1';
+      data = await _getJson(url);
+      final List<dynamic> productsJson = data['products'];
+
+      return productsJson.reversed.map((p) => Product.fromJson(p)).toList();
     } catch (e) {
       return [];
     }

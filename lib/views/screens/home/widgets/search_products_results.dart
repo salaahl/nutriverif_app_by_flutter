@@ -42,6 +42,7 @@ class SearchProductsResults extends StatelessWidget {
                             return ProductCard(
                               product: product,
                               widthAjustment: 32,
+                              animate: false,
                             );
                           }).toList(),
                     ),

@@ -27,7 +27,9 @@ class ProductCardName extends StatelessWidget {
           name,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.bodySmall,
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall!.copyWith(fontWeight: FontWeight.w600),
         ),
       ],
     );

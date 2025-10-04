@@ -21,6 +21,7 @@ class ProductPage extends StatefulWidget {
   final String name;
   final String nutriscore;
   final String nova;
+  final List<String> categories;
 
   const ProductPage({
     super.key,
@@ -31,6 +32,7 @@ class ProductPage extends StatefulWidget {
     required this.name,
     required this.nutriscore,
     required this.nova,
+    required this.categories,
   });
 
   @override
@@ -104,19 +106,18 @@ class _ProductPageState extends State<ProductPage>
 
   // Retourne true si le produit devrait charger des suggestions au vu de son score
   bool _shouldLoadSuggestions() {
-    final product = _provider.product;
-    return product.nutriscore != 'a' || (int.tryParse(product.nova) ?? 4) != 1;
+    return widget.nutriscore != 'a' || (int.tryParse(widget.nova) ?? 4) != 1;
   }
 
   Future<void> _loadSuggestions() async {
     try {
       await _provider.loadSuggestedProducts(
-        id: _provider.product.id,
-        name:
-            '${_provider.product.brand.split(',')[0]} ${_provider.product.name}',
-        categories: _provider.product.categories,
-        nutriscore: _provider.product.nutriscore,
-        nova: _provider.product.nova,
+        id: widget.id,
+        brand: widget.brand,
+        name: widget.name,
+        categories: widget.categories,
+        nutriscore: widget.nutriscore,
+        nova: widget.nova,
       );
     } catch (e) {
       debugPrint('Erreur lors du chargement des suggestions: $e');
@@ -153,12 +154,6 @@ class _ProductPageState extends State<ProductPage>
       children: [
         ProductImage(id: widget.id, image: widget.image),
         const SizedBox(height: 20),
-        ProductName(
-          lastUpdate: widget.lastUpdate,
-          brand: widget.brand,
-          name: widget.name,
-        ),
-        ProductScores(nutriscore: widget.nutriscore, nova: widget.nova),
       ],
     );
   }
@@ -204,7 +199,15 @@ class _ProductPageState extends State<ProductPage>
       selector: (_, provider) => provider.productIsLoading,
       builder: (context, isLoading, _) {
         return SliverToBoxAdapter(
-          child: _AnimatedContent(animation: _animationController),
+          child: _AnimatedContent(
+            animation: _animationController,
+            lastUpdate: widget.lastUpdate,
+            brand: widget.brand,
+            name: widget.name,
+            nutriscore: widget.nutriscore,
+            nova: widget.nova,
+            categories: widget.categories,
+          ),
         );
       },
     );
@@ -213,8 +216,22 @@ class _ProductPageState extends State<ProductPage>
 
 class _AnimatedContent extends StatelessWidget {
   final Animation<double> animation;
+  final String lastUpdate;
+  final String brand;
+  final String name;
+  final String nutriscore;
+  final String nova;
+  final List<String> categories;
 
-  const _AnimatedContent({required this.animation});
+  const _AnimatedContent({
+    required this.animation,
+    required this.lastUpdate,
+    required this.brand,
+    required this.name,
+    required this.nutriscore,
+    required this.nova,
+    required this.categories,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -238,10 +255,12 @@ class _AnimatedContent extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            ProductName(lastUpdate: lastUpdate, brand: brand, name: name),
+            ProductScores(nutriscore: nutriscore, nova: nova),
             ProductNutrients(nutrients: product.nutrientLevels),
             ProductDetails(
               id: product.id,
-              categories: product.categories,
+              categories: categories,
               quantity: product.quantity,
               servingSize: product.servingSize,
               nutriments: product.nutriments,

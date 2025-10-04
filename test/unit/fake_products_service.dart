@@ -60,6 +60,7 @@ class FakeProductsService {
 
   Future<List<Product>> fetchSuggestedProducts({
     required String id,
+    required String brand,
     required String name,
     required List<String> categories,
     required String nutriscore,

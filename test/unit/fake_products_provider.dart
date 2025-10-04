@@ -197,6 +197,7 @@ class FakeProductsProvider with ChangeNotifier {
 
   Future<void> loadSuggestedProducts({
     required String id,
+    required String brand,
     required String name,
     required List<String> categories,
     required String nutriscore,
@@ -208,6 +209,7 @@ class FakeProductsProvider with ChangeNotifier {
     try {
       final result = await _service.fetchSuggestedProducts(
         id: id,
+        brand: brand,
         name: name,
         categories: categories,
         nutriscore: nutriscore,

@@ -281,6 +281,7 @@ class ProductsProvider with ChangeNotifier {
 
   Future<void> loadSuggestedProducts({
     required String id,
+    required String brand,
     required String name,
     required List<String> categories,
     required String nutriscore,
@@ -292,6 +293,7 @@ class ProductsProvider with ChangeNotifier {
     try {
       final result = await _productsService.fetchSuggestedProducts(
         id: id,
+        brand: brand,
         name: name,
         categories: categories,
         nutriscore: nutriscore,
