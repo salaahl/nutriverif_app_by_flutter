@@ -61,7 +61,7 @@ class _HomePageState extends State<HomePage>
 
       final productDemo = await _service.fetchProductById(
         '3608580758686',
-        isDemo: true,
+        complete: true,
       );
       provider.setProductDemo(productDemo);
 

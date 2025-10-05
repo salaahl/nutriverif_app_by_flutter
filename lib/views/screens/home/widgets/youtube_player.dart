@@ -125,7 +125,7 @@ class _LazyYoutubePlayerState extends State<LazyYoutubePlayer>
       flags: const YoutubePlayerFlags(
         autoPlay: false,
         mute: false,
-        captionLanguage: 'fr',
+        enableCaption: false,
       ),
     );
 

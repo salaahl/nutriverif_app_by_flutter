@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 import 'package:app_nutriverif/core/constants/custom_values.dart';
+import 'package:app_nutriverif/models/model_products.dart';
 import 'package:app_nutriverif/providers/products_provider.dart';
 
 import '../widgets/app_bar.dart';
@@ -16,50 +18,15 @@ class BarcodeScannerPage extends StatefulWidget {
   State<BarcodeScannerPage> createState() => _BarcodeScannerPageState();
 }
 
-class _BarcodeScannerPageState extends State<BarcodeScannerPage>
-    with WidgetsBindingObserver {
+class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
   late MobileScannerController _controller;
-  bool _isScannerRunning = true;
+  bool _isScannerRunning = false;
   bool _isProcessing = false;
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-
-    _controller = MobileScannerController(
-      useNewCameraSelector: true,
-      detectionSpeed: DetectionSpeed.normal,
-      facing: CameraFacing.back,
-      returnImage: false,
-    );
-  }
-
-  @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    _controller.dispose();
     super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-
-    switch (state) {
-      case AppLifecycleState.paused:
-      case AppLifecycleState.hidden:
-      case AppLifecycleState.detached:
-        _controller.stop();
-        break;
-      case AppLifecycleState.resumed:
-        if (mounted && _isScannerRunning) {
-          _controller.start();
-        }
-        break;
-      case AppLifecycleState.inactive:
-        break;
-    }
+    _controller.dispose();
   }
 
   Future<void> _stopScanner() async {
@@ -67,8 +34,8 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage>
       setState(() {
         _isScannerRunning = false;
       });
-      await _controller.stop();
     }
+    await _controller.stop();
   }
 
   Future<void> _startScanner() async {
@@ -76,8 +43,12 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage>
       setState(() {
         _isScannerRunning = true;
       });
-      await _controller.start();
     }
+    // Redéfinition du controller car "cassé" lors du retour sur la page
+    _controller = MobileScannerController(
+      detectionSpeed: DetectionSpeed.normal,
+      returnImage: false,
+    );
   }
 
   bool _isValidEAN13(String code) {
@@ -103,22 +74,12 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage>
       await Future.delayed(const Duration(milliseconds: 500));
 
       final provider = context.read<ProductsProvider>();
-      await provider.loadProductById(rawValue);
+      await provider.loadProductById(rawValue, complete: true);
 
       if (!mounted) return;
 
       if (provider.product.id.isNotEmpty) {
-        await Navigator.pushNamed(
-          context,
-          '/product',
-          arguments: provider.product,
-        );
-
-        // Quand on revient de la page produit, relancer le scanner
-        if (mounted) {
-          await Future.delayed(const Duration(milliseconds: 500));
-          await _startScanner();
-        }
+        productTransition(context, provider.product);
       } else {
         _showErrorSnackBar('Produit non trouvé');
         // Relancer le scanner après un délai
@@ -183,28 +144,58 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage>
               ),
             ),
             const SizedBox(height: 32),
-            AspectRatio(
-              aspectRatio: 1,
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(width: 8, color: Colors.white),
+            VisibilityDetector(
+              key: Key('scanner'),
+              onVisibilityChanged: (info) {
+                if (info.visibleFraction == 1.0) {
+                  _startScanner();
+                } else {
+                  _stopScanner();
+                }
+              },
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: Selector<ProductsProvider, Product>(
+                  selector: (_, provider) => provider.product,
+                  builder: (context, product, _) {
+                    final provider = context.read<ProductsProvider>();
+
+                    return Hero(
+                      key: Key(provider.product.id),
+                      tag: provider.product.id,
+                      child: Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.only(bottom: 32),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(48),
+                        ),
+                        child:
+                            _isScannerRunning && !_isProcessing
+                                ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(48),
+                                  child: MobileScanner(
+                                    controller: _controller,
+                                    tapToFocus: true,
+                                    onDetect: (capture) {
+                                      final List<Barcode> barcodes =
+                                          capture.barcodes;
+                                      for (final barcode in barcodes) {
+                                        final String? rawValue =
+                                            barcode.rawValue;
+                                        if (rawValue != null) {
+                                          _handleBarcode(rawValue);
+                                          return; // Traiter seulement le premier code-barres
+                                        }
+                                      }
+                                    },
+                                  ),
+                                )
+                                : const Center(child: Loader()),
+                      ),
+                    );
+                  },
                 ),
-                child:
-                    _isScannerRunning && !_isProcessing
-                        ? MobileScanner(
-                          controller: _controller,
-                          onDetect: (capture) {
-                            final List<Barcode> barcodes = capture.barcodes;
-                            for (final barcode in barcodes) {
-                              final String? rawValue = barcode.rawValue;
-                              if (rawValue != null) {
-                                _handleBarcode(rawValue);
-                                return; // Traiter seulement le premier code-barres
-                              }
-                            }
-                          },
-                        )
-                        : const Center(child: Loader()),
               ),
             ),
             if (_isProcessing) ...[

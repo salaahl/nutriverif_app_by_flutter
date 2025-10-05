@@ -265,12 +265,12 @@ class ProductsProvider with ChangeNotifier {
     }
   }
 
-  Future<void> loadProductById(String id) async {
+  Future<void> loadProductById(String id, {bool complete = false}) async {
     setError(null);
     setProductIsLoading(true);
 
     try {
-      setProduct(await _productsService.fetchProductById(id));
+      setProduct(await _productsService.fetchProductById(id, complete: complete));
     } catch (e) {
       setError('single product error: $e');
       setProduct(Product.fromJson({}));

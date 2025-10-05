@@ -129,10 +129,7 @@ class LegalNoticePage extends StatelessWidget {
           const TextSpan(
             text: 'NutriVérif s\'appuyant sur la base de données d\'',
           ),
-          _buildLinkTextSpan(
-            'Open Food Facts',
-            'https://fr.openfoodfacts.org',
-          ),
+          _buildLinkTextSpan('Open Food Facts', 'https://fr.openfoodfacts.org'),
           const TextSpan(
             text:
                 ', l\'accès ou l\'utilisation du site ou de ses services valent également acceptation sans réserve des ',

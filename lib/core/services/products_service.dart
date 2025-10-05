@@ -24,9 +24,9 @@ class ProductsService {
     return jsonDecode(response.body);
   }
 
-  Future<Product> fetchProductById(String id, {bool isDemo = false}) async {
+  Future<Product> fetchProductById(String id, {bool complete = false}) async {
     final String fields =
-        !isDemo
+        !complete
             ? _productFields
             : 'id,image_url,brands,generic_name_fr,categories_tags,last_modified_t,nutriscore_grade,nova_group,quantity,serving_size,ingredients_text_fr,nutriments,nutrient_levels,manufacturing_places,url';
     final url = '$_api3BaseUrl/product/$id?fields=$fields';

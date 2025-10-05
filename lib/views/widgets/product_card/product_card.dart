@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:app_nutriverif/core/constants/custom_values.dart';
+
 import 'package:app_nutriverif/models/model_products.dart';
 
 import 'package:app_nutriverif/views/screens/product/product_page.dart';
@@ -66,47 +68,9 @@ Widget _card(context, product, widthAjustment) {
         borderRadius: BorderRadius.circular(12),
         onTap: () {
           if (ModalRoute.of(context)?.settings.name != '/product') {
-            Navigator.push(
-              context,
-              PageRouteBuilder(
-                transitionDuration: const Duration(milliseconds: 500),
-                reverseTransitionDuration: const Duration(milliseconds: 300),
-                pageBuilder:
-                    (context, animation, secondaryAnimation) => ProductPage(
-                      id: product.id,
-                      image: product.image,
-                      lastUpdate: product.lastUpdate,
-                      brand: product.brand,
-                      name: product.name,
-                      nutriscore: product.nutriscore,
-                      nova: product.nova,
-                      categories: product.categories,
-                    ),
-                transitionsBuilder: (
-                  context,
-                  animation,
-                  secondaryAnimation,
-                  child,
-                ) {
-                  return FadeTransition(
-                    opacity: Tween<double>(begin: 0.0, end: 1.0).animate(
-                      CurvedAnimation(
-                        parent: animation,
-                        curve: const Interval(0.0, 0.2, curve: Curves.easeIn),
-                        reverseCurve: const Interval(
-                          0.5,
-                          1.0,
-                          curve: Curves.easeOut,
-                        ),
-                      ),
-                    ),
-                    child: child,
-                  );
-                },
-                settings: const RouteSettings(name: '/product'),
-              ),
-            );
+            productTransition(context, product);
           } else {
+            // On est déjà sur la page product, pas de transition
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
