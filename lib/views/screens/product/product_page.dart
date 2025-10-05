@@ -148,12 +148,22 @@ class _ProductPageState extends State<ProductPage>
   }
 
   Widget _buildProductHeader() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ProductImage(id: widget.id, image: widget.image),
-        const SizedBox(height: 20),
-      ],
+    return Hero(
+      key: Key(widget.id),
+      tag: widget.id,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ProductImage(image: widget.image),
+          const SizedBox(height: 20),
+          ProductName(
+            brand: widget.brand,
+            name: widget.name,
+            lastUpdate: widget.lastUpdate,
+          ),
+          ProductScores(nutriscore: widget.nutriscore, nova: widget.nova),
+        ],
+      ),
     );
   }
 
@@ -200,11 +210,6 @@ class _ProductPageState extends State<ProductPage>
         return SliverToBoxAdapter(
           child: _AnimatedContent(
             animation: _animationController,
-            lastUpdate: widget.lastUpdate,
-            brand: widget.brand,
-            name: widget.name,
-            nutriscore: widget.nutriscore,
-            nova: widget.nova,
             categories: widget.categories,
           ),
         );
@@ -215,22 +220,9 @@ class _ProductPageState extends State<ProductPage>
 
 class _AnimatedContent extends StatelessWidget {
   final Animation<double> animation;
-  final String lastUpdate;
-  final String brand;
-  final String name;
-  final String nutriscore;
-  final String nova;
   final List<String> categories;
 
-  const _AnimatedContent({
-    required this.animation,
-    required this.lastUpdate,
-    required this.brand,
-    required this.name,
-    required this.nutriscore,
-    required this.nova,
-    required this.categories,
-  });
+  const _AnimatedContent({required this.animation, required this.categories});
 
   @override
   Widget build(BuildContext context) {
@@ -254,8 +246,6 @@ class _AnimatedContent extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ProductName(lastUpdate: lastUpdate, brand: brand, name: name),
-            ProductScores(nutriscore: nutriscore, nova: nova),
             ProductNutrients(nutrients: product.nutrientLevels),
             ProductDetails(
               id: product.id,

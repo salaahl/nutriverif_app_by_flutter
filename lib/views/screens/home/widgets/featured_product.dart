@@ -81,10 +81,7 @@ class _FeaturedProductState extends State<FeaturedProduct> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        ProductImage(
-                          id: provider.productDemo.id,
-                          image: provider.productDemo.image,
-                        ),
+                        ProductImage(image: provider.productDemo.image),
                         ProductName(
                           lastUpdate: provider.productDemo.lastUpdate,
                           brand: provider.productDemo.brand,
@@ -179,7 +176,7 @@ class _FeaturedProductState extends State<FeaturedProduct> {
                             context
                                 .read<ProductsProvider>()
                                 .suggestedProductsDemo,
-                                animate: true,
+                        animate: true,
                       );
                     },
                   ),
