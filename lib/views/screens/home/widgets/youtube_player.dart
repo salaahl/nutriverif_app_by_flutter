@@ -17,10 +17,10 @@ class _LazyYoutubePlayerState extends State<LazyYoutubePlayer>
   bool get wantKeepAlive => true;
 
   late YoutubePlayerController _controller;
-  static bool? _cachedCookiesStatus;
-  late bool _showPlayer =
+  late bool _cookiesStatus =
       false; // Variable pour stocker l'acceptation des cookies
 
+  bool _showPlayer = false;
   final String videoId = 'D1jzT02IBRA';
 
   // Charger la valeur stockée
@@ -30,13 +30,11 @@ class _LazyYoutubePlayerState extends State<LazyYoutubePlayer>
       final status = prefs.getBool('acceptCookies') ?? false;
 
       setState(() {
-        _showPlayer = status;
-        _cachedCookiesStatus = status;
+        _cookiesStatus = status;
       });
     } catch (e) {
       setState(() {
-        _showPlayer = false;
-        _cachedCookiesStatus = false;
+        _cookiesStatus = false;
       });
     }
   }
@@ -47,11 +45,11 @@ class _LazyYoutubePlayerState extends State<LazyYoutubePlayer>
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('acceptCookies', value);
       setState(() {
-        _showPlayer = value;
+        _cookiesStatus = value;
       });
     } catch (e) {
       setState(() {
-        _showPlayer = true;
+        _cookiesStatus = true;
       });
     }
   }
@@ -129,11 +127,7 @@ class _LazyYoutubePlayerState extends State<LazyYoutubePlayer>
       ),
     );
 
-    _showPlayer = _cachedCookiesStatus ?? false;
-
-    if (_cachedCookiesStatus == null) {
-      _getCookiesStatus();
-    }
+    _getCookiesStatus();
   }
 
   @override
@@ -146,17 +140,11 @@ class _LazyYoutubePlayerState extends State<LazyYoutubePlayer>
   Widget build(BuildContext context) {
     super.build(context);
 
-    // Permet de retourner un cacheWidth adapté à la résolution de l'écran
-    int getCacheWidth(BuildContext context, double logicalWidth) {
-      final ratio = MediaQuery.of(context).devicePixelRatio;
-      return (logicalWidth * ratio).round();
-    }
-
     return ClipRRect(
       clipBehavior: Clip.antiAlias,
       borderRadius: BorderRadius.circular(12),
       child:
-          _showPlayer
+          _cookiesStatus && _showPlayer
               ? RepaintBoundary(
                 child: YoutubePlayer(
                   controller: _controller,
@@ -164,7 +152,13 @@ class _LazyYoutubePlayerState extends State<LazyYoutubePlayer>
                 ),
               )
               : GestureDetector(
-                onTap: () async => await acceptCookies(context),
+                onTap: () async {
+                  if (!_cookiesStatus) {
+                    final accepted = await acceptCookies(context);
+                    if (accepted != true) return;
+                  }
+                  setState(() => _showPlayer = true);
+                },
                 child: AspectRatio(
                   aspectRatio: 16 / 9,
                   child: Stack(

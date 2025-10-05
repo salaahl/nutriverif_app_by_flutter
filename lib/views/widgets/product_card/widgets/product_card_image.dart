@@ -19,12 +19,6 @@ class ProductCardImage extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final cardWidth = (screenWidth / 100 * 48) - widthAjustment;
 
-    // Permet de retourner un cacheWidth adapté à la résolution de l'écran
-    int getCacheHeight(BuildContext context, double logicalHeight) {
-      final ratio = MediaQuery.of(context).devicePixelRatio;
-      return (logicalHeight * ratio).round();
-    }
-
     return Center(
       child: Container(
         padding: const EdgeInsets.all(8),

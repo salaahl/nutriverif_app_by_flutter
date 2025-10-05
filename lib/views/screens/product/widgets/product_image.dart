@@ -10,12 +10,6 @@ class ProductImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Permet de retourner un cacheWidth adapté à la résolution de l'écran
-    int getCacheWidth(BuildContext context, double logicalWidth) {
-      final ratio = MediaQuery.of(context).devicePixelRatio;
-      return (logicalWidth * ratio).round();
-    }
-
     return AspectRatio(
       aspectRatio: 1,
       child: Hero(

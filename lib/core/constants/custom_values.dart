@@ -49,3 +49,14 @@ Future<dynamic> productTransition(BuildContext context, Product product) {
 
 // Others
 const appIcon = 'assets/images/logo.png';
+
+// Permet de retourner un cacheHeight et un cacheWidth adaptés à la résolution de l'écran
+int getCacheHeight(BuildContext context, double logicalHeight) {
+  final ratio = MediaQuery.of(context).devicePixelRatio;
+  return (logicalHeight * ratio).round();
+}
+
+int getCacheWidth(BuildContext context, double logicalWidth) {
+  final ratio = MediaQuery.of(context).devicePixelRatio;
+  return (logicalWidth * ratio).round();
+}

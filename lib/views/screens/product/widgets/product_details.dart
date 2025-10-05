@@ -1,3 +1,4 @@
+import 'package:app_nutriverif/core/constants/custom_values.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -156,7 +157,10 @@ class _CategoriesLoaderState extends State<CategoriesLoader> {
         final dotsCount = (value * 4).floor().clamp(0, 3);
         return Text(
           "Chargement des catégories${'.' * dotsCount}",
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            color: customGreen,
+            fontWeight: FontWeight.bold,
+          ),
         );
       },
       onEnd: _restartAnimation,

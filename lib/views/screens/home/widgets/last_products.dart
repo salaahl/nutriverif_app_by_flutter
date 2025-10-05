@@ -13,12 +13,6 @@ class LastProducts extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Permet de retourner un cacheWidth adapté à la résolution de l'écran
-    int getCacheHeight(BuildContext context, double logicalHeight) {
-      final ratio = MediaQuery.of(context).devicePixelRatio;
-      return (logicalHeight * ratio).round();
-    }
-
     return Column(
       children: [
         Text.rich(
