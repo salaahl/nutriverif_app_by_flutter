@@ -56,7 +56,9 @@ class ProductName extends StatelessWidget {
           name,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.titleSmall!,
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium!.copyWith(fontWeight: FontWeight.w900),
         ),
         const SizedBox(height: 8),
         Text(formattedDate, style: Theme.of(context).textTheme.bodySmall),

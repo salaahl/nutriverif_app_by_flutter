@@ -59,7 +59,7 @@ class _AnimatedProductCard extends StatelessWidget {
             begin: hasAnimated ? 1.0 : 0.0,
             end: hasAnimated ? 1.0 : 0.0,
           ),
-          duration: const Duration(milliseconds: 200),
+          duration: const Duration(milliseconds: 50),
           curve: Curves.easeInOut,
           builder: (context, value, child) {
             return Transform.translate(

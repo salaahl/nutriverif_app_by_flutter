@@ -29,7 +29,7 @@ class ProductCardName extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: Theme.of(
             context,
-          ).textTheme.bodySmall!.copyWith(fontWeight: FontWeight.w600),
+          ).textTheme.bodySmall!.copyWith(fontWeight: FontWeight.w900),
         ),
       ],
     );
