@@ -27,7 +27,7 @@ class ProductScores extends StatelessWidget {
         children: [
           _ProductScore(
             imageUrl: "assets/images/nutriscore-$nutriscore.svg",
-            width: 85,
+            width: 100,
             score: nutriscore,
           ),
           const SizedBox(height: 8),

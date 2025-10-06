@@ -82,17 +82,23 @@ class _FeaturedProductState extends State<FeaturedProduct> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ProductImage(image: provider.productDemo.image),
-                        ProductName(
-                          lastUpdate: provider.productDemo.lastUpdate,
-                          brand: provider.productDemo.brand,
-                          name: provider.productDemo.name,
+                        Opacity(
+                          opacity: 0.25,
+                          child: ProductName(
+                            lastUpdate: provider.productDemo.lastUpdate,
+                            brand: provider.productDemo.brand,
+                            name: provider.productDemo.name,
+                          ),
                         ),
                         ProductScores(
                           nutriscore: provider.productDemo.nutriscore,
                           nova: provider.productDemo.nova,
                         ),
-                        ProductNutrients(
-                          nutrients: provider.productDemo.nutrientLevels,
+                        Opacity(
+                          opacity: 0.25,
+                          child: ProductNutrients(
+                            nutrients: provider.productDemo.nutrientLevels,
+                          ),
                         ),
                       ],
                     ),
