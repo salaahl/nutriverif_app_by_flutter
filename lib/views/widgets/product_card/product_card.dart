@@ -35,7 +35,9 @@ class ProductCard extends StatelessWidget {
 }
 
 Widget _card(context, product, widthAjustment) {
-  final screenWidth = MediaQuery.of(context).size.width;
+  final actualWidth = MediaQuery.of(context).size.width;
+  // Limitation du screenWidth à 600px
+  final screenWidth = actualWidth > maxWidth ? maxWidth : actualWidth;
   final cardWidth = (screenWidth / 100 * 48) - widthAjustment;
 
   return Container(

@@ -5,6 +5,7 @@ import 'package:app_nutriverif/models/model_products.dart';
 import 'package:app_nutriverif/views/screens/product/product_page.dart';
 
 // Styles
+const maxWidth = 600.0;
 const screenPadding = EdgeInsets.symmetric(horizontal: 16);
 const customGreen = Color.fromRGBO(0, 189, 126, 1);
 

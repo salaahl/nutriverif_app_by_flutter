@@ -14,6 +14,7 @@ class SearchProductsResults extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.read<ProductsProvider>();
+    final actualWidth = MediaQuery.of(context).size.width;
 
     return AnimatedSize(
       duration: defaultAnimationTime,
@@ -26,7 +27,10 @@ class SearchProductsResults extends StatelessWidget {
                     ? null
                     : 0,
             width: double.infinity,
-            padding: const EdgeInsets.all(16),
+            padding:
+                actualWidth > maxWidth
+                    ? const EdgeInsets.all(32)
+                    : const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.grey[200],
               borderRadius: BorderRadius.circular(16),
@@ -36,7 +40,10 @@ class SearchProductsResults extends StatelessWidget {
                     ? const Loader()
                     : Wrap(
                       alignment: WrapAlignment.spaceBetween,
-                      spacing: MediaQuery.of(context).size.width / 100 * 4,
+                      spacing:
+                          actualWidth > maxWidth
+                              ? actualWidth / 100 * 2
+                              : actualWidth / 100 * 4,
                       children:
                           provider.products.take(4).map((product) {
                             return ProductCard(

@@ -6,6 +6,7 @@ import 'package:app_nutriverif/core/constants/custom_values.dart';
 import 'package:app_nutriverif/core/services/products_service.dart';
 import 'package:app_nutriverif/providers/products_provider.dart';
 
+import '../../widgets/app_container.dart';
 import '../../widgets/app_bar.dart';
 import '../../widgets/search_bar.dart';
 import './widgets/youtube_player.dart';
@@ -91,6 +92,8 @@ class _HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
+    final actualWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(
@@ -98,40 +101,55 @@ class _HomePageState extends State<HomePage>
         ),
         slivers: [
           SliverPadding(
-            padding: screenPadding,
+            padding:
+                actualWidth > maxWidth + screenPadding.left * 2
+                    ? const EdgeInsets.symmetric(horizontal: 0)
+                    : screenPadding,
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                myAppBar(context, route: '/'),
-                const SizedBox(height: 20),
-                _buildTitle(),
-                const SizedBox(height: 60),
-                const AppSearchBar(),
-                const SizedBox(height: 16),
-                Selector<ProductsProvider, bool>(
-                  selector: (_, provider) => provider.productsIsLoading,
-                  builder: (context, isLoading, _) {
-                    final hasProducts =
-                        context.read<ProductsProvider>().products.isNotEmpty;
+                AppContainer(
+                  child: Column(
+                    children: [
+                      myAppBar(context, route: '/'),
+                      const SizedBox(height: 20),
+                      _buildTitle(),
+                      const SizedBox(height: 60),
+                      const AppSearchBar(),
+                      const SizedBox(height: 16),
+                      Selector<ProductsProvider, bool>(
+                        selector: (_, provider) => provider.productsIsLoading,
+                        builder: (context, isLoading, _) {
+                          final hasProducts =
+                              context
+                                  .read<ProductsProvider>()
+                                  .products
+                                  .isNotEmpty;
 
-                    if (isLoading || hasProducts) {
-                      return SearchProductsResults();
-                    }
-                    return const SizedBox.shrink();
-                  },
+                          if (isLoading || hasProducts) {
+                            return SearchProductsResults();
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
+                      const SizedBox(height: 35),
+                      _buildProductCount(),
+                      const SizedBox(height: 80),
+                      const LazyYoutubePlayer(),
+                      const SizedBox(height: 32),
+                      _buildAboutSection(),
+                      const SizedBox(height: 80),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 35),
-                _buildProductCount(),
-                const SizedBox(height: 80),
-                const LazyYoutubePlayer(),
-                const SizedBox(height: 32),
-                _buildAboutSection(),
-                const SizedBox(height: 80),
               ]),
             ),
           ),
 
           SliverPadding(
-            padding: screenPadding,
+            padding:
+                actualWidth > maxWidth + screenPadding.left * 2
+                    ? const EdgeInsets.symmetric(horizontal: 0)
+                    : screenPadding,
             sliver: _buildAnimatedSection(
               'scores',
               const Scores(),
@@ -151,7 +169,7 @@ class _HomePageState extends State<HomePage>
           const SliverToBoxAdapter(child: SizedBox(height: 80)),
 
           SliverPadding(
-            padding: screenPadding,
+            padding: actualWidth > maxWidth ? screenPadding * 2 : screenPadding,
             sliver: _buildAnimatedSection(
               'last_products',
               LastProducts(),

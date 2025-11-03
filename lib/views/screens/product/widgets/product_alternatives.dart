@@ -20,6 +20,8 @@ class AlternativeProducts extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final actualWidth = MediaQuery.of(context).size.width;
+
     return AnimatedSize(
       duration: defaultAnimationTime,
       curve: defaultAnimationCurve,
@@ -37,7 +39,10 @@ class AlternativeProducts extends StatelessWidget {
             height: isLoading || suggestedProducts.isNotEmpty ? null : 0,
             width: double.infinity,
             margin: const EdgeInsets.symmetric(vertical: 32),
-            padding: const EdgeInsets.all(16),
+            padding:
+                actualWidth > maxWidth
+                    ? const EdgeInsets.all(32)
+                    : const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.grey[200],
               borderRadius: BorderRadius.circular(16),
@@ -71,7 +76,10 @@ class AlternativeProducts extends StatelessWidget {
                     ? const Loader()
                     : Wrap(
                       alignment: WrapAlignment.spaceBetween,
-                      spacing: MediaQuery.of(context).size.width / 100 * 4,
+                      spacing:
+                          actualWidth > maxWidth
+                              ? maxWidth / 100 * 4
+                              : actualWidth / 100 * 4,
                       children:
                           suggestedProducts.map((product) {
                             return ProductCard(

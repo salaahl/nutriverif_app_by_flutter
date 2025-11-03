@@ -71,6 +71,8 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
 
   @override
   Widget build(BuildContext context) {
+    final actualWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       body: CustomScrollView(
         controller: _scrollController,
@@ -79,7 +81,10 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
         ),
         slivers: [
           SliverPadding(
-            padding: screenPadding,
+            padding:
+                actualWidth > maxWidth + screenPadding.left * 2
+                    ? const EdgeInsets.symmetric(horizontal: 0)
+                    : screenPadding,
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 myAppBar(context),
@@ -91,7 +96,10 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
           ),
 
           SliverPadding(
-            padding: screenPadding,
+            padding:
+                actualWidth > maxWidth + screenPadding.left * 2
+                    ? const EdgeInsets.symmetric(horizontal: 0)
+                    : screenPadding,
             sliver: SliverToBoxAdapter(
               child: Selector<
                 ProductsProvider,
@@ -103,19 +111,29 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                       hasProducts: provider.products.isNotEmpty,
                     ),
                 builder: (context, state, _) {
-                  return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(16),
+                  return Center(
+                    child: Container(
+                      constraints: const BoxConstraints(maxWidth: maxWidth),
+                      padding:
+                          actualWidth > maxWidth
+                              ? const EdgeInsets.only(
+                                top: 16,
+                                left: 32,
+                                right: 32,
+                              )
+                              : const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child:
+                          state.isLoading && !state.hasProducts
+                              ? Padding(
+                                padding: EdgeInsets.symmetric(vertical: 32),
+                                child: _loaderWithPadding(),
+                              )
+                              : _buildGridView(),
                     ),
-                    child:
-                        state.isLoading && !state.hasProducts
-                            ? Padding(
-                              padding: EdgeInsets.symmetric(vertical: 32),
-                              child: _loaderWithPadding(),
-                            )
-                            : _buildGridView(),
                   );
                 },
               ),
@@ -149,14 +167,15 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
 
   Widget _buildGridView() {
     final provider = context.read<ProductsProvider>();
+    final actualWidth = MediaQuery.of(context).size.width;
 
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.only(top: 16, bottom: 16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        crossAxisSpacing: 16,
+        crossAxisSpacing: actualWidth > maxWidth ? 32 : 16,
         mainAxisSpacing: 16,
         mainAxisExtent: 296, // productCard + spacing
       ),

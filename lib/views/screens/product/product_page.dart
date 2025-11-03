@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:app_nutriverif/core/constants/custom_values.dart';
 import 'package:app_nutriverif/providers/products_provider.dart';
 
+import 'package:app_nutriverif/views/widgets/app_container.dart';
 import '../../widgets/app_bar.dart';
 import '../../widgets/loader.dart';
 import './widgets/product_image.dart';
@@ -129,15 +130,25 @@ class _ProductPageState extends State<ProductPage>
       body: CustomScrollView(
         slivers: [
           SliverPadding(
-            padding: screenPadding,
+            padding:
+                MediaQuery.of(context).size.width >
+                        maxWidth + screenPadding.left * 2
+                    ? const EdgeInsets.symmetric(horizontal: 0)
+                    : screenPadding,
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                myAppBar(context),
-                _buildProductHeader(),
-                if (_isLoading)
-                  const Loader()
-                else if (_hasError)
-                  _buildErrorState(),
+                AppContainer(
+                  child: Column(
+                    children: [
+                      myAppBar(context),
+                      _buildProductHeader(),
+                      if (_isLoading)
+                        const Loader()
+                      else if (_hasError)
+                        _buildErrorState(),
+                    ],
+                  ),
+                ),
               ]),
             ),
           ),
@@ -208,9 +219,11 @@ class _ProductPageState extends State<ProductPage>
       selector: (_, provider) => provider.productIsLoading,
       builder: (context, isLoading, _) {
         return SliverToBoxAdapter(
-          child: _AnimatedContent(
-            animation: _animationController,
-            categories: widget.categories,
+          child: AppContainer(
+            child: _AnimatedContent(
+              animation: _animationController,
+              categories: widget.categories,
+            ),
           ),
         );
       },
@@ -242,7 +255,11 @@ class _AnimatedContent extends StatelessWidget {
         );
       },
       child: Padding(
-        padding: screenPadding,
+        padding:
+            MediaQuery.of(context).size.width >
+                    maxWidth + screenPadding.left * 2
+                ? const EdgeInsets.symmetric(horizontal: 0)
+                : screenPadding,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

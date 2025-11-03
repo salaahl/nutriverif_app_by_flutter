@@ -8,6 +8,7 @@ import 'package:app_nutriverif/core/constants/custom_values.dart';
 import 'package:app_nutriverif/models/model_products.dart';
 import 'package:app_nutriverif/providers/products_provider.dart';
 
+import 'package:app_nutriverif/views/widgets/app_container.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/loader.dart';
 
@@ -124,85 +125,99 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: screenPadding,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            myAppBar(context),
-            Text.rich(
-              textAlign: TextAlign.center,
-              TextSpan(
-                style: Theme.of(context).textTheme.titleMedium,
-                children: const [
-                  TextSpan(text: 'Retrouver un produit par son '),
-                  TextSpan(
-                    text: 'code-barres',
-                    style: TextStyle(color: Colors.redAccent),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 32),
-            VisibilityDetector(
-              key: Key('scanner'),
-              onVisibilityChanged: (info) {
-                if (info.visibleFraction == 1.0) {
-                  _startScanner();
-                } else {
-                  _stopScanner();
-                }
-              },
-              child: AspectRatio(
-                aspectRatio: 1,
-                child: Selector<ProductsProvider, Product>(
-                  selector: (_, provider) => provider.product,
-                  builder: (context, product, _) {
-                    final provider = context.read<ProductsProvider>();
-
-                    return Hero(
-                      key: Key(provider.product.id),
-                      tag: provider.product.id,
-                      child: Container(
-                        width: double.infinity,
-                        margin: const EdgeInsets.only(bottom: 32),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(48),
-                        ),
-                        child:
-                            _isScannerRunning && !_isProcessing
-                                ? ClipRRect(
-                                  borderRadius: BorderRadius.circular(48),
-                                  child: MobileScanner(
-                                    controller: _controller,
-                                    tapToFocus: true,
-                                    onDetect: (capture) {
-                                      final List<Barcode> barcodes =
-                                          capture.barcodes;
-                                      for (final barcode in barcodes) {
-                                        final String? rawValue =
-                                            barcode.rawValue;
-                                        if (rawValue != null) {
-                                          _handleBarcode(rawValue);
-                                          return; // Traiter seulement le premier code-barres
-                                        }
-                                      }
-                                    },
-                                  ),
-                                )
-                                : const Center(child: Loader()),
-                      ),
-                    );
-                  },
+      body: AppContainer(
+        child: Padding(
+          padding:
+              MediaQuery.of(context).size.width >
+                      maxWidth + screenPadding.left * 2
+                  ? const EdgeInsets.symmetric(horizontal: 0)
+                  : screenPadding,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              myAppBar(context),
+              Text.rich(
+                textAlign: TextAlign.center,
+                TextSpan(
+                  style: Theme.of(context).textTheme.titleMedium,
+                  children: const [
+                    TextSpan(text: 'Retrouver un produit par son '),
+                    TextSpan(
+                      text: 'code-barres',
+                      style: TextStyle(color: Colors.redAccent),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            if (_isProcessing) ...[
-              const SizedBox(height: 16),
-              const Text('Traitement en cours...'),
+              const SizedBox(height: 32),
+              VisibilityDetector(
+                key: Key('scanner'),
+                onVisibilityChanged: (info) {
+                  if (info.visibleFraction == 1.0) {
+                    _startScanner();
+                  } else {
+                    _stopScanner();
+                  }
+                },
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxHeight: maxWidth - 100,
+                      maxWidth: maxWidth,
+                    ),
+                    child: AspectRatio(
+                      aspectRatio: 1,
+                      child: Selector<ProductsProvider, Product>(
+                        selector: (_, provider) => provider.product,
+                        builder: (context, product, _) {
+                          final provider = context.read<ProductsProvider>();
+
+                          return Hero(
+                            key: Key(provider.product.id),
+                            tag: provider.product.id,
+                            child: Container(
+                              width: double.infinity,
+                              margin: const EdgeInsets.only(bottom: 32),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(48),
+                              ),
+                              child:
+                                  _isScannerRunning && !_isProcessing
+                                      ? ClipRRect(
+                                        borderRadius: BorderRadius.circular(48),
+                                        child: MobileScanner(
+                                          controller: _controller,
+                                          tapToFocus: true,
+                                          onDetect: (capture) {
+                                            final List<Barcode> barcodes =
+                                                capture.barcodes;
+                                            for (final barcode in barcodes) {
+                                              final String? rawValue =
+                                                  barcode.rawValue;
+                                              if (rawValue != null) {
+                                                _handleBarcode(rawValue);
+                                                return; // Traiter seulement le premier code-barres
+                                              }
+                                            }
+                                          },
+                                        ),
+                                      )
+                                      : const Center(child: Loader()),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              if (_isProcessing) ...[
+                const SizedBox(height: 16),
+                const Text('Traitement en cours...'),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

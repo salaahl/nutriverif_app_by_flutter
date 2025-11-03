@@ -1,3 +1,4 @@
+import 'package:app_nutriverif/views/widgets/app_container.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -84,104 +85,107 @@ class _AppSearchBarState extends State<AppSearchBar> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  hintText: 'Un nom de produit, une marque ou une categorie...',
-                  hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    color: Colors.grey,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  prefixIcon: IconButton(
-                    padding: const EdgeInsets.only(
-                      left: 12,
-                    ), // rééquilibrage avec le padding appliqué sur le TextField
-                    icon: const Icon(
-                      Icons.qr_code_rounded,
+    return AppContainer(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText:
+                        'Un nom de produit, une marque ou une categorie...',
+                    hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       color: Colors.grey,
-                      semanticLabel: 'Rechercher un produit par code-barres',
+                      fontWeight: FontWeight.bold,
                     ),
-                    onPressed: () => Navigator.pushNamed(context, '/scanner'),
-                  ),
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(999.0),
-                    borderSide: const BorderSide(
-                      color: Color.fromRGBO(156, 163, 175, 1),
-                      width: 4.0,
+                    prefixIcon: IconButton(
+                      padding: const EdgeInsets.only(
+                        left: 12,
+                      ), // rééquilibrage avec le padding appliqué sur le TextField
+                      icon: const Icon(
+                        Icons.qr_code_rounded,
+                        color: Colors.grey,
+                        semanticLabel: 'Rechercher un produit par code-barres',
+                      ),
+                      onPressed: () => Navigator.pushNamed(context, '/scanner'),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(999.0),
+                      borderSide: const BorderSide(
+                        color: Color.fromRGBO(156, 163, 175, 1),
+                        width: 4.0,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(999.0),
+                      borderSide: const BorderSide(
+                        color: Color.fromRGBO(229, 231, 235, 1),
+                        width: 4.0,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(999.0),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF9CA3AF),
+                        width: 4.0,
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 10.0,
+                      horizontal: 12.0,
                     ),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(999.0),
-                    borderSide: const BorderSide(
-                      color: Color.fromRGBO(229, 231, 235, 1),
-                      width: 4.0,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(999.0),
-                    borderSide: const BorderSide(
-                      color: Color(0xFF9CA3AF),
-                      width: 4.0,
-                    ),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    vertical: 10.0,
-                    horizontal: 12.0,
-                  ),
-                ),
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium!.copyWith(color: Colors.black87),
-              ),
-            ),
-            IconButton(
-              padding: const EdgeInsets.only(left: 8),
-              icon: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.blue[800],
-                  borderRadius: BorderRadius.circular(99),
-                ),
-                child: const Icon(
-                  Icons.search,
-                  color: Colors.white,
-                  semanticLabel: 'Rechercher',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium!.copyWith(color: Colors.black87),
                 ),
               ),
-              onPressed: () {
-                _searchProducts();
-              },
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        widget.showFilters
-            ? Selector<ProductsProvider, String>(
-              selector: (_, provider) => provider.filter,
-              builder: (context, currentFilter, _) {
-                return Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children:
-                      _filters.entries.map((filter) {
-                        return SearchBarFilter(
-                          key: ValueKey(filter.key),
-                          filter: filter,
-                        );
-                      }).toList(),
-                );
-              },
-            )
-            : const SizedBox.shrink(),
-      ],
+              IconButton(
+                padding: const EdgeInsets.only(left: 8),
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.blue[800],
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                  child: const Icon(
+                    Icons.search,
+                    color: Colors.white,
+                    semanticLabel: 'Rechercher',
+                  ),
+                ),
+                onPressed: () {
+                  _searchProducts();
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          widget.showFilters
+              ? Selector<ProductsProvider, String>(
+                selector: (_, provider) => provider.filter,
+                builder: (context, currentFilter, _) {
+                  return Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children:
+                        _filters.entries.map((filter) {
+                          return SearchBarFilter(
+                            key: ValueKey(filter.key),
+                            filter: filter,
+                          );
+                        }).toList(),
+                  );
+                },
+              )
+              : const SizedBox.shrink(),
+        ],
+      ),
     );
   }
 }

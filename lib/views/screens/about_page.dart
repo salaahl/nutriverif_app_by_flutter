@@ -1,3 +1,4 @@
+import 'package:app_nutriverif/views/widgets/app_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -31,20 +32,30 @@ class AboutPage extends StatelessWidget {
 
     return Scaffold(
       body: Container(
-        padding: screenPadding,
+        padding:
+            MediaQuery.of(context).size.width >
+                    (maxWidth + screenPadding.left * 2)
+                ? const EdgeInsets.symmetric(horizontal: 0)
+                : screenPadding,
         decoration: const BoxDecoration(color: customGreen),
         child: CustomScrollView(
           slivers: [
             SliverList(
               delegate: SliverChildListDelegate([
-                myAppBar(context, customStyles: customStyles),
-                const SizedBox(height: 16),
-                _buildTitle(context),
-                _buildAnimatedSubtitle(),
-                const SizedBox(height: 32),
-                _buildMainDescription(context),
-                const SizedBox(height: 32),
-                _buildOpenFoodFactsDescription(context),
+                AppContainer(
+                  child: Column(
+                    children: [
+                      myAppBar(context, customStyles: customStyles),
+                      const SizedBox(height: 16),
+                      _buildTitle(context),
+                      _buildAnimatedSubtitle(),
+                      const SizedBox(height: 32),
+                      _buildMainDescription(context),
+                      const SizedBox(height: 32),
+                      _buildOpenFoodFactsDescription(context),
+                    ],
+                  ),
+                ),
               ]),
             ),
           ],

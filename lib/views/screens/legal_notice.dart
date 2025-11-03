@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:app_nutriverif/core/constants/custom_values.dart';
 
+import 'package:app_nutriverif/views/widgets/app_container.dart';
 import '../widgets/app_bar.dart';
 
 class LegalNoticePage extends StatelessWidget {
@@ -31,20 +32,30 @@ class LegalNoticePage extends StatelessWidget {
       body: CustomScrollView(
         slivers: [
           SliverPadding(
-            padding: screenPadding,
+            padding:
+                MediaQuery.of(context).size.width >
+                        maxWidth + screenPadding.left * 2
+                    ? const EdgeInsets.symmetric(horizontal: 0)
+                    : screenPadding,
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                myAppBar(context),
-                _buildTitle(context),
-                const SizedBox(height: 32),
-                _buildEditorInfo(context),
-                const SizedBox(height: 32),
-                _buildCookiesInfo(context),
-                const SizedBox(height: 32),
-                _buildJurisdictionInfo(context),
-                const SizedBox(height: 32),
-                _buildOpenFoodFactsInfo(context),
-                const SizedBox(height: 64),
+                AppContainer(
+                  child: Column(
+                    children: [
+                      myAppBar(context),
+                      _buildTitle(context),
+                      const SizedBox(height: 32),
+                      _buildEditorInfo(context),
+                      const SizedBox(height: 32),
+                      _buildCookiesInfo(context),
+                      const SizedBox(height: 32),
+                      _buildJurisdictionInfo(context),
+                      const SizedBox(height: 32),
+                      _buildOpenFoodFactsInfo(context),
+                      const SizedBox(height: 64),
+                    ],
+                  ),
+                ),
               ]),
             ),
           ),
