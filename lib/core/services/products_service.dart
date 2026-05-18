@@ -73,7 +73,7 @@ class ProductsService {
         '${_apiBaseUrl}search_terms=${Uri.encodeComponent(name != '' ? name : brand)}'
         '&categories_tags=${Uri.encodeComponent(categories.join('|'))}'
         '&fields=${Uri.encodeComponent(fields)}'
-        '&purchase_places_tags=france&sort_by=nutriscore_score,nova_group,popularity_key&page_size=299&action=process&json=1';
+        '&purchase_places_tags=france&sort_by=nutriscore_score,nova_group,popularity_key&page_size=300&action=process&json=1';
 
     try {
       Map<String, dynamic> data = await _getJson(url);
@@ -174,7 +174,7 @@ class ProductsService {
 
   Future<List<Product>> fetchLastProducts() async {
     final url =
-        '$_api2BaseUrl?&fields=${Uri.encodeComponent(_productsFields)}&purchase_places_tags=france&sort_by=created_t&page_size=299&action=process&json=1';
+        '$_api2BaseUrl?&fields=${Uri.encodeComponent(_productsFields)}&purchase_places_tags=france&sort_by=created_t&page_size=300&action=process&json=1';
 
     try {
       final data = await _getJson(url);
