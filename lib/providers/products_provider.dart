@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 
+import '../core/constants/custom_values.dart';
 import '../models/model_products.dart';
 import '../core/services/products_service.dart';
 import '../core/services/translate_service.dart';
 
+import '../core/services/mock_products_service.dart';
+import '../core/services/mock_translate_service.dart';
+
 class ProductsProvider with ChangeNotifier {
-  final ProductsService _productsService = ProductsService();
-  final TranslateService _translateService = TranslateService();
+  final ProductsService _productsService =
+      isLocal ? MockProductsService() : ProductsService();
+
+  final TranslateService _translateService =
+      isLocal ? MockTranslateService() : TranslateService();
 
   final List<Product> _products = [];
   bool _productsIsLoading = false;
@@ -14,13 +21,16 @@ class ProductsProvider with ChangeNotifier {
   Product _productDemo = Product.fromJson({});
   bool _productIsLoading = false;
   final List<Product> _lastProducts = [];
+  bool _showLastProducts = false;
   bool _lastProductsIsLoading = false;
   final List<Product> _suggestedProducts = [];
+  bool _showSuggestedProducts = false;
   final List<Product> _suggestedProductsDemo = [];
+  bool _showSuggestedProductsDemo = false;
   bool _suggestedProductsIsLoading = false;
   String _ajrSelected = 'women';
   String _input = '';
-  String _filter = 'popularity_key';
+  String _filter = '-popularity_key';
   int _page = 1;
   int _pages = 1;
   String? _error;
@@ -32,9 +42,12 @@ class ProductsProvider with ChangeNotifier {
   Product get productDemo => _productDemo;
   bool get productIsLoading => _productIsLoading;
   List<Product> get lastProducts => _lastProducts;
+  bool get showLastProducts => _showLastProducts;
   bool get lastProductsIsLoading => _lastProductsIsLoading;
   List<Product> get suggestedProducts => _suggestedProducts;
+  bool get showSuggestedProducts => _showSuggestedProducts;
   List<Product> get suggestedProductsDemo => _suggestedProductsDemo;
+  bool get showSuggestedProductsDemo => _showSuggestedProductsDemo;
   bool get suggestedProductsIsLoading => _suggestedProductsIsLoading;
   String get ajrSelected => _ajrSelected;
   String get input => _input;
@@ -99,6 +112,7 @@ class ProductsProvider with ChangeNotifier {
   }
 
   void setProductIsLoading(bool isLoading) {
+    _showLastProducts = true;
     _productIsLoading = isLoading;
     notifyListeners();
   }
@@ -114,6 +128,11 @@ class ProductsProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void setShowSuggestedProducts(bool value) {
+    _showSuggestedProducts = value;
+    notifyListeners();
+  }
+
   void setSuggestedProducts(List<Product> products) {
     _suggestedProducts.clear();
     _suggestedProducts.addAll(products);
@@ -126,7 +145,10 @@ class ProductsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void setSuggestedProductsIsLoading(bool isLoading) {
+  void setSuggestedProductsIsLoading(bool isLoading, String from) {
+    from == 'home'
+        ? _showSuggestedProductsDemo = true
+        : _showSuggestedProducts = true;
     _suggestedProductsIsLoading = isLoading;
     notifyListeners();
   }
@@ -176,7 +198,9 @@ class ProductsProvider with ChangeNotifier {
     animatedIds.removeWhere((id) => id.endsWith(extension));
   }
 
-  Future<List<String>> getTranslatedCategories(List<String> categories) async {
+  Future<List<Map<String, String>>> getTranslatedCategories(
+    List<String> categories,
+  ) async {
     String cleanCategory(String cat, String langPrefix) {
       return cat
           .trim()
@@ -186,24 +210,28 @@ class ProductsProvider with ChangeNotifier {
     }
 
     final frenchCategories =
-        categories
-            .where((c) => c.startsWith('fr:'))
-            .map((c) => cleanCategory(c, 'fr'))
-            .toList();
+        categories.where((c) => c.startsWith('fr:')).toList();
 
     final englishCategories =
-        categories
-            .where((c) => c.startsWith('en:'))
-            .map((c) => cleanCategory(c, 'en'))
+        categories.where((c) => c.startsWith('en:')).toList();
+
+    final List<Map<String, String>> finalCategories =
+        frenchCategories
+            .map(
+              (cat) => {
+                'original': cat,
+                'translated': cleanCategory(cat, 'fr'),
+              },
+            )
             .toList();
 
-    final categoriesToTranslate = englishCategories
-        .take(4 - frenchCategories.length)
-        .join('<SEP>');
-
-    if (categoriesToTranslate.isEmpty) {
-      return [...frenchCategories, ...englishCategories];
+    final limit = 4 - frenchCategories.length;
+    if (limit <= 0 || englishCategories.isEmpty) {
+      return finalCategories;
     }
+
+    final englishToTranslate = englishCategories.take(limit).toList();
+    final categoriesToTranslate = englishToTranslate.join('<SEP>');
 
     List<String> translatedCategories = [];
 
@@ -216,16 +244,29 @@ class ProductsProvider with ChangeNotifier {
     } catch (e) {
       setError('Erreur pendant la traduction: $e');
       // Je récupère quand meme les categories en anglais
-      translatedCategories =
-          englishCategories.take(4 - frenchCategories.length).toList();
+      translatedCategories = englishToTranslate;
     }
 
-    return [...frenchCategories, ...translatedCategories];
+    for (int i = 0; i < englishToTranslate.length; i++) {
+      // Fallback de sécurité si l'API renvoie moins de séparateurs que prévu
+      final translated =
+          (i < translatedCategories.length &&
+                  translatedCategories[i].isNotEmpty)
+              ? translatedCategories[i]
+              : englishToTranslate[i];
+
+      finalCategories.add({
+        'original': englishToTranslate[i],
+        'translated': cleanCategory(translated, 'en'),
+      });
+    }
+
+    return finalCategories;
   }
 
   Future<void> searchProducts({
     String query = '',
-    String selected = 'popularity_key',
+    String selected = '-popularity_key',
     required String method,
   }) async {
     setError(null);
@@ -254,7 +295,7 @@ class ProductsProvider with ChangeNotifier {
       }
 
       final products =
-          (data['products'] as List).map((p) => Product.fromJson(p)).toList();
+          (data['hits'] as List).map((p) => Product.fromJson(p)).toList();
 
       setProducts(products, method);
     } catch (e) {
@@ -270,7 +311,9 @@ class ProductsProvider with ChangeNotifier {
     setProductIsLoading(true);
 
     try {
-      setProduct(await _productsService.fetchProductById(id, complete: complete));
+      setProduct(
+        await _productsService.fetchProductById(id, complete: complete),
+      );
     } catch (e) {
       setError('single product error: $e');
       setProduct(Product.fromJson({}));
@@ -288,7 +331,7 @@ class ProductsProvider with ChangeNotifier {
     required String nova,
   }) async {
     setError(null);
-    setSuggestedProductsIsLoading(true);
+    setSuggestedProductsIsLoading(true, 'product');
 
     try {
       final result = await _productsService.fetchSuggestedProducts(
@@ -305,7 +348,30 @@ class ProductsProvider with ChangeNotifier {
       setError('suggestion product error: $e');
       setSuggestedProducts([]);
     } finally {
-      setSuggestedProductsIsLoading(false);
+      setSuggestedProductsIsLoading(false, 'product');
+    }
+  }
+
+  Future<void> loadSuggestedProductsDemo() async {
+    setError(null);
+    setSuggestedProductsIsLoading(true, 'home');
+
+    try {
+      final result = await _productsService.fetchSuggestedProducts(
+        id: productDemo.id,
+        brand: productDemo.brand,
+        name: productDemo.name,
+        categories: productDemo.categories,
+        nutriscore: productDemo.nutriscore,
+        nova: productDemo.nova,
+      );
+
+      setSuggestedProductsDemo(result);
+    } catch (e) {
+      setError('suggestion product demo error: $e');
+      setSuggestedProductsDemo([]);
+    } finally {
+      setSuggestedProductsIsLoading(false, 'home');
     }
   }
 

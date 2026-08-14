@@ -20,7 +20,7 @@ class FakeProductsProvider with ChangeNotifier {
   bool _suggestedProductsIsLoading = false;
   String _ajrSelected = 'women';
   String _input = '';
-  String _filter = 'popularity_key';
+  String _filter = '-popularity_key';
   int _page = 1;
   int _pages = 1;
   String? _error;
@@ -225,7 +225,7 @@ class FakeProductsProvider with ChangeNotifier {
 
   Future<void> searchProducts({
     String query = '',
-    String selected = 'popularity_key',
+    String selected = '-popularity_key',
     required String method,
   }) async {
     setError(null);

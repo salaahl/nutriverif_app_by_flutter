@@ -4,36 +4,66 @@ import 'package:http/http.dart' as http;
 import '../../models/model_products.dart';
 
 class ProductsService {
-  static const String _apiBaseUrl = 'https://world.openfoodfacts.org/cgi/search.pl?';
-  static const String _api2BaseUrl =
-      'https://world.openfoodfacts.org/api/v2/search';
-
   static const String _api3BaseUrl = 'https://world.openfoodfacts.org/api/v3';
+  static const String _api4BaseUrl = 'https://search.openfoodfacts.org/search';
 
-  static const String _productFields =
-      'quantity,serving_size,ingredients_text_fr,nutriments,nutrient_levels,manufacturing_places,url';
-
-  static const String _productsFields =
-      'id,image_url,brands,generic_name_fr,categories_tags,created_t,last_modified_t,nutriscore_grade,nova_group,compared_to_category,completeness,popularity_key';
+  static const Map<String, String> _headers = {
+    'User-Agent': 'NutriVerif App/2.0 (sokhona.salaha@gmail.com)',
+  };
 
   Future<Map<String, dynamic>> _getJson(String url) async {
     final response = await http
-        .get(Uri.parse(url))
-        .timeout(Duration(seconds: 45));
-    if (response.statusCode != 200) throw Exception('API error');
+        .get(Uri.parse(url), headers: _headers)
+        .timeout(const Duration(seconds: 20));
+
+    if (response.statusCode != 200) {
+      throw Exception('Erreur HTTP ${response.statusCode}');
+    }
     return jsonDecode(response.body);
   }
 
+  String _cleanProductTitle(String name) {
+    if (name.isEmpty) return '';
+    String cleaned = name.trim();
+
+    final percentRegex = RegExp(r'\d+(?:[.,]\d+)?\s*%');
+    final marketingStopWords = RegExp(
+      r'(?:\s|^)(extra|supérieur|superieur|authentique|traditionnel|traditionnelle|artisanal|artisanale|sélection|selection|premium|gourmand|gourmande|allégé|allégée|allege|allegee|léger|leger|légère|legere|light|minceur|pur|pure|naturel|naturelle|naturels|naturelles|organic|nouveau|nouvelle|excellence|prestige)(?:\s|$)',
+      caseSensitive: false,
+    );
+    final startRegex = RegExp(
+      r'^(le|la|les|un|une|des|du|de|a|à|au|aux|en)(?:\s|$)|^(l|d)[\x27\u2019]\s*',
+      caseSensitive: false,
+    );
+    final endRegex = RegExp(
+      r'(?:\s|^)(le|la|les|un|une|des|du|de|a|à|au|aux|en)$|\s*[\x27\u2019](l|d)$',
+      caseSensitive: false,
+    );
+
+    String previous;
+    do {
+      previous = cleaned;
+      cleaned =
+          cleaned
+              .replaceAll(percentRegex, ' ')
+              .replaceAll(marketingStopWords, ' ')
+              .replaceAll(startRegex, '')
+              .replaceAll(endRegex, '')
+              .replaceAll(RegExp(r'\s+'), ' ')
+              .trim();
+    } while (cleaned != previous);
+
+    return cleaned;
+  }
+
   Future<Product> fetchProductById(String id, {bool complete = false}) async {
-    final String fields =
-        !complete
-            ? _productFields
-            : 'id,image_url,brands,generic_name_fr,categories_tags,last_modified_t,nutriscore_grade,nova_group,quantity,serving_size,ingredients_text_fr,nutriments,nutrient_levels,manufacturing_places,url';
-    final url = '$_api3BaseUrl/product/$id?fields=$fields';
+    const fields =
+        'id,image_front_url,brands,product_name_fr,categories_hierarchy,last_updated_t,nutriscore_grade,nova_group,quantity,serving_size,ingredients_text_with_allergens_fr,nutriments,nutrient_levels,additives_tags,manufacturing_places,link';
+    final url = '$_api3BaseUrl/product/$id?fields=$fields&json=1';
 
     try {
       final data = await _getJson(url);
-      return Product.fromJson(data['product']);
+      return Product.fromJson(data);
     } catch (e) {
       return Product.fromJson({});
     }
@@ -44,17 +74,56 @@ class ProductsService {
     required String sortBy,
     required int page,
   }) async {
-    final url =
-        '${_apiBaseUrl}search_terms=${Uri.encodeComponent(query)}'
-        '&fields=${Uri.encodeComponent(_productsFields)}'
-        '&purchase_places_tags=france&sort_by=${Uri.encodeComponent(sortBy)}&page_size=20&page=$page'
-        '&search_simple=1&action=process&json=1';
+    const fields =
+        'code,image_front_small_url,brands,product_name,nutriscore_grade,nova_group,categories_tags';
+    final queryField =
+        (query.startsWith('fr:') || query.startsWith('en:'))
+            ? 'categories_tags'
+            : 'product_name.fr';
+
+    final sort = sortBy.isNotEmpty ? sortBy : '-popularity_key';
+    final qParam =
+        '$queryField:"$query" AND countries_tags:"en:france" AND states_tags:"en:brands-completed" AND states_tags:"en:product-name-completed" AND states_tags:"en:photos-uploaded"';
+
+    final uri = Uri.parse(_api4BaseUrl).replace(
+      queryParameters: {
+        'q': qParam,
+        'langs': 'fr',
+        'fields': fields,
+        'page_size': '20',
+        'page': page.toString(),
+        'sort_by': sort,
+      },
+    );
 
     try {
-      final data = await _getJson(url);
-      return data;
+      return await _getJson(uri.toString());
     } catch (e) {
       return {};
+    }
+  }
+
+  Future<List<Product>> fetchLastProducts() async {
+    const fields =
+        'code,image_front_small_url,brands,product_name,nutriscore_grade,nova_group,categories_tags,created_t';
+    const qParam =
+        'countries_tags:"en:france" AND states_tags:"en:brands-completed" AND states_tags:"en:product-name-completed" AND states_tags:"en:photos-uploaded"';
+
+    final uri = Uri.parse(_api4BaseUrl).replace(
+      queryParameters: {
+        'q': qParam,
+        'fields': fields,
+        'sort_by': '-created_t',
+        'page_size': '4',
+      },
+    );
+
+    try {
+      final data = await _getJson(uri.toString());
+      final List hits = data['hits'] ?? [];
+      return hits.take(4).map((p) => Product.fromJson(p)).toList();
+    } catch (e) {
+      return [];
     }
   }
 
@@ -66,129 +135,104 @@ class ProductsService {
     required String nutriscore,
     required String nova,
   }) async {
-    // Optimisation : je ne récupère dans un premier temps que les infos essentielles au calcul
-    final String fields =
-        'id,nutriscore_grade,nova_group,completeness,popularity_key';
-    String url =
-        '${_apiBaseUrl}search_terms=${Uri.encodeComponent(name != '' ? name : brand)}'
-        '&categories_tags=${Uri.encodeComponent(categories.join('|'))}'
-        '&fields=${Uri.encodeComponent(fields)}'
-        '&purchase_places_tags=france&sort_by=nutriscore_score,nova_group,popularity_key&page_size=300&action=process&json=1';
+    final effectiveNutriscore =
+        (nutriscore == 'unknown' || nutriscore.isEmpty) ? 'e' : nutriscore;
+    final effectiveNova = (nova == 'unknown' || nova.isEmpty) ? '4' : nova;
+
+    final cleanedName = _cleanProductTitle(
+      name.trim().split(RegExp(r'\s+')).take(5).join(' '),
+    );
+    final searchTerm =
+        cleanedName.isNotEmpty
+            ? cleanedName
+            : (categories.isNotEmpty ? categories.first : '');
+
+    const fields =
+        'code,image_front_small_url,brands,product_name,nutriscore_grade,nova_group,categories_tags,popularity_key';
+    final qParam =
+        'product_name.fr:"$searchTerm" AND countries_tags:"en:france" AND states_tags:"en:brands-completed" AND states_tags:"en:product-name-completed" AND states_tags:"en:photos-uploaded"';
+
+    final uri = Uri.parse(_api4BaseUrl).replace(
+      queryParameters: {
+        'q': qParam,
+        'langs': 'fr',
+        'fields': fields,
+        'page_size': '50',
+        'sort_by': 'nutriscore_score',
+      },
+    );
 
     try {
-      Map<String, dynamic> data = await _getJson(url);
+      final data = await _getJson(uri.toString());
+      final List hits = data['hits'] ?? [];
 
-      const score = ['a', 'b', 'c', 'd', 'e'];
+      const scoreOrder = ['a', 'b', 'c', 'd', 'e'];
+      final specificCategories =
+          categories.length >= 2
+              ? categories.sublist(categories.length - 2)
+              : categories;
 
-      /* Critères :
-      * - de sélection : nutriscore > nova > pertinence
-      * - éliminatoires : pas de nutriscore et/ou completeness < 0.35
-    */
-      final selected =
-          (data['products'] as List).where((e) {
-              final eNutriscore = e['nutriscore_grade'];
-              final eNova = e['nova_group'];
-              final completeness = e['completeness'];
-              final eId = e['id'] ?? e['code'];
+      final filteredHits =
+          hits.where((e) {
+            final productCode = (e['code'] ?? e['id'])?.toString();
+            if (productCode == id) return false;
 
-              // 🔵 Application des filtres
+            var itemNutriscore = e['nutriscore_grade']?.toString();
+            if (itemNutriscore == null ||
+                itemNutriscore == 'not-applicable' ||
+                itemNutriscore == 'unknown') {
+              itemNutriscore = effectiveNutriscore;
+            }
 
-              // 1.  Critères éliminatoires : éliminer s'il s'agit du produit actuellement affiché
-              if (eId == null || eId == id) return false;
+            final itemNova = num.tryParse(e['nova_group']?.toString() ?? '');
+            final targetNova = num.tryParse(effectiveNova);
 
-              // 2. Critères éliminatoires : nutriscore absent ou inconnu
-              if (!score.contains(eNutriscore) || !score.contains(nutriscore)) {
-                return false;
-              }
-              // 3. Critères éliminatoires : completeness inférieur à 0.35
-              if (completeness is! num || completeness < 0.35) {
-                return false;
-              }
+            final itemTags =
+                (e['categories_tags'] as List?)?.cast<String>() ??
+                (e['categories_hierarchy'] as List?)?.cast<String>() ??
+                [];
 
-              // 4. Comparaison entre le nutriscore du produit et celui du produit de base
-              final eScoreIndex = score.indexOf(eNutriscore);
-              final pScoreIndex = score.indexOf(nutriscore);
-              final scoreDiff = eScoreIndex.compareTo(pScoreIndex);
+            final currentScoreIndex = scoreOrder.indexOf(itemNutriscore);
+            final targetScoreIndex = scoreOrder.indexOf(effectiveNutriscore);
 
-              final eNovaParsed = num.tryParse(eNova.toString());
-              final pNovaParsed = num.tryParse(nova);
-              final bothNovaOk =
-                  eNovaParsed != null &&
-                  pNovaParsed != null; // doit renvoyer true
+            final isBetterNutriscore =
+                currentScoreIndex != -1 &&
+                targetScoreIndex != -1 &&
+                currentScoreIndex < targetScoreIndex;
 
-              // 5. Sélection par priorité :
-              // - Un meilleur nutriscore passe
-              if (scoreDiff < 0) return true;
+            final isEqualNutriscoreBetterNova =
+                currentScoreIndex == targetScoreIndex &&
+                itemNova != null &&
+                targetNova != null &&
+                itemNova < targetNova;
 
-              // - Si nutriscore égal, vérifier la nova : une meilleure nova passe
-              if (scoreDiff == 0 && bothNovaOk && eNovaParsed < pNovaParsed) {
-                return true;
-              }
+            final matchesCategory =
+                specificCategories.isEmpty ||
+                itemTags.any((tag) => specificCategories.contains(tag));
 
-              // 🔵 7. Sinon, le produit n'est pas sélectionné
-              return false;
-            }).toList()
-            ..sort((a, b) {
-              // 🟢 Tri final des produits sélectionnés
+            return (isBetterNutriscore || isEqualNutriscoreBetterNova) &&
+                matchesCategory;
+          }).toList();
 
-              // 1. Priorité sur le nutriscore (meilleur d'abord)
-              final aScore = score.indexOf(a['nutriscore_grade']);
-              final bScore = score.indexOf(b['nutriscore_grade']);
-              final scoreComp = aScore.compareTo(bScore);
-              if (scoreComp != 0) return scoreComp;
+      filteredHits.sort((a, b) {
+        final aScore = scoreOrder.indexOf(
+          a['nutriscore_grade']?.toString() ?? 'e',
+        );
+        final bScore = scoreOrder.indexOf(
+          b['nutriscore_grade']?.toString() ?? 'e',
+        );
+        if (aScore != bScore) return aScore.compareTo(bScore);
 
-              // 2. Si nutriscore égal, priorité sur le nova
-              final aNova = num.tryParse(a['nova_group'].toString());
-              final bNova = num.tryParse(b['nova_group'].toString());
-              if (aNova != null && bNova != null) {
-                final novaComp = (aNova - bNova).toInt();
-                if (novaComp != 0) return novaComp;
-              }
+        final aNova = num.tryParse(a['nova_group']?.toString() ?? '') ?? 4;
+        final bNova = num.tryParse(b['nova_group']?.toString() ?? '') ?? 4;
+        if (aNova != bNova) return aNova.compareTo(bNova);
 
-              // 3. Si nutriscore et nova égaux, priorité sur la pertinence
-              final aPop = a['popularity_key'];
-              final bPop = b['popularity_key'];
-              if (aPop is int && bPop is int) {
-                return bPop - aPop;
-              }
+        final aPop = (a['popularity_key'] as num?)?.toInt() ?? 0;
+        final bPop = (b['popularity_key'] as num?)?.toInt() ?? 0;
+        return bPop.compareTo(aPop);
+      });
 
-              // 4. Sinon, égalité
-              return 0;
-            });
-
-      if (selected.isEmpty) return [];
-
-      // 8. Selection des 4 meilleurs produits
-      url =
-          '${_apiBaseUrl}code=${Uri.encodeComponent(selected.take(4).map((e) => e['id']).join('|'))}'
-          '&fields=${Uri.encodeComponent(_productsFields)}'
-          '&sort_by=nutriscore_score,nova_group,popularity_key&page_size=4&action=process&json=1';
-      data = await _getJson(url);
-      final List<dynamic> productsJson = data['products'];
-
-      return productsJson.reversed.map((p) => Product.fromJson(p)).toList();
-    } catch (e) {
-      return [];
-    }
-  }
-
-  Future<List<Product>> fetchLastProducts() async {
-    final url =
-        '$_api2BaseUrl?&fields=${Uri.encodeComponent(_productsFields)}&purchase_places_tags=france&sort_by=created_t&page_size=300&action=process&json=1';
-
-    try {
-      final data = await _getJson(url);
-
-      final filtered =
-          (data['products'] as List)
-              .where((p) => (p['completeness'] as num).toDouble() >= 0.35)
-              .toList()
-            ..sort(
-              (a, b) =>
-                  (b['created_t'] as num).compareTo((a['created_t'] as num)),
-            );
-
-      return filtered.take(4).map((p) => Product.fromJson(p)).toList();
+      return filteredHits.take(4).map((p) => Product.fromJson(p)).toList();
     } catch (e) {
       return [];
     }

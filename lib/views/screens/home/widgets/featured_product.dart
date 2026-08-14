@@ -181,20 +181,8 @@ class _FeaturedProductState extends State<FeaturedProduct> {
                             (_, provider) =>
                                 provider.suggestedProductsDemo.isEmpty,
                         builder: (context, isEmpty, _) {
-                          if (isEmpty) {
-                            return Padding(
-                              padding: const EdgeInsets.only(
-                                top: 48,
-                                bottom: 62,
-                              ),
-                              child: Loader(),
-                            );
-                          }
                           return AlternativeProducts(
-                            products:
-                                context
-                                    .read<ProductsProvider>()
-                                    .suggestedProductsDemo,
+                            isFrom: 'home',
                             animate: true,
                           );
                         },

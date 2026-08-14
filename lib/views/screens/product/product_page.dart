@@ -12,6 +12,7 @@ import './widgets/product_name.dart';
 import './widgets/product_details.dart';
 import './widgets/product_nutrients.dart';
 import './widgets/product_scores.dart';
+import './widgets/product_additives.dart';
 import './widgets/product_alternatives.dart';
 
 class ProductPage extends StatefulWidget {
@@ -77,6 +78,7 @@ class _ProductPageState extends State<ProductPage>
     try {
       if (_provider.suggestedProducts.isNotEmpty) {
         _provider.suggestedProducts.clear();
+        _provider.setShowSuggestedProducts(false);
       }
 
       await _provider.loadProductById(widget.id);
@@ -89,10 +91,6 @@ class _ProductPageState extends State<ProductPage>
 
       // Démarrer l'animation
       _animationController.forward();
-
-      if (_shouldLoadSuggestions()) {
-        _loadSuggestions();
-      }
     } catch (e) {
       if (!mounted) return;
 
@@ -101,26 +99,6 @@ class _ProductPageState extends State<ProductPage>
         _hasError = true;
         _errorMessage = e.toString();
       });
-    }
-  }
-
-  // Retourne true si le produit devrait charger des suggestions au vu de son score
-  bool _shouldLoadSuggestions() {
-    return widget.nutriscore != 'a' || (int.tryParse(widget.nova) ?? 4) != 1;
-  }
-
-  Future<void> _loadSuggestions() async {
-    try {
-      await _provider.loadSuggestedProducts(
-        id: widget.id,
-        brand: widget.brand,
-        name: widget.name,
-        categories: widget.categories,
-        nutriscore: widget.nutriscore,
-        nova: widget.nova,
-      );
-    } catch (e) {
-      debugPrint('Erreur lors du chargement des suggestions: $e');
     }
   }
 
@@ -222,6 +200,8 @@ class _ProductPageState extends State<ProductPage>
           child: AppContainer(
             child: _AnimatedContent(
               animation: _animationController,
+              nutriscore: widget.nutriscore,
+              nova: widget.nova,
               categories: widget.categories,
             ),
           ),
@@ -233,15 +213,26 @@ class _ProductPageState extends State<ProductPage>
 
 class _AnimatedContent extends StatelessWidget {
   final Animation<double> animation;
+  final String nutriscore;
+  final String nova;
   final List<String> categories;
 
-  const _AnimatedContent({required this.animation, required this.categories});
+  const _AnimatedContent({
+    required this.animation,
+    required this.nutriscore,
+    required this.nova,
+    required this.categories,
+  });
+
+  // Retourne true si le produit devrait charger des suggestions au vu de son score
+  bool _shouldLoadSuggestions() {
+    return nutriscore != 'a' || (int.tryParse(nova) ?? 4) != 1;
+  }
 
   @override
   Widget build(BuildContext context) {
     final provider = context.read<ProductsProvider>();
     final product = provider.product;
-    final suggestedProducts = provider.suggestedProducts;
 
     return AnimatedBuilder(
       animation: animation,
@@ -264,6 +255,7 @@ class _AnimatedContent extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ProductNutrients(nutrients: product.nutrientLevels),
+            ProductAdditives(additives: product.additives),
             ProductDetails(
               id: product.id,
               categories: categories,
@@ -274,7 +266,8 @@ class _AnimatedContent extends StatelessWidget {
               manufacturingPlace: product.manufacturingPlace,
               link: product.link,
             ),
-            AlternativeProducts(products: suggestedProducts),
+            if (_shouldLoadSuggestions())
+              AlternativeProducts(isFrom: 'product'),
           ],
         ),
       ),

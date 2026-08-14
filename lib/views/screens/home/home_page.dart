@@ -4,6 +4,7 @@ import 'package:visibility_detector/visibility_detector.dart';
 
 import 'package:app_nutriverif/core/constants/custom_values.dart';
 import 'package:app_nutriverif/core/services/products_service.dart';
+import 'package:app_nutriverif/core/services/mock_products_service.dart';
 import 'package:app_nutriverif/providers/products_provider.dart';
 
 import '../../widgets/app_container.dart';
@@ -26,11 +27,35 @@ class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
 
-  final _service = ProductsService();
+  final _service = isLocal ? MockProductsService() : ProductsService();
   final ValueNotifier<Set<String>> _visibleSections =
       ValueNotifier<Set<String>>({});
 
   bool _isInitialized = false;
+
+  void searchSuggestedProducts() async {
+    try {
+      final ProductsProvider provider = context.read<ProductsProvider>();
+      final product = provider.productDemo;
+
+      if (provider.productDemo.id.isEmpty) return;
+
+      _service
+          .fetchSuggestedProducts(
+            id: product.id,
+            brand: product.brand,
+            name: product.name,
+            categories: product.categories,
+            nutriscore: product.nutriscore,
+            nova: product.nova,
+          )
+          .then((suggestedProducts) {
+            provider.setSuggestedProductsDemo(suggestedProducts);
+          });
+    } catch (e) {
+      debugPrint('Erreur lors du chargement des produits suggérés: $e');
+    }
+  }
 
   @override
   void initState() {
@@ -65,24 +90,6 @@ class _HomePageState extends State<HomePage>
         complete: true,
       );
       provider.setProductDemo(productDemo);
-
-      if (productDemo.id.isEmpty) return;
-
-      await Future.wait([
-        _service
-            .fetchSuggestedProducts(
-              id: productDemo.id,
-              brand: productDemo.brand,
-              name: productDemo.name,
-              categories: productDemo.categories,
-              nutriscore: productDemo.nutriscore,
-              nova: productDemo.nova,
-            )
-            .then((suggestedProducts) {
-              provider.setSuggestedProductsDemo(suggestedProducts);
-            }),
-        provider.loadLastProducts(),
-      ]);
 
       _isInitialized = true;
     } catch (e) {

@@ -37,7 +37,7 @@ class ProductDetails extends StatefulWidget {
 class _ProductDetailsState extends State<ProductDetails> {
   late ProductsProvider _provider;
 
-  List<String> categoriesTranslated = [];
+  List<Map<String, String>> categoriesTranslated = [];
   bool categoriesIsLoading = true;
 
   @override
@@ -120,9 +120,14 @@ class _ProductDetailsState extends State<ProductDetails> {
                   ? [const SizedBox.shrink()]
                   : categoriesTranslated
                       .where(
-                        (category) => category.trim().isNotEmpty,
+                        (category) => category['translated']!.trim().isNotEmpty,
                       ) // Empêcher les chaines de caractères vides
-                      .map((category) => CategoryButton(category: category))
+                      .map(
+                        (category) => CategoryButton(
+                          searchTerm: category['original']!,
+                          name: category['translated']!,
+                        ),
+                      )
                       .toList(),
         ),
       ],
@@ -165,9 +170,14 @@ class _CategoriesLoaderState extends State<CategoriesLoader> {
 }
 
 class CategoryButton extends StatelessWidget {
-  final String category;
+  final String searchTerm;
+  final String name;
 
-  const CategoryButton({super.key, required this.category});
+  const CategoryButton({
+    super.key,
+    required this.searchTerm,
+    required this.name,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -183,10 +193,10 @@ class CategoryButton extends StatelessWidget {
           context,
           MaterialPageRoute(builder: (context) => ProductSearchPage()),
         );
-        await provider.searchProducts(query: category, method: 'complete');
+        await provider.searchProducts(query: searchTerm, method: 'complete');
       },
       child: Text(
-        "#$category",
+        "#$name",
         style: const TextStyle(fontWeight: FontWeight.bold),
       ),
     );

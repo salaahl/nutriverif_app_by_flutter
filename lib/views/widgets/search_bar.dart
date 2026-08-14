@@ -20,11 +20,11 @@ class _AppSearchBarState extends State<AppSearchBar> {
   late TextEditingController _searchController;
 
   final Map<String, String> _filters = {
-    'Pertinence': 'popularity_key',
-    'Nom': 'product_name',
-    'Date de création': 'created_t',
+    'Pertinence': '-popularity_key',
+    'Complétude': 'completeness',
+    'Date d\'ajout': 'created_t',
     'Nutriscore': 'nutriscore_score',
-    'Nova Score': 'nova_score',
+    'Groupe Nova': 'nova_group',
   };
 
   Future<void> _searchProducts() async {

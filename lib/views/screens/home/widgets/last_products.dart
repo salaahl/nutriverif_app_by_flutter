@@ -52,7 +52,62 @@ class LastProducts extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child:
-                      provider.lastProductsIsLoading
+                      !context.read<ProductsProvider>().showLastProducts
+                          ? Container(
+                            margin: const EdgeInsets.only(top: 16),
+                            width: double.infinity,
+                            child: Tooltip(
+                              message: 'Plus de produits',
+                              child: Wrap(
+                                alignment: WrapAlignment.spaceBetween,
+                                spacing:
+                                    actualWidth > maxWidth
+                                        ? maxWidth / 100 * 4
+                                        : actualWidth / 100 * 4,
+                                children: [
+                                  ...List.generate(
+                                    4,
+                                    (_) => const ProductCard(
+                                      product: null,
+                                      widthAjustment: 32,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        context
+                                            .read<ProductsProvider>()
+                                            .loadLastProducts();
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
+                                        backgroundColor: const Color.fromRGBO(
+                                          0,
+                                          189,
+                                          126,
+                                          1,
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        'Afficher les produits',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                          : provider.lastProductsIsLoading
                           ? const Loader()
                           : SizedBox(
                             height:
@@ -65,12 +120,8 @@ class LastProducts extends StatelessWidget {
                               alignment: WrapAlignment.spaceBetween,
                               spacing:
                                   actualWidth > maxWidth
-                                      ? actualWidth /
-                                          100 *
-                                          2
-                                      : actualWidth /
-                                          100 *
-                                          4,
+                                      ? actualWidth / 100 * 2
+                                      : actualWidth / 100 * 4,
                               children:
                                   provider.lastProducts.map((product) {
                                     return ProductCard(

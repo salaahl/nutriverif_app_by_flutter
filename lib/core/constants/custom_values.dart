@@ -50,14 +50,20 @@ Future<dynamic> productTransition(BuildContext context, Product product) {
 
 // Others
 const appIcon = 'assets/images/logo.png';
+const bool isLocal = false;
 
 // Permet de retourner un cacheHeight et un cacheWidth adaptés à la résolution de l'écran
 int getCacheHeight(BuildContext context, double logicalHeight) {
+  // On ne peut pas avoir une hauteur de cache de 0 ou moins, donc on retourne 1 pour éviter les erreurs.
+  if (logicalHeight <= 0) return 1;
+
   final ratio = MediaQuery.of(context).devicePixelRatio;
   return (logicalHeight * ratio).round();
 }
 
 int getCacheWidth(BuildContext context, double logicalWidth) {
+  if (logicalWidth <= 0) return 1;
+
   final ratio = MediaQuery.of(context).devicePixelRatio;
-  return (logicalWidth * ratio).round();
+  return (logicalWidth * ratio).round().clamp(1, double.maxFinite.toInt());
 }
