@@ -122,7 +122,7 @@ Widget _card(BuildContext context, Product product, double widthAjustment) {
     decoration: BoxDecoration(
       gradient: RadialGradient(
         center: Alignment.center,
-        radius: 0.5,
+        radius: 1,
         colors: [
           Color.fromRGBO(249, 249, 249, 1),
           Color.fromRGBO(249, 249, 249, 0.5),

@@ -31,7 +31,7 @@ void main() {
           id: '3608580758686',
           brand: 'Fake Brand',
           name: 'Barre de chocolat',
-          categories: ['Snacks', 'Desserts', 'Chocolate products'],
+          categories: ['fr:pates-a-tartiner', 'en:Snacks'],
           nutriscore: 'a',
           nova: '2',
         );

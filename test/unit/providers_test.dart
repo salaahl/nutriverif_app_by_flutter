@@ -19,8 +19,8 @@ void main() {
         await provider.loadProductById('3608580758686');
 
         // S\'assurer que le produit a été initialisé correctement et que le loader est maintenant inactif
-        expect(provider.product.name, 'Fake Product');
-        expect(provider.product.brand, 'Fake Brand');
+        expect(provider.product.name, 'Pâte à tartiner aux noisettes et au cacao');
+        expect(provider.product.brand, 'Nutella');
         expect(provider.product.nutriscore, 'd');
         expect(provider.productIsLoading, false);
       },
@@ -33,12 +33,12 @@ void main() {
           id: '3608580758686',
           brand: 'Marque de chocolat',
           name: 'Barre de chocolat',
-          categories: ['Snacks', 'Desserts', 'Chocolate products'],
+          categories: ['fr:pates-a-tartiner', 'en:Snacks'],
           nutriscore: 'b',
           nova: '2',
         );
 
-        expect(provider.suggestedProducts, hasLength(2));
+        expect(provider.suggestedProducts, hasLength(4));
         expect(provider.suggestedProducts[0].name, 'Best product');
       },
     );
@@ -70,11 +70,11 @@ void main() {
         );
 
         expect(translatedCategories, hasLength(4));
-        expect(translatedCategories[0], 'Snacks');
-        expect(translatedCategories[1], 'Desserts');
-        expect(translatedCategories[2], 'Produits au chocolat');
+        expect(translatedCategories[0]['translated'], 'Snacks');
+        expect(translatedCategories[1]['translated'], 'Desserts');
+        expect(translatedCategories[2]['translated'], 'Produits au chocolat');
         expect(
-          translatedCategories[3],
+          translatedCategories[3]['translated'],
           'Bonjour',
         ); // Texte retourné par le service de traduction
       },
