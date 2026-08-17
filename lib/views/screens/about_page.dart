@@ -26,7 +26,7 @@ class AboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final customStyles = {
-      'textColor': Colors.redAccent,
+      'bgColor': '#FFFFFF59',
       'arrowColor': const Color.fromRGBO(255, 255, 255, 0.35),
     };
 

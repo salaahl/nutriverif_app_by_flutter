@@ -96,13 +96,10 @@ class _ProductDetailsState extends State<ProductDetails> {
                 ).copyWith(dividerColor: Colors.transparent),
                 child: ExpansionTile(
                   initiallyExpanded: false,
-                  tilePadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 4,
-                  ),
+                  tilePadding: const EdgeInsets.symmetric(horizontal: 16),
                   collapsedBackgroundColor: Colors.white,
                   backgroundColor: Colors.white,
-                  iconColor: const Color(0xFF9CA3AF), // text-gray-400
+                  iconColor: const Color(0xFF9CA3AF),
                   collapsedIconColor: const Color(0xFF9CA3AF),
                   title: Row(
                     children: [
@@ -116,7 +113,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                         'Quantité',
                         style: TextStyle(
                           color: Color(0xFF1F2937),
-                          fontSize: 16,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -168,10 +165,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                 ).copyWith(dividerColor: Colors.transparent),
                 child: ExpansionTile(
                   initiallyExpanded: false,
-                  tilePadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 4,
-                  ),
+                  tilePadding: const EdgeInsets.symmetric(horizontal: 16),
                   collapsedBackgroundColor: Colors.white,
                   backgroundColor: Colors.white,
                   iconColor: const Color(0xFF9CA3AF),
@@ -188,7 +182,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                         'Ingrédients',
                         style: TextStyle(
                           color: Color(0xFF1F2937),
-                          fontSize: 16,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -240,10 +234,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                 ).copyWith(dividerColor: Colors.transparent),
                 child: ExpansionTile(
                   initiallyExpanded: false,
-                  tilePadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 4,
-                  ),
+                  tilePadding: const EdgeInsets.symmetric(horizontal: 16),
                   collapsedBackgroundColor: Colors.white,
                   backgroundColor: Colors.white,
                   iconColor: const Color(0xFF9CA3AF),
@@ -260,7 +251,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                         'Informations complémentaires',
                         style: TextStyle(
                           color: Color(0xFF1F2937),
-                          fontSize: 16,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
                       ),

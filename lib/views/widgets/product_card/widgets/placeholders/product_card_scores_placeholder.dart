@@ -48,25 +48,28 @@ class ProductCardScoresPlaceholder extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: Container(
-                margin: const EdgeInsets.only(left: 60),
-                child: Container(
-                  width: 60, // Plutôt géré par le margin gauche de 60
-                  height: 30,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    gradient: LinearGradient(
-                      begin: Alignment.bottomLeft,
-                      end: Alignment.topRight,
-                      colors: [
-                        Colors.black.withValues(alpha: 0.05),
-                        Colors.black.withValues(alpha: 0.1),
-                        Colors.black.withValues(alpha: 0.15),
-                      ],
-                      stops: const [0.3, 0.6, 1.0],
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    width: 70,
+                    height: 30,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomLeft,
+                        end: Alignment.topRight,
+                        colors: [
+                          Colors.black.withValues(alpha: 0.05),
+                          Colors.black.withValues(alpha: 0.1),
+                          Colors.black.withValues(alpha: 0.15),
+                        ],
+                        stops: const [0.3, 0.6, 1.0],
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
             ),
           ],

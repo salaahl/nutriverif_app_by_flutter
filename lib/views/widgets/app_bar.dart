@@ -7,17 +7,17 @@ Widget myAppBar(
   BuildContext context, {
   String? route = '',
   Map<String, dynamic>? customStyles = const {
-    'textColor': customGreen,
+    'bgColor': '#00BD7E',
     'arrowColor': Colors.white,
   },
 }) {
-  const String bgBlobSvg = '''
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 900 600'>
-  <g transform='translate(416.34369726421266 281.01462663501235)'>
-    <path d='M149 -145.8C185.3 -112.7 201.7 -56.3 208.9 7.2C216 70.7 214.1 141.4 177.8 180.8C141.4 220.1 70.7 228 11.7 216.4C-47.4 204.7 -94.8 173.4 -119.8 134.1C-144.8 94.8 -147.4 47.4 -143.3 4.1C-139.1 -39.1 -128.3 -78.3 -103.3 -111.4C-78.3 -144.6 -39.1 -171.8 8.6 -180.4C56.3 -189 112.7 -179 149 -145.8' fill='#00BD7E'/>
-  </g>
-</svg>
-''';
+  String bgBlobSvg = '''
+  <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 900 600'>
+    <g transform='translate(416.34369726421266 281.01462663501235)'>
+      <path d='M149 -145.8C185.3 -112.7 201.7 -56.3 208.9 7.2C216 70.7 214.1 141.4 177.8 180.8C141.4 220.1 70.7 228 11.7 216.4C-47.4 204.7 -94.8 173.4 -119.8 134.1C-144.8 94.8 -147.4 47.4 -143.3 4.1C-139.1 -39.1 -128.3 -78.3 -103.3 -111.4C-78.3 -144.6 -39.1 -171.8 8.6 -180.4C56.3 -189 112.7 -179 149 -145.8' fill='${customStyles?['bgColor']}'/>
+    </g>
+  </svg>
+  ''';
 
   return SafeArea(
     child: Center(

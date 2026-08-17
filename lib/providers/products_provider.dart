@@ -231,7 +231,9 @@ class ProductsProvider with ChangeNotifier {
     }
 
     final englishToTranslate = englishCategories.take(limit).toList();
-    final categoriesToTranslate = englishToTranslate.join('<SEP>');
+    final categoriesToTranslate = englishToTranslate
+        .map((c) => cleanCategory(c, 'en'))
+        .join('<SEP>');
 
     List<String> translatedCategories = [];
 
@@ -257,7 +259,7 @@ class ProductsProvider with ChangeNotifier {
 
       finalCategories.add({
         'original': englishToTranslate[i],
-        'translated': cleanCategory(translated, 'en'),
+        'translated': translated,
       });
     }
 

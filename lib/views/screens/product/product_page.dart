@@ -78,10 +78,10 @@ class _ProductPageState extends State<ProductPage>
     try {
       if (_provider.suggestedProducts.isNotEmpty) {
         _provider.suggestedProducts.clear();
-        _provider.setShowSuggestedProducts(false);
       }
 
       await _provider.loadProductById(widget.id);
+      _provider.setShowSuggestedProducts(false);
 
       if (!mounted) return;
 

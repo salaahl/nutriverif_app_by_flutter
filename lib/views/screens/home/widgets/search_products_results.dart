@@ -29,19 +29,7 @@ class SearchProductsResults extends StatelessWidget {
                       ? null
                       : 0,
               width: double.infinity,
-              padding:
-                  actualWidth > maxWidth
-                      ? const EdgeInsets.all(32)
-                      : const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  center: Alignment.center,
-                  radius: 1,
-                  colors: [
-                    Color.fromRGBO(255, 255, 255, 0.75),
-                    Color.fromRGBO(255, 255, 255, 0.15),
-                  ],
-                ),
                 borderRadius: BorderRadius.circular(16),
               ),
               child:
@@ -57,7 +45,7 @@ class SearchProductsResults extends StatelessWidget {
                             provider.products.take(4).map((product) {
                               return ProductCard(
                                 product: product,
-                                widthAjustment: 48,
+                                widthAjustment: 32,
                                 animate: false,
                               );
                             }).toList(),
