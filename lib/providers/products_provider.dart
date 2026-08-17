@@ -204,16 +204,20 @@ class ProductsProvider with ChangeNotifier {
     String cleanCategory(String cat, String langPrefix) {
       return cat
           .trim()
-          .replaceFirst(RegExp('^$langPrefix:'), '')
+          .replaceFirst(RegExp('^$langPrefix:', caseSensitive: false), '')
           .replaceAll('-', ' ')
           .trim();
     }
 
     final frenchCategories =
-        categories.where((c) => c.startsWith('fr:')).toList();
+        categories
+            .where((c) => c.trim().toLowerCase().startsWith('fr:'))
+            .toList();
 
     final englishCategories =
-        categories.where((c) => c.startsWith('en:')).toList();
+        categories
+            .where((c) => c.trim().toLowerCase().startsWith('en:'))
+            .toList();
 
     final List<Map<String, String>> finalCategories =
         frenchCategories
@@ -230,10 +234,10 @@ class ProductsProvider with ChangeNotifier {
       return finalCategories;
     }
 
-    final englishToTranslate = englishCategories.take(limit).toList();
-    final categoriesToTranslate = englishToTranslate
-        .map((c) => cleanCategory(c, 'en'))
-        .join('<SEP>');
+    final rawEnglish = englishCategories.take(limit).toList();
+    final cleanedEnglish =
+        rawEnglish.map((c) => cleanCategory(c, 'en')).toList();
+    final categoriesToTranslate = cleanedEnglish.join('<SEP>');
 
     List<String> translatedCategories = [];
 
@@ -245,20 +249,18 @@ class ProductsProvider with ChangeNotifier {
       translatedCategories = data.split('<SEP>').map((c) => c.trim()).toList();
     } catch (e) {
       setError('Erreur pendant la traduction: $e');
-      // Je récupère quand meme les categories en anglais
-      translatedCategories = englishToTranslate;
+      translatedCategories = cleanedEnglish;
     }
 
-    for (int i = 0; i < englishToTranslate.length; i++) {
-      // Fallback de sécurité si l'API renvoie moins de séparateurs que prévu
+    for (int i = 0; i < rawEnglish.length; i++) {
       final translated =
           (i < translatedCategories.length &&
                   translatedCategories[i].isNotEmpty)
               ? translatedCategories[i]
-              : englishToTranslate[i];
+              : cleanedEnglish[i];
 
       finalCategories.add({
-        'original': englishToTranslate[i],
+        'original': rawEnglish[i],
         'translated': translated,
       });
     }

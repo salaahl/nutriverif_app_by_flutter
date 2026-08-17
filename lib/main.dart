@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:app_nutriverif/app.dart';
@@ -11,6 +13,16 @@ void main() {
       statusBarIconBrightness: Brightness.dark,
       statusBarColor: Colors.transparent,
     ),
+  );
+
+  // Réveil du proxy
+  unawaited(
+    http
+        .get(Uri.parse('https://jokes-api-platform.onrender.com/'))
+        .timeout(const Duration(seconds: 60))
+        .catchError((error) {
+          return http.Response('', 500);
+        }),
   );
 
   runApp(

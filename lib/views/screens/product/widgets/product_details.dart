@@ -336,6 +336,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                                     fontWeight: FontWeight.w600,
                                     decoration: TextDecoration.underline,
                                     decorationColor: Colors.redAccent,
+                                    decorationThickness: 3,
                                   ),
                                 ),
                                 const SizedBox(width: 4),

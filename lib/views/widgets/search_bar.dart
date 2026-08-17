@@ -21,8 +21,8 @@ class _AppSearchBarState extends State<AppSearchBar> {
 
   final Map<String, String> _filters = {
     'Pertinence': '-popularity_key',
-    'Complétude': 'completeness',
-    'Date d\'ajout': 'created_t',
+    'Complétude': '-completeness',
+    'Date d\'ajout': '-created_t',
     'Nutriscore': 'nutriscore_score',
     'Groupe Nova': 'nova_group',
   };
