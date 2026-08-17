@@ -51,7 +51,14 @@ Widget _cardPlaceholder(BuildContext context, double widthAjustment) {
     width: cardWidth,
     margin: const EdgeInsets.only(bottom: 16),
     decoration: BoxDecoration(
-      color: Colors.white,
+      gradient: RadialGradient(
+        center: Alignment.center,
+        radius: 0.5,
+        colors: [
+          Color.fromRGBO(249, 249, 249, 1),
+          Color.fromRGBO(249, 249, 249, 0.5),
+        ],
+      ),
       borderRadius: BorderRadius.circular(16),
       boxShadow: [
         const BoxShadow(
@@ -69,7 +76,7 @@ Widget _cardPlaceholder(BuildContext context, double widthAjustment) {
       ],
     ),
     child: Material(
-      color: const Color.fromRGBO(249, 249, 249, 1),
+      color: Colors.transparent,
       borderRadius: BorderRadius.circular(12),
       elevation: 0,
       child: InkWell(
@@ -113,7 +120,14 @@ Widget _card(BuildContext context, Product product, double widthAjustment) {
     width: cardWidth,
     margin: const EdgeInsets.only(bottom: 16),
     decoration: BoxDecoration(
-      color: Colors.white,
+      gradient: RadialGradient(
+        center: Alignment.center,
+        radius: 0.5,
+        colors: [
+          Color.fromRGBO(249, 249, 249, 1),
+          Color.fromRGBO(249, 249, 249, 0.5),
+        ],
+      ),
       borderRadius: BorderRadius.circular(16),
       boxShadow: [
         const BoxShadow(
@@ -131,7 +145,7 @@ Widget _card(BuildContext context, Product product, double widthAjustment) {
       ],
     ),
     child: Material(
-      color: const Color.fromRGBO(249, 249, 249, 1),
+      color: Colors.transparent,
       borderRadius: BorderRadius.circular(12),
       elevation: 0,
       child: InkWell(

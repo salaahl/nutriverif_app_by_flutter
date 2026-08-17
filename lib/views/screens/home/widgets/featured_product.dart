@@ -25,7 +25,9 @@ class _FeaturedProductState extends State<FeaturedProduct> {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(color: Colors.grey[300]),
+      decoration: BoxDecoration(
+        color: const Color.fromRGBO(255, 255, 255, 0.5),
+      ),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: maxWidth),
@@ -51,7 +53,7 @@ class _FeaturedProductState extends State<FeaturedProduct> {
               const Text.rich(
                 TextSpan(
                   text: "Vous méritez le meilleur pour votre alimentation",
-                  style: TextStyle(backgroundColor: Colors.redAccent),
+                  style: TextStyle(backgroundColor: customGreen),
                   children: [
                     TextSpan(
                       text:
@@ -82,7 +84,7 @@ class _FeaturedProductState extends State<FeaturedProduct> {
                                 ? const EdgeInsets.all(32)
                                 : const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.grey[200],
+                          color: const Color.fromRGBO(255, 255, 255, 0.5),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Column(
@@ -161,7 +163,7 @@ class _FeaturedProductState extends State<FeaturedProduct> {
                                   Container(
                                     padding: const EdgeInsets.all(16),
                                     decoration: BoxDecoration(
-                                      color: Colors.grey[200],
+                                      color: Colors.grey[100],
                                       borderRadius: BorderRadius.circular(999),
                                     ),
                                     child: Icon(
@@ -175,7 +177,7 @@ class _FeaturedProductState extends State<FeaturedProduct> {
                           },
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 32),
                       Selector<ProductsProvider, bool>(
                         selector:
                             (_, provider) =>

@@ -176,6 +176,7 @@ class _ProductPageState extends State<ProductPage>
           ],
           const SizedBox(height: 16),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(shadowColor: Colors.transparent),
             onPressed: () {
               setState(() {
                 _isLoading = true;

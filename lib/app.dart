@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'routes/app_router.dart';
 
+import 'package:app_nutriverif/views/widgets/bg_svg.dart';
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -39,6 +41,9 @@ class MyApp extends StatelessWidget {
       ),
       onGenerateRoute: generateRoute,
       initialRoute: '/',
+      builder: (context, child) {
+        return AppBackgroundWrapper(child: child ?? const SizedBox.shrink());
+      },
     );
   }
 }

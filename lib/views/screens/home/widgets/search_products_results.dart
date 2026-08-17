@@ -19,62 +19,73 @@ class SearchProductsResults extends StatelessWidget {
     return AnimatedSize(
       duration: defaultAnimationTime,
       curve: defaultAnimationCurve,
-      child: Column(
-        children: [
-          Container(
-            height:
-                provider.productsIsLoading || provider.products.isNotEmpty
-                    ? null
-                    : 0,
-            width: double.infinity,
-            padding:
-                actualWidth > maxWidth
-                    ? const EdgeInsets.all(32)
-                    : const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child:
-                provider.productsIsLoading
-                    ? const Loader()
-                    : Wrap(
-                      alignment: WrapAlignment.spaceBetween,
-                      spacing:
-                          actualWidth > maxWidth
-                              ? actualWidth / 100 * 2
-                              : actualWidth / 100 * 4,
-                      children:
-                          provider.products.take(4).map((product) {
-                            return ProductCard(
-                              product: product,
-                              widthAjustment: 32,
-                              animate: false,
-                            );
-                          }).toList(),
-                    ),
-          ),
-          if (provider.products.length > 3)
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 32),
+        child: Column(
+          children: [
             Container(
-              margin: const EdgeInsets.only(top: 16),
+              height:
+                  provider.productsIsLoading || provider.products.isNotEmpty
+                      ? null
+                      : 0,
               width: double.infinity,
-              child: Tooltip(
-                message: 'Plus de produits',
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/products');
-                  },
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+              padding:
+                  actualWidth > maxWidth
+                      ? const EdgeInsets.all(32)
+                      : const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  center: Alignment.center,
+                  radius: 1,
+                  colors: [
+                    Color.fromRGBO(255, 255, 255, 0.75),
+                    Color.fromRGBO(255, 255, 255, 0.15),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child:
+                  provider.productsIsLoading
+                      ? const Loader()
+                      : Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        spacing:
+                            actualWidth > maxWidth
+                                ? actualWidth / 100 * 2
+                                : actualWidth / 100 * 4,
+                        children:
+                            provider.products.take(4).map((product) {
+                              return ProductCard(
+                                product: product,
+                                widthAjustment: 48,
+                                animate: false,
+                              );
+                            }).toList(),
+                      ),
+            ),
+            if (provider.products.length > 3)
+              Container(
+                margin: const EdgeInsets.only(top: 16),
+                width: double.infinity,
+                child: Tooltip(
+                  message: 'Plus de produits',
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/products');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      backgroundColor: const Color.fromRGBO(0, 189, 126, 1),
                     ),
-                    backgroundColor: const Color.fromRGBO(0, 189, 126, 1),
+                    child: const Icon(Icons.add, size: 24, color: Colors.white),
                   ),
-                  child: const Icon(Icons.add, size: 24, color: Colors.white),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

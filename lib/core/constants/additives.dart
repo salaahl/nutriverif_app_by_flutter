@@ -256,7 +256,7 @@ final Map<String, AdditiveInfo> additivesDatabase = {
     description: 'Mêmes risques graves liés aux surdosages en phosphates.',
   ),
   'E471': const AdditiveInfo(
-    name: "Mono- et diglycérides d'acides gras",
+    name: "Mono et diglycérides d'acides gras",
     score: 3,
     description:
         'Graisses industrielles émulsifiantes. Impact négatif suspecté sur le microbiote.',

@@ -52,13 +52,16 @@ class _AlternativeProductsState extends State<AlternativeProducts> {
                     ? null
                     : 0,
             width: double.infinity,
-            margin: const EdgeInsets.symmetric(vertical: 32),
+            margin: const EdgeInsets.only(bottom: 32),
             padding:
                 actualWidth > maxWidth
                     ? const EdgeInsets.all(32)
                     : const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.grey[200],
+              color:
+                  widget.isFrom == 'home'
+                      ? const Color.fromRGBO(255, 255, 255, 0.5)
+                      : Colors.grey[200],
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 const BoxShadow(
@@ -127,6 +130,7 @@ class _AlternativeProductsState extends State<AlternativeProducts> {
                                           );
                                     },
                                     style: ElevatedButton.styleFrom(
+                                      shadowColor: Colors.transparent,
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),

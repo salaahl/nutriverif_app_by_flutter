@@ -50,6 +50,7 @@ class ProductCardDetails extends StatelessWidget {
                           "Voir d'autres produits de la catégorie ${category.split(":")[1].replaceAll('-', ' ')}",
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
+                          shadowColor: Colors.transparent,
                           backgroundColor: Colors.white,
                           foregroundColor: Colors.black,
                           elevation: 0,

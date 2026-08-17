@@ -165,14 +165,23 @@ class _LazyYoutubePlayerState extends State<LazyYoutubePlayer>
                     alignment: Alignment.center,
                     children: [
                       // Pour récupérer l'image de la vidéo depuis le net : YoutubePlayer.getThumbnail(videoId: videoId)
-                      Image.asset(
-                        "assets/images/home-video-thumb.jpg",
-                        cacheWidth: getCacheWidth(
-                          context,
-                          MediaQuery.of(context).size.width -
-                              32, // Correspon au padding de la page
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(width: 3, color: Colors.black),
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        fit: BoxFit.cover,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.asset(
+                            "assets/images/home-video-thumb.jpg",
+                            cacheWidth: getCacheWidth(
+                              context,
+                              MediaQuery.of(context).size.width -
+                                  32, // Correspon au padding de la page
+                            ),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
                       const Icon(
                         Icons.play_arrow_rounded,
