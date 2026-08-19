@@ -136,9 +136,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                         widget.quantity,
                         style: const TextStyle(
                           color: Color(0xFF4B5563),
-                          fontSize: 14, // text-sm
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          height: 1.625,
                         ),
                       ),
                     ),
@@ -207,7 +206,6 @@ class _ProductDetailsState extends State<ProductDetails> {
                           color: Color(0xFF4B5563),
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          height: 1.625,
                         ),
                       ),
                     ),
@@ -260,44 +258,45 @@ class _ProductDetailsState extends State<ProductDetails> {
                   children: [
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(16), // p-4
+                      padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: const Color(0xFFF9FAFB).withValues(alpha: 0.5),
                         border: const Border(
                           top: BorderSide(color: Color(0xFFF3F4F6), width: 3),
                         ),
                         borderRadius: const BorderRadius.vertical(
-                          bottom: Radius.circular(12), // rounded-b-xl
+                          bottom: Radius.circular(12),
                         ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Lieu de fabrication',
-                            style: const TextStyle(
-                              color: Color(0xFF9CA3AF),
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.5,
+                          if (widget.manufacturingPlace.isNotEmpty) ...[
+                            Text(
+                              'Lieu de fabrication',
+                              style: const TextStyle(
+                                color: Color(0xFF9CA3AF),
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            widget.manufacturingPlace,
-                            style: const TextStyle(
-                              color: Color(0xFF374151),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
+                            const SizedBox(height: 2),
+                            Text(
+                              widget.manufacturingPlace,
+                              style: const TextStyle(
+                                color: Color(0xFF374151),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                          ),
-
-                          const SizedBox(height: 16),
+                            const SizedBox(height: 16),
+                          ],
                           Text(
                             'Code-barres',
                             style: const TextStyle(
                               color: Color(0xFF9CA3AF),
-                              fontSize: 12,
+                              fontSize: 14,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 0.5,
                             ),
@@ -308,46 +307,48 @@ class _ProductDetailsState extends State<ProductDetails> {
                             style: const TextStyle(
                               color: Color(0xFF374151),
                               fontSize: 14,
-                              fontFamily: 'monospace',
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
-
                           const SizedBox(height: 16),
-                          Text(
-                            'Fiche produit',
-                            style: const TextStyle(
-                              color: Color(0xFF9CA3AF),
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.5,
+                          if (widget.link.isNotEmpty) ...[
+                            Text(
+                              'Fiche produit',
+                              style: const TextStyle(
+                                color: Color(0xFF9CA3AF),
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 2),
-                          InkWell(
-                            onTap: () => launchUrlString(widget.link),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Text(
-                                  'Voir la fiche officielle',
-                                  style: TextStyle(
-                                    color: Color(0xFF2563EB),
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    decoration: TextDecoration.underline,
-                                    decorationColor: Colors.redAccent,
-                                    decorationThickness: 3,
+                            const SizedBox(height: 2),
+                            InkWell(
+                              onTap: () => launchUrlString(widget.link),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Text(
+                                    'Voir la fiche officielle',
+                                    style: TextStyle(
+                                      color: Color(0xFF2563EB),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      decoration: TextDecoration.underline,
+                                      decorationColor: Colors.redAccent,
+                                      decorationThickness: 3,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 4),
-                                SizedBox(
-                                  width: 14,
-                                  height: 14,
-                                  child: SvgPicture.string(externalLinkIconSvg),
-                                ),
-                              ],
+                                  const SizedBox(width: 4),
+                                  SizedBox(
+                                    width: 14,
+                                    height: 14,
+                                    child: SvgPicture.string(
+                                      externalLinkIconSvg,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                     ),

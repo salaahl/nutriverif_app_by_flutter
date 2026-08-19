@@ -163,7 +163,7 @@ class _FeaturedProductState extends State<FeaturedProduct> {
                                   Container(
                                     padding: const EdgeInsets.all(16),
                                     decoration: BoxDecoration(
-                                      color: Colors.grey[100],
+                                      color: Colors.grey[50],
                                       borderRadius: BorderRadius.circular(999),
                                     ),
                                     child: Icon(

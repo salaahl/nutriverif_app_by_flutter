@@ -29,7 +29,7 @@ class OptimizedProductItem extends StatelessWidget {
           onVisibilityChanged: (info) {
             // Le modulo (%) retourne le reste de la division, ce qui permet de réinitialiser la cascade toutes les deux cartes
             final cascadeIndex = index % 2;
-            Future.delayed(Duration(milliseconds: cascadeIndex * 200), () {
+            Future.delayed(Duration(milliseconds: cascadeIndex * 150), () {
               if (info.visibleFraction >= 0.20) {
                 provider.addAnimatedId('${product.id}_product');
               }
@@ -59,7 +59,7 @@ class _AnimatedProductCard extends StatelessWidget {
             begin: hasAnimated ? 1.0 : 0.0,
             end: hasAnimated ? 1.0 : 0.0,
           ),
-          duration: const Duration(milliseconds: 50),
+          duration: const Duration(milliseconds: 250),
           curve: Curves.easeInOut,
           builder: (context, value, child) {
             return Transform.translate(
