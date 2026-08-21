@@ -53,9 +53,9 @@ Widget _cardPlaceholder(BuildContext context, double widthAjustment) {
     decoration: BoxDecoration(
       gradient: RadialGradient(
         center: Alignment.center,
-        radius: 0.5,
+        radius: 1,
         colors: [
-          Color.fromRGBO(249, 249, 249, 1),
+          Color.fromRGBO(249, 249, 249, 0.85),
           Color.fromRGBO(249, 249, 249, 0.5),
         ],
       ),
@@ -90,7 +90,7 @@ Widget _cardPlaceholder(BuildContext context, double widthAjustment) {
               ProductCardImagePlaceholder(widthAjustment: widthAjustment),
               const SizedBox(height: 8),
               SizedBox(
-                height: 158, // 60% du container
+                height: 148, // 60% du container
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -124,7 +124,7 @@ Widget _card(BuildContext context, Product product, double widthAjustment) {
         center: Alignment.center,
         radius: 1,
         colors: [
-          Color.fromRGBO(249, 249, 249, 1),
+          Color.fromRGBO(249, 249, 249, 0.85),
           Color.fromRGBO(249, 249, 249, 0.5),
         ],
       ),
