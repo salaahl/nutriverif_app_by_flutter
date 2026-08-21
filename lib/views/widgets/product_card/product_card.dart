@@ -47,7 +47,7 @@ Widget _cardPlaceholder(BuildContext context, double widthAjustment) {
   final cardWidth = (screenWidth / 100 * 48) - widthAjustment;
 
   return Container(
-    height: 280,
+    height: 270,
     width: cardWidth,
     margin: const EdgeInsets.only(bottom: 16),
     decoration: BoxDecoration(
@@ -116,7 +116,7 @@ Widget _card(BuildContext context, Product product, double widthAjustment) {
   final cardWidth = (screenWidth / 100 * 48) - widthAjustment;
 
   return Container(
-    height: 280,
+    height: 270,
     width: cardWidth,
     margin: const EdgeInsets.only(bottom: 16),
     decoration: BoxDecoration(
@@ -187,7 +187,7 @@ Widget _card(BuildContext context, Product product, double widthAjustment) {
               ),
               const SizedBox(height: 8),
               SizedBox(
-                height: 158, // 60% du container
+                height: 148, // 60% du container
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

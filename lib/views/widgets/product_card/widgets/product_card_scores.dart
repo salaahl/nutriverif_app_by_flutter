@@ -28,7 +28,7 @@ class ProductCardDetails extends StatelessWidget {
       children: [
         SvgPicture.asset(
           "assets/images/nutriscore-$nutriscore.svg",
-          height: 40,
+          height: 35,
           semanticsLabel: 'Nutriscore $nutriscore',
         ),
         const SizedBox(height: 4),
@@ -37,7 +37,7 @@ class ProductCardDetails extends StatelessWidget {
           children: [
             SvgPicture.asset(
               "assets/images/nova-group-$nova.svg",
-              height: 35,
+              height: 30,
               semanticsLabel: 'Nova score $nova',
             ),
             category.isEmpty || !category.startsWith('fr:')
