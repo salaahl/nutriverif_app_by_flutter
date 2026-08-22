@@ -67,7 +67,7 @@ class LastProducts extends StatelessWidget {
                         ), // ...
                       ),
                       child:
-                          !context.read<ProductsProvider>().showLastProducts
+                          provider.showLastProducts == false
                               ? Container(
                                 margin: const EdgeInsets.only(top: 16),
                                 width: double.infinity,
@@ -91,9 +91,7 @@ class LastProducts extends StatelessWidget {
                                         width: double.infinity,
                                         child: ElevatedButton(
                                           onPressed: () {
-                                            context
-                                                .read<ProductsProvider>()
-                                                .loadLastProducts();
+                                            provider.loadLastProducts();
                                           },
                                           style: ElevatedButton.styleFrom(
                                             shadowColor: Colors.transparent,

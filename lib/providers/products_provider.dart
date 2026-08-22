@@ -112,7 +112,6 @@ class ProductsProvider with ChangeNotifier {
   }
 
   void setProductIsLoading(bool isLoading) {
-    _showLastProducts = true;
     _productIsLoading = isLoading;
     notifyListeners();
   }
@@ -124,6 +123,7 @@ class ProductsProvider with ChangeNotifier {
   }
 
   void setLastProductsIsLoading(bool isLoading) {
+    _showLastProducts = true;
     _lastProductsIsLoading = isLoading;
     notifyListeners();
   }
