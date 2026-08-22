@@ -42,13 +42,16 @@ class SearchProductsResults extends StatelessWidget {
                                 ? actualWidth / 100 * 2
                                 : actualWidth / 100 * 4,
                         children:
-                            provider.products.take(4).map((product) {
-                              return ProductCard(
-                                product: product,
-                                widthAjustment: 32,
-                                animate: false,
-                              );
-                            }).toList(),
+                            provider.products
+                                .take(actualWidth > maxWidth ? 3 : 4)
+                                .map((product) {
+                                  return ProductCard(
+                                    product: product,
+                                    widthAjustment: 32,
+                                    animate: false,
+                                  );
+                                })
+                                .toList(),
                       ),
             ),
             if (provider.products.length > 3)

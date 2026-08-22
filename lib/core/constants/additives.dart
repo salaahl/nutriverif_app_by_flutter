@@ -132,6 +132,12 @@ final Map<String, AdditiveInfo> additivesDatabase = {
     score: 4,
     description: "Mêmes risques cancérogènes que l'E250.",
   ),
+  'E261': const AdditiveInfo(
+    name: 'Acétates de potassium',
+    score: 1,
+    description:
+        'Conservateur et régulateur d\'acidité d\'origine synthétique ou naturelle. Aucun risque connu aux doses usuelles.',
+  ),
 
   // === ANTIOXYDANTS & ACIDIFIANTS (E300 - E399) ===
   'E300': const AdditiveInfo(
@@ -184,6 +190,12 @@ final Map<String, AdditiveInfo> additivesDatabase = {
     name: 'Citrates de sodium',
     score: 1,
     description: "Régulateur d'acidité dérivé de l'acide citrique. Inoffensif.",
+  ),
+  'E326': const AdditiveInfo(
+    name: 'Lactate de potassium',
+    score: 1,
+    description:
+        'Régulateur d\'acidité et antioxydant dérivé de l\'acide lactique. Aucun risque pour la santé.',
   ),
   'E339': const AdditiveInfo(
     name: 'Phosphates de sodium',

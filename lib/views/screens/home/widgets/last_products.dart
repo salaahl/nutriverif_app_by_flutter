@@ -42,6 +42,10 @@ class LastProducts extends StatelessWidget {
               selector: (_, provider) => provider.lastProductsIsLoading,
               builder: (context, isLoading, _) {
                 final provider = context.read<ProductsProvider>();
+                final lastProducts = provider.lastProducts;
+
+                if (lastProducts.length > 3 && actualWidth > maxWidth)
+                  lastProducts.removeRange(3, 4);
 
                 return ClipRRect(
                   borderRadius: BorderRadius.circular(16),
@@ -77,7 +81,7 @@ class LastProducts extends StatelessWidget {
                                             : actualWidth / 100 * 4,
                                     children: [
                                       ...List.generate(
-                                        4,
+                                        actualWidth > maxWidth ? 3 : 4,
                                         (_) => const ProductCard(
                                           product: null,
                                           widthAjustment: 32,
@@ -135,7 +139,7 @@ class LastProducts extends StatelessWidget {
                                           ? actualWidth / 100 * 2
                                           : actualWidth / 100 * 4,
                                   children:
-                                      provider.lastProducts.map((product) {
+                                      lastProducts.map((product) {
                                         return ProductCard(
                                           product: product,
                                           widthAjustment: 32,

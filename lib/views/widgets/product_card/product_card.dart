@@ -45,10 +45,12 @@ Widget _cardPlaceholder(BuildContext context, double widthAjustment) {
   // Limitation du screenWidth à 600px
   final screenWidth = actualWidth > maxWidth ? maxWidth : actualWidth;
   final cardWidth = (screenWidth / 100 * 48) - widthAjustment;
+  final double maxCardWidth = actualWidth > maxWidth ? 162 : 270;
 
   return Container(
     height: 270,
     width: cardWidth,
+    constraints: BoxConstraints(maxWidth: maxCardWidth),
     margin: const EdgeInsets.only(bottom: 16),
     decoration: BoxDecoration(
       gradient: RadialGradient(
@@ -114,10 +116,12 @@ Widget _card(BuildContext context, Product product, double widthAjustment) {
   // Limitation du screenWidth à 600px
   final screenWidth = actualWidth > maxWidth ? maxWidth : actualWidth;
   final cardWidth = (screenWidth / 100 * 48) - widthAjustment;
+  final double maxCardWidth = actualWidth > maxWidth ? 162 : 270;
 
   return Container(
     height: 270,
     width: cardWidth,
+    constraints: BoxConstraints(maxWidth: maxCardWidth),
     margin: const EdgeInsets.only(bottom: 16),
     decoration: BoxDecoration(
       gradient: RadialGradient(

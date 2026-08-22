@@ -174,10 +174,10 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
       physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.only(top: 16, bottom: 16),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: actualWidth > maxWidth ? 32 : 16,
+        crossAxisCount: actualWidth > maxWidth ? 3 : 2,
+        crossAxisSpacing: actualWidth > maxWidth ? 24 : 16,
         mainAxisSpacing: 16,
-        mainAxisExtent: 296, // productCard + spacing
+        mainAxisExtent: 286, // productCard + spacing
       ),
       itemCount: provider.products.length,
 

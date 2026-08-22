@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:provider/provider.dart';
 
+import 'package:app_nutriverif/core/constants/custom_values.dart';
 import 'package:app_nutriverif/providers/products_provider.dart';
 
 import 'package:app_nutriverif/views/widgets/product_card/product_card.dart';
@@ -20,6 +21,7 @@ class OptimizedProductItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.read<ProductsProvider>();
+    final actualWidth = MediaQuery.of(context).size.width;
     final productCard = ProductCard(product: product, widthAjustment: 64);
 
     return provider.hasAnimatedId('${product.id}_product')
@@ -28,7 +30,7 @@ class OptimizedProductItem extends StatelessWidget {
           key: Key('${product.id}_product'),
           onVisibilityChanged: (info) {
             // Le modulo (%) retourne le reste de la division, ce qui permet de réinitialiser la cascade toutes les deux cartes
-            final cascadeIndex = index % 2;
+            final cascadeIndex = actualWidth > maxWidth ? index % 3 : index % 2;
             Future.delayed(Duration(milliseconds: cascadeIndex * 150), () {
               if (info.visibleFraction >= 0.20) {
                 provider.addAnimatedId('${product.id}_product');

@@ -138,12 +138,7 @@ class _HomePageState extends State<HomePage>
                         child: BackdropFilter(
                           filter: ui.ImageFilter.blur(sigmaX: 2, sigmaY: 2),
                           child: Container(
-                            padding: const EdgeInsets.only(
-                              top: 32,
-                              left: 16,
-                              right: 16,
-                              bottom: 32,
-                            ),
+                            padding: const EdgeInsets.only(top: 16),
                             decoration: BoxDecoration(
                               gradient: RadialGradient(
                                 center: Alignment.center,
@@ -156,99 +151,112 @@ class _HomePageState extends State<HomePage>
                               borderRadius: BorderRadius.circular(16),
                               // ...
                             ),
-                            child: Column(
-                              children: [
-                                const AppSearchBar(),
-                                const SizedBox(height: 16),
-                                if (categories.isNotEmpty &&
-                                    !context
-                                        .read<ProductsProvider>()
-                                        .productsIsLoading)
-                                  Transform.translate(
-                                    offset: const Offset(0, -5),
-                                    child: Container(
-                                      margin: const EdgeInsets.only(bottom: 48),
-                                      child: Wrap(
-                                        alignment: WrapAlignment.center,
-                                        spacing: 8,
-                                        runSpacing: 8,
-                                        children:
-                                            categories.map((category) {
-                                              return IgnorePointer(
-                                                ignoring:
-                                                    context
-                                                        .read<
-                                                          ProductsProvider
-                                                        >()
-                                                        .productsIsLoading,
-                                                child: Material(
-                                                  color: const Color.fromARGB(
-                                                    255,
-                                                    52,
-                                                    58,
-                                                    64,
-                                                  ),
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                        999,
-                                                      ),
-                                                  child: InkWell(
-                                                    onTap:
-                                                        () => context
-                                                            .read<
-                                                              ProductsProvider
-                                                            >()
-                                                            .searchProducts(
-                                                              query: category,
-                                                              method:
-                                                                  'complete',
-                                                            ),
+                            child: Padding(
+                              padding:
+                                  actualWidth > maxWidth
+                                      ? const EdgeInsets.all(32)
+                                      : const EdgeInsets.all(16),
+                              child: Column(
+                                children: [
+                                  const AppSearchBar(),
+                                  const SizedBox(height: 16),
+                                  if (categories.isNotEmpty &&
+                                      !context
+                                          .read<ProductsProvider>()
+                                          .productsIsLoading)
+                                    Transform.translate(
+                                      offset: const Offset(0, -5),
+                                      child: Container(
+                                        margin: const EdgeInsets.only(
+                                          bottom: 48,
+                                        ),
+
+                                        child: Wrap(
+                                          alignment: WrapAlignment.center,
+                                          spacing: 8,
+                                          runSpacing: 8,
+                                          children:
+                                              categories.map((category) {
+                                                return IgnorePointer(
+                                                  ignoring:
+                                                      context
+                                                          .read<
+                                                            ProductsProvider
+                                                          >()
+                                                          .productsIsLoading,
+                                                  child: Material(
+                                                    color: const Color.fromARGB(
+                                                      255,
+                                                      52,
+                                                      58,
+                                                      64,
+                                                    ),
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                           999,
                                                         ),
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.symmetric(
-                                                            horizontal: 12,
-                                                            vertical: 8,
+                                                    child: InkWell(
+                                                      onTap:
+                                                          () => context
+                                                              .read<
+                                                                ProductsProvider
+                                                              >()
+                                                              .searchProducts(
+                                                                query: category,
+                                                                method:
+                                                                    'complete',
+                                                              ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            999,
                                                           ),
-                                                      child: Text(
-                                                        category,
-                                                        style: const TextStyle(
-                                                          color: Colors.white,
-                                                          fontSize: 14,
-                                                          fontWeight:
-                                                              FontWeight.w600,
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets.symmetric(
+                                                              horizontal: 12,
+                                                              vertical: 8,
+                                                            ),
+                                                        child: Text(
+                                                          category,
+                                                          style:
+                                                              const TextStyle(
+                                                                color:
+                                                                    Colors
+                                                                        .white,
+                                                                fontSize: 14,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                              ),
                                                         ),
                                                       ),
                                                     ),
                                                   ),
-                                                ),
-                                              );
-                                            }).toList(),
+                                                );
+                                              }).toList(),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                Selector<ProductsProvider, bool>(
-                                  selector:
-                                      (_, provider) =>
-                                          provider.productsIsLoading,
-                                  builder: (context, isLoading, _) {
-                                    final hasProducts =
-                                        context
-                                            .read<ProductsProvider>()
-                                            .products
-                                            .isNotEmpty;
+                                  Selector<ProductsProvider, bool>(
+                                    selector:
+                                        (_, provider) =>
+                                            provider.productsIsLoading,
+                                    builder: (context, isLoading, _) {
+                                      final hasProducts =
+                                          context
+                                              .read<ProductsProvider>()
+                                              .products
+                                              .isNotEmpty;
 
-                                    if (isLoading || hasProducts) {
-                                      return SearchProductsResults();
-                                    }
-                                    return const SizedBox.shrink();
-                                  },
-                                ),
-                                _buildProductCount(),
-                              ],
+                                      if (isLoading || hasProducts) {
+                                        return SearchProductsResults();
+                                      }
+                                      return const SizedBox.shrink();
+                                    },
+                                  ),
+                                  _buildProductCount(),
+                                ],
+                              ),
                             ),
                           ),
                         ),

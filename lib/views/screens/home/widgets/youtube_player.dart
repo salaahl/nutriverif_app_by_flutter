@@ -177,7 +177,7 @@ class _LazyYoutubePlayerState extends State<LazyYoutubePlayer>
                             cacheWidth: getCacheWidth(
                               context,
                               MediaQuery.of(context).size.width -
-                                  32, // Correspon au padding de la page
+                                  32, // Correspond au padding de la page
                             ),
                             fit: BoxFit.cover,
                           ),

@@ -44,6 +44,9 @@ class _AlternativeProductsState extends State<AlternativeProducts> {
                   ? provider.suggestedProductsDemo
                   : provider.suggestedProducts;
 
+          if (suggestedProducts.length > 3 && actualWidth > maxWidth)
+            suggestedProducts.removeRange(3, 4);
+
           return Container(
             height:
                 isLoading ||
@@ -105,7 +108,7 @@ class _AlternativeProductsState extends State<AlternativeProducts> {
                                       : actualWidth / 100 * 4,
                               children: [
                                 ...List.generate(
-                                  4,
+                                  actualWidth > maxWidth ? 3 : 4,
                                   (_) => const ProductCard(
                                     product: null,
                                     widthAjustment: 32,
