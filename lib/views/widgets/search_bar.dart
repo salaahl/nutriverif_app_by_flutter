@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app_nutriverif/core/constants/custom_values.dart';
-
 import 'package:app_nutriverif/providers/products_provider.dart';
 
 class AppSearchBar extends StatefulWidget {
@@ -19,7 +18,7 @@ class _AppSearchBarState extends State<AppSearchBar> {
   late ProductsProvider _provider;
   late TextEditingController _searchController;
 
-  final Map<String, String> _filters = {
+  static const Map<String, String> _filters = {
     'Pertinence': '-popularity_key',
     'Complétude': '-completeness',
     'Date d\'ajout': '-created_t',
@@ -51,7 +50,7 @@ class _AppSearchBarState extends State<AppSearchBar> {
         method: 'complete',
       );
 
-      if (_provider.products.isEmpty && context.mounted) {
+      if (_provider.products.isEmpty && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Center(
@@ -79,8 +78,8 @@ class _AppSearchBarState extends State<AppSearchBar> {
 
   @override
   void dispose() {
-    super.dispose();
     _searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -92,57 +91,61 @@ class _AppSearchBarState extends State<AppSearchBar> {
           Row(
             children: [
               Expanded(
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText:
-                        'Un nom de produit, une marque ou une categorie...',
-                    hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: Colors.grey,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    prefixIcon: IconButton(
-                      padding: const EdgeInsets.only(
-                        left: 12,
-                      ), // rééquilibrage avec le padding appliqué sur le TextField
-                      icon: const Icon(
-                        Icons.qr_code_rounded,
+                child: RepaintBoundary(
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText:
+                          'Un nom de produit, une marque ou une categorie...',
+                      hintStyle: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium!.copyWith(
                         color: Colors.grey,
-                        semanticLabel: 'Rechercher un produit par code-barres',
+                        fontWeight: FontWeight.bold,
                       ),
-                      onPressed: () => Navigator.pushNamed(context, '/scanner'),
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(999.0),
-                      borderSide: const BorderSide(
-                        color: Color.fromRGBO(156, 163, 175, 1),
-                        width: 4.0,
+                      prefixIcon: IconButton(
+                        padding: const EdgeInsets.only(left: 12),
+                        icon: const Icon(
+                          Icons.qr_code_rounded,
+                          color: Colors.grey,
+                          semanticLabel:
+                              'Rechercher un produit par code-barres',
+                        ),
+                        onPressed:
+                            () => Navigator.pushNamed(context, '/scanner'),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(999.0),
+                        borderSide: const BorderSide(
+                          color: Color.fromRGBO(156, 163, 175, 1),
+                          width: 4.0,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(999.0),
+                        borderSide: const BorderSide(
+                          color: Color.fromRGBO(229, 231, 235, 1),
+                          width: 4.0,
+                        ),
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(999.0)),
+                        borderSide: BorderSide(
+                          color: Color(0xFF9CA3AF),
+                          width: 4.0,
+                        ),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 10.0,
+                        horizontal: 12.0,
                       ),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(999.0),
-                      borderSide: const BorderSide(
-                        color: Color.fromRGBO(229, 231, 235, 1),
-                        width: 4.0,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(999.0),
-                      borderSide: const BorderSide(
-                        color: Color(0xFF9CA3AF),
-                        width: 4.0,
-                      ),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      vertical: 10.0,
-                      horizontal: 12.0,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium!.copyWith(color: Colors.black87),
                   ),
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium!.copyWith(color: Colors.black87),
                 ),
               ),
               IconButton(
@@ -159,71 +162,69 @@ class _AppSearchBarState extends State<AppSearchBar> {
                     semanticLabel: 'Rechercher',
                   ),
                 ),
-                onPressed: () {
-                  _searchProducts();
-                },
+                onPressed: _searchProducts,
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          widget.showFilters
-              ? Selector<ProductsProvider, String>(
-                selector: (_, provider) => provider.filter,
-                builder: (context, currentFilter, _) {
-                  return Wrap(
-                    spacing: 12,
-                    runSpacing: 12,
-                    children:
-                        _filters.entries.map((filter) {
-                          return SearchBarFilter(
-                            key: ValueKey(filter.key),
-                            filter: filter,
-                          );
-                        }).toList(),
-                  );
-                },
-              )
-              : const SizedBox.shrink(),
+          if (widget.showFilters) ...[
+            const SizedBox(height: 12),
+            Selector<ProductsProvider, String>(
+              selector: (_, provider) => provider.filter,
+              builder: (context, currentFilter, _) {
+                return Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children:
+                      _filters.entries.map((filter) {
+                        return SearchBarFilter(
+                          label: filter.key,
+                          isSelected: currentFilter == filter.value,
+                          onTap:
+                              () => context.read<ProductsProvider>().setFilter(
+                                filter.value,
+                              ),
+                        );
+                      }).toList(),
+                );
+              },
+            ),
+          ],
         ],
       ),
     );
   }
 }
 
-class SearchBarFilter extends StatefulWidget {
-  final MapEntry<String, String> filter;
+class SearchBarFilter extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
 
-  const SearchBarFilter({super.key, required this.filter});
+  const SearchBarFilter({
+    super.key,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
 
-  @override
-  State<SearchBarFilter> createState() => _SearchBarFilterState();
-}
-
-class _SearchBarFilterState extends State<SearchBarFilter> {
   @override
   Widget build(BuildContext context) {
-    final provider = context.read<ProductsProvider>();
-
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          provider.setFilter(widget.filter.value);
-        });
-      },
+      onTap: onTap,
       child: AnimatedContainer(
-        duration: Duration(milliseconds: 350),
+        duration: const Duration(milliseconds: 350),
         curve: Curves.easeInOut,
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color:
-              provider.filter == widget.filter.value
-                  ? customGreen
-                  : Colors.grey,
+          color: isSelected ? customGreen : Colors.grey,
           borderRadius: BorderRadius.circular(999),
         ),
         child: Text(
-          widget.filter.key,
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          label,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );

@@ -35,19 +35,21 @@ class _FeaturedProductState extends State<FeaturedProduct> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 40),
-              Text.rich(
-                TextSpan(
-                  text: "Découvrez des ",
-                  children: [
-                    TextSpan(
-                      text: "alternatives",
-                      style: TextStyle(color: customGreen),
-                    ),
-                    TextSpan(text: " plus saines"),
-                  ],
+              Center(
+                child: Text.rich(
+                  TextSpan(
+                    text: "Découvrez des ",
+                    children: [
+                      TextSpan(
+                        text: "alternatives",
+                        style: TextStyle(color: customGreen),
+                      ),
+                      TextSpan(text: " plus saines"),
+                    ],
+                  ),
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 48),
               const Text.rich(
@@ -57,7 +59,7 @@ class _FeaturedProductState extends State<FeaturedProduct> {
                   children: [
                     TextSpan(
                       text:
-                          ". Si un produit a un Nutri-Score jugé trop faible :",
+                          ". Si un produit a un Nutri-Score ou un score NOVA jugé trop faible :",
                       style: TextStyle(backgroundColor: Colors.transparent),
                     ),
                   ],

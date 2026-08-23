@@ -155,7 +155,10 @@ class _HomePageState extends State<HomePage>
                               padding:
                                   actualWidth > maxWidth
                                       ? const EdgeInsets.all(32)
-                                      : const EdgeInsets.all(16),
+                                      : const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 32,
+                                      ),
                               child: Column(
                                 children: [
                                   const AppSearchBar(),
