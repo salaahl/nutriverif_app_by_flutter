@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../core/constants/custom_values.dart';
@@ -321,6 +322,34 @@ class ProductsProvider with ChangeNotifier {
     } catch (e) {
       setError('single product error: $e');
       setProduct(Product.fromJson({}));
+    } finally {
+      setProductIsLoading(false);
+    }
+  }
+
+  Future<void> loadDish(File image, String notes) async {
+    _productIsLoading = true;
+    _error = null;
+    notifyListeners();
+
+    const int maxImageSize = 8 * 1024 * 1024; // 8 Mo
+
+    final int imageSize = await image.length();
+    if (imageSize > maxImageSize) {
+      final double sizeInMo = imageSize / (1024 * 1024);
+      setError(
+        "L'image est trop volumineuse (${sizeInMo.toStringAsFixed(1)} Mo). La taille maximale autorisée est de 8 Mo.",
+      );
+      _productIsLoading = false;
+      notifyListeners();
+      return;
+    }
+
+    try {
+      setProduct(await _productsService.fetchDish(image, notes));
+    } catch (e) {
+      setProduct(Product.fromJson({}));
+      setError('single product error: $e');
     } finally {
       setProductIsLoading(false);
     }

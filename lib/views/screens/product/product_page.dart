@@ -50,6 +50,8 @@ class _ProductPageState extends State<ProductPage>
   bool _hasError = false;
   String? _errorMessage;
 
+  bool fromDishScanner = false;
+
   @override
   void initState() {
     super.initState();
@@ -80,8 +82,18 @@ class _ProductPageState extends State<ProductPage>
         _provider.suggestedProducts.clear();
       }
 
-      await _provider.loadProductById(widget.id);
-      _provider.setShowSuggestedProducts(false);
+      final args =
+          ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+      final String from = args?['from'];
+
+      if (from == 'dish-scanner') {
+        fromDishScanner = true; // Ne pas charger de suggestions pour les plats
+      }
+
+      if (!fromDishScanner) {
+        await _provider.loadProductById(widget.id);
+        _provider.setShowSuggestedProducts(false);
+      }
 
       if (!mounted) return;
 
@@ -200,6 +212,7 @@ class _ProductPageState extends State<ProductPage>
         return SliverToBoxAdapter(
           child: AppContainer(
             child: _AnimatedContent(
+              fromDishScanner: fromDishScanner,
               animation: _animationController,
               nutriscore: widget.nutriscore,
               nova: widget.nova,
@@ -213,12 +226,14 @@ class _ProductPageState extends State<ProductPage>
 }
 
 class _AnimatedContent extends StatelessWidget {
+  final bool fromDishScanner;
   final Animation<double> animation;
   final String nutriscore;
   final String nova;
   final List<String> categories;
 
   const _AnimatedContent({
+    required this.fromDishScanner,
     required this.animation,
     required this.nutriscore,
     required this.nova,
@@ -227,6 +242,7 @@ class _AnimatedContent extends StatelessWidget {
 
   // Retourne true si le produit devrait charger des suggestions au vu de son score
   bool _shouldLoadSuggestions() {
+    if (fromDishScanner) return false;
     return nutriscore != 'a' || (int.tryParse(nova) ?? 4) != 1;
   }
 

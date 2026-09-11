@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:app_nutriverif/models/model_products.dart';
-
 import 'package:app_nutriverif/views/screens/product/product_page.dart';
 
 // Styles
@@ -14,7 +13,11 @@ const defaultAnimationTime = Duration(milliseconds: 350);
 const defaultAnimationCurve = Curves.easeInOut;
 
 // Custom route animation
-Future<dynamic> productTransition(BuildContext context, Product product) {
+Future<dynamic> productTransition(
+  BuildContext context,
+  Product product, {
+  String from = 'unknown',
+}) {
   return Navigator.push(
     context,
     PageRouteBuilder(
@@ -43,7 +46,7 @@ Future<dynamic> productTransition(BuildContext context, Product product) {
           child: child,
         );
       },
-      settings: const RouteSettings(name: '/product'),
+      settings: RouteSettings(name: '/product', arguments: {'from': from}),
     ),
   );
 }

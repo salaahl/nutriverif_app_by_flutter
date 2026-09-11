@@ -207,7 +207,7 @@ TableRow _buildNutrientRow(
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Text(
-            "${value.toStringAsFixed(0)} ${nutriments[key.replaceAll('_serving', '_unit')]}",
+            "${value.toStringAsFixed(0)} ${key == 'energy-kcal_serving' ? 'kcal' : 'g'}", //${nutriments[key.replaceAll('_serving', '_unit')]}
             style: Theme.of(
               context,
             ).textTheme.bodySmall!.copyWith(color: Colors.grey),

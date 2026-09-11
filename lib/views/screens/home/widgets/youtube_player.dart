@@ -27,7 +27,7 @@ class _LazyYoutubePlayerState extends State<LazyYoutubePlayer>
   Future<void> _getCookiesStatus() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final status = prefs.getBool('acceptCookies') ?? false;
+      final status = prefs.getBool('acceptYoutubeCookies') ?? false;
 
       setState(() {
         _cookiesStatus = status;
@@ -43,7 +43,7 @@ class _LazyYoutubePlayerState extends State<LazyYoutubePlayer>
   Future<void> _setCookiesStatus(bool value) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('acceptCookies', value);
+      await prefs.setBool('acceptYoutubeCookies', value);
       setState(() {
         _cookiesStatus = value;
       });

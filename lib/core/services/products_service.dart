@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -63,6 +64,37 @@ class ProductsService {
 
     try {
       final data = await _getJson(url);
+      return Product.fromJson(data);
+    } catch (e) {
+      return Product.fromJson({});
+    }
+  }
+
+  Future<Product> fetchDish(File image, String notes) async {
+    try {
+      final uri = Uri.parse(
+        'https://jokes-api-platform.onrender.com/search-dish',
+      );
+      final request = http.MultipartRequest('POST', uri);
+
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'image',
+          image.path,
+          filename: 'dish.jpg',
+        ),
+      );
+
+      request.fields['notes'] = notes;
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode != 200) {
+        throw Exception('Erreur HTTP ${response.statusCode}: ${response.body}');
+      }
+
+      final dynamic data = jsonDecode(response.body);
       return Product.fromJson(data);
     } catch (e) {
       return Product.fromJson({});

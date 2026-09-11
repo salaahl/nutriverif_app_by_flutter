@@ -112,7 +112,20 @@ class _AppSearchBarState extends State<AppSearchBar> {
                               'Rechercher un produit par code-barres',
                         ),
                         onPressed:
-                            () => Navigator.pushNamed(context, '/scanner'),
+                            () => Navigator.pushNamed(
+                              context,
+                              '/barcode-scanner',
+                            ),
+                      ),
+                      suffixIcon: IconButton(
+                        padding: const EdgeInsets.only(right: 12),
+                        icon: const Icon(
+                          Icons.local_dining_rounded,
+                          color: Colors.grey,
+                          semanticLabel: 'Scanner un plat',
+                        ),
+                        onPressed:
+                            () => Navigator.pushNamed(context, '/dish-scanner'),
                       ),
                       filled: true,
                       fillColor: Colors.white,

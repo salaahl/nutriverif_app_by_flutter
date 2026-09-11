@@ -10,6 +10,7 @@ import 'package:app_nutriverif/views/screens/about_page.dart';
 import 'package:app_nutriverif/views/screens/legal_notice.dart';
 import 'package:app_nutriverif/views/screens/product/product_page.dart';
 import 'package:app_nutriverif/views/screens/barcode_scanner_page.dart';
+import 'package:app_nutriverif/views/screens/dish_scanner_page.dart';
 
 Route<dynamic> generateRoute(RouteSettings settings) {
   Widget page;
@@ -44,8 +45,11 @@ Route<dynamic> generateRoute(RouteSettings settings) {
         page = const HomePage();
       }
       break;
-    case '/scanner':
+    case '/barcode-scanner':
       page = const BarcodeScannerPage();
+      break;
+    case '/dish-scanner':
+      page = const DishScannerPage();
       break;
     default:
       page = const HomePage();
