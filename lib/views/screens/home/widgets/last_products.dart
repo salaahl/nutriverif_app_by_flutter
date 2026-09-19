@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:ui' as ui;
+import 'package:visibility_detector/visibility_detector.dart';
 
 import 'package:app_nutriverif/core/constants/custom_values.dart';
 
@@ -20,19 +21,53 @@ class LastProducts extends StatelessWidget {
     return AppContainer(
       child: Column(
         children: [
-          Text.rich(
-            TextSpan(
-              text: "Produits",
-              children: [
-                TextSpan(
-                  text: " récemment ",
-                  style: TextStyle(color: Colors.redAccent),
-                ),
-                TextSpan(text: "ajoutés"),
-              ],
+          VisibilityDetector(
+            key: Key('last_products_title'),
+            onVisibilityChanged: (info) {
+              final provider = context.read<ProductsProvider>();
+              if (info.visibleBounds.height > 25 &&
+                  !provider.hasAnimatedId('last_products_title')) {
+                provider.addAnimatedId('last_products_title');
+              }
+            },
+            child: Selector<ProductsProvider, bool>(
+              selector:
+                  (_, provider) =>
+                      provider.hasAnimatedId('last_products_title'),
+              builder: (context, hasAnimated, _) {
+                return TweenAnimationBuilder<double>(
+                  tween: Tween(
+                    begin: hasAnimated ? 1.0 : 0.0,
+                    end: hasAnimated ? 1.0 : 0.0,
+                  ),
+                  curve: defaultAnimationCurve,
+                  duration: defaultAnimationTime,
+                  builder: (context, value, child) {
+                    return Opacity(
+                      opacity: value,
+                      child: Transform.translate(
+                        offset: Offset(0, 35 * (1 - value)),
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: Text.rich(
+                    TextSpan(
+                      text: "Produits",
+                      children: [
+                        TextSpan(
+                          text: " récemment ",
+                          style: TextStyle(color: Colors.redAccent),
+                        ),
+                        TextSpan(text: "ajoutés"),
+                      ],
+                    ),
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                );
+              },
             ),
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 32),
           AnimatedSize(

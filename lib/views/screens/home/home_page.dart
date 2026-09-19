@@ -290,22 +290,13 @@ class _HomePageState extends State<HomePage>
 
           const SliverToBoxAdapter(child: SizedBox(height: 80)),
 
-          _buildAnimatedSection(
-            'featured_product',
-            FeaturedProduct(),
-            visibleHeight: 120,
-            offset: 240,
-          ),
+          SliverToBoxAdapter(child: FeaturedProduct()),
 
           const SliverToBoxAdapter(child: SizedBox(height: 80)),
 
           SliverPadding(
             padding: actualWidth > maxWidth ? screenPadding * 2 : screenPadding,
-            sliver: _buildAnimatedSection(
-              'last_products',
-              LastProducts(),
-              visibleHeight: 80,
-            ),
+            sliver: SliverToBoxAdapter(child: LastProducts()),
           ),
 
           // Bottom padding

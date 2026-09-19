@@ -35,20 +35,54 @@ class _FeaturedProductState extends State<FeaturedProduct> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 40),
-              Center(
-                child: Text.rich(
-                  TextSpan(
-                    text: "Découvrez des ",
-                    children: [
-                      TextSpan(
-                        text: "alternatives",
-                        style: TextStyle(color: customGreen),
+              VisibilityDetector(
+                key: Key('products_demo_title'),
+                onVisibilityChanged: (info) {
+                  final provider = context.read<ProductsProvider>();
+                  if (info.visibleBounds.height > 25 &&
+                      !provider.hasAnimatedId('products_demo_title')) {
+                    provider.addAnimatedId('products_demo_title');
+                  }
+                },
+                child: Selector<ProductsProvider, bool>(
+                  selector:
+                      (_, provider) =>
+                          provider.hasAnimatedId('products_demo_title'),
+                  builder: (context, hasAnimated, _) {
+                    return TweenAnimationBuilder<double>(
+                      tween: Tween(
+                        begin: hasAnimated ? 1.0 : 0.0,
+                        end: hasAnimated ? 1.0 : 0.0,
                       ),
-                      TextSpan(text: " plus saines"),
-                    ],
-                  ),
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleMedium,
+                      curve: defaultAnimationCurve,
+                      duration: defaultAnimationTime,
+                      builder: (context, value, child) {
+                        return Opacity(
+                          opacity: value,
+                          child: Transform.translate(
+                            offset: Offset(0, 35 * (1 - value)),
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: Center(
+                        child: Text.rich(
+                          TextSpan(
+                            text: "Découvrez des ",
+                            children: [
+                              TextSpan(
+                                text: "alternatives",
+                                style: TextStyle(color: customGreen),
+                              ),
+                              TextSpan(text: " plus saines"),
+                            ],
+                          ),
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
               const SizedBox(height: 48),
