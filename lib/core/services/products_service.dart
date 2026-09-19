@@ -76,12 +76,13 @@ class ProductsService {
         'https://jokes-api-platform.onrender.com/search-dish',
       );
       final request = http.MultipartRequest('POST', uri);
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
 
       request.files.add(
         await http.MultipartFile.fromPath(
           'image',
           image.path,
-          filename: 'dish.jpg',
+          filename: '$timestamp-dish.jpg',
         ),
       );
 

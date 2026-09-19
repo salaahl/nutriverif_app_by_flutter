@@ -355,7 +355,7 @@ class _DishScannerPageState extends State<DishScannerPage>
                             fillColor: Colors.white,
                             contentPadding: const EdgeInsets.all(12),
                             enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(16),
                               borderSide: const BorderSide(
                                 color: Color(0xFFF3F4F6),
                                 width: 4,
